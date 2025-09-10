@@ -11,23 +11,21 @@ import UIKit
 // MARK: - 网络框架
 class NetworkManager {
     static let shared = NetworkManager()
+    var isLoading: Bool = false {
+        didSet {
+            NotificationCenter.default.post(name: .showLoading, object: [Notification.Name.showLoading.rawValue : isLoading])
+        }
+    }
+    
     private init() {}
     
     private let baseURL = "http://149.129.233.8:6175/Velasquez" // 替换成你的基础URL
     
-    // MARK: - GET请求
-    func get<T: Codable>(_ payload: any Payloadprotocol) async throws -> Response<T> {
-        try await request(payload)
-    }
-    
-    // MARK: - POST请求
-    func post<T: Codable>(_ payload: any Payloadprotocol) async throws -> Response<T> {
-        try await request(payload)
-    }
-    
     // MARK: - UPLOAD请求
-    func upload<T: Codable>(_ payload: any Payloadprotocol, fileData: Data, fileName: String, mimeType: String) async throws -> Response<T> {
+    func upload<T: Codable>(_ payload: any Payloadprotocol, fileData: Data, fileName: String, mimeType: String) async throws -> PJResponse<T> {
+        isLoading = true
         guard let url = URL(string: baseURL + payload.requestPath) else {
+            isLoading = false
             throw URLError(.badURL)
         }
         
@@ -41,41 +39,93 @@ class NetworkManager {
         request.httpBody = body
         
         let (data, _) = try await URLSession.shared.data(for: request)
-        let decoded = try JSONDecoder().decode(Response<T>.self, from: data)
+        let decoded = try JSONDecoder().decode(PJResponse<T>.self, from: data)
+        isLoading = false
         return decoded
     }
     
     // MARK: - 通用请求
-    private func request<T: Codable>(_ payload: any Payloadprotocol) async throws -> Response<T> {
-        guard var components = URLComponents(string: baseURL + payload.requestPath) else {
+    // MARK: - 通用请求
+    func request<T: Codable>(_ payload: any Payloadprotocol) async throws -> PJResponse<T> {
+        isLoading = true
+        guard let url = URL(string: baseURL + payload.requestPath) else {
+            isLoading = false
+            ToastManager.shared.show("Invalid URL")
             throw URLError(.badURL)
         }
-        
+
         var request: URLRequest
-        
+
         switch payload.payloadType {
         case .GET:
+            // Re-construct the URL with query items for GET requests
+            var components = URLComponents(url: url, resolvingAgainstBaseURL: false)
             if !payload.param.isEmpty {
-                components.queryItems = payload.param.map { URLQueryItem(name: $0.key, value: $0.value as! String) }
+                components?.queryItems = payload.param.map {
+                    URLQueryItem(name: $0.key, value: String(describing: $0.value))
+                }
             }
-            guard let url = components.url else { throw URLError(.badURL) }
-            request = URLRequest(url: url)
+            guard let finalURL = components?.url else { throw URLError(.badURL) }
+            request = URLRequest(url: finalURL)
             request.httpMethod = "GET"
-            
+
         case .POST:
-            guard let url = components.url else { throw URLError(.badURL) }
+            print("URL == \(url)")
             request = URLRequest(url: url)
             request.httpMethod = "POST"
             request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
-            request.httpBody = try JSONSerialization.data(withJSONObject: payload.param, options: [])
             
+            // Build the URL-encoded string for the POST body, similar to the provided post method
+            let parameters = payload.param
+            let oamString = parameters.map { key, value in
+                let uriKey = key.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+                let lifetimeValue = String(describing: value).addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+                return "\(uriKey)=\(lifetimeValue)"
+            }.joined(separator: "&")
+            request.httpBody = oamString.data(using: .utf8)
+            print("Param == \(oamString)")
         default:
+            isLoading = false
+            ToastManager.shared.show("Unsupported request type")
             throw NSError(domain: "Unsupported request type", code: -1)
         }
-        
-        let (data, _) = try await URLSession.shared.data(for: request)
-        let decoded = try JSONDecoder().decode(Response<T>.self, from: data)
-        return decoded
+
+        do {
+            // Use URLSession.shared.data(for: request) to handle all request types
+            let (data, response) = try await URLSession.shared.data(for: request)
+            
+            print("Result = \(try JSONSerialization.jsonObject(with: data, options: []))")
+            // Validate the HTTP response status code, similar to the provided get/post methods
+            guard let httpResponse = response as? HTTPURLResponse,
+                  let statusCode = (response as? HTTPURLResponse)?.statusCode,
+                  statusCode == 200
+            else {
+                isLoading = false
+                let error = NSError(domain: "Request failed", code: (response as? HTTPURLResponse)?.statusCode ?? 500, userInfo: nil)
+                ToastManager.shared.show(error.localizedDescription)
+                throw error
+            }
+            isLoading = false
+            // Decode the data
+            let decoded = try JSONDecoder().decode(PJResponse<T>.self, from: data)
+            
+            // Handle specific PJResponse status
+            print("request success: \(decoded.diarmuid)")
+            switch decoded.goss {
+            case .success:
+                return decoded
+            case .unlogin: // 回到首页 并退出所有页面
+                ToastManager.shared.show(decoded.diarmuid)
+                throw NSError(domain: "logout", code: -1)
+            case .none:
+                ToastManager.shared.show(decoded.diarmuid)
+                throw NSError(domain: "Unsupported response type", code: -1)
+            }
+        } catch {
+            isLoading = false
+            ToastManager.shared.show(error.localizedDescription)
+            throw error
+        }
     }
     
     // MARK: - 辅助方法：生成multipart body

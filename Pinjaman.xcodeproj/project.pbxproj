@@ -17,9 +17,22 @@
 		EFF4D661BB68904E8FE270F9 /* Pods-Pinjaman.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Pinjaman.debug.xcconfig"; path = "Target Support Files/Pods-Pinjaman/Pods-Pinjaman.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		0453BAAF2E6B247B00F23E76 /* Exceptions for "Pinjaman" folder in "Pinjaman" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 047E18302E46317200C0EDC1 /* Pinjaman */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		047E18332E46317200C0EDC1 /* Pinjaman */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				0453BAAF2E6B247B00F23E76 /* Exceptions for "Pinjaman" folder in "Pinjaman" target */,
+			);
 			path = Pinjaman;
 			sourceTree = "<group>";
 		};
@@ -84,6 +97,7 @@
 				047E182E2E46317200C0EDC1 /* Frameworks */,
 				047E182F2E46317200C0EDC1 /* Resources */,
 				DAA231429437EA6E3F751A2F /* [CP] Embed Pods Frameworks */,
+				452488CC689A91C6D23B1D93 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -118,6 +132,7 @@
 			knownRegions = (
 				en,
 				Base,
+				id,
 			);
 			mainGroup = 047E18282E46317100C0EDC1;
 			minimizedProjectReferenceProxies = 1;
@@ -142,6 +157,23 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		452488CC689A91C6D23B1D93 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Pinjaman/Pods-Pinjaman-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Pinjaman/Pods-Pinjaman-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Pinjaman/Pods-Pinjaman-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 		47ABBFBC2F4951CE7A564276 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -326,6 +358,7 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Pinjaman/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -358,6 +391,7 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Pinjaman/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

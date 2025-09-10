@@ -129,6 +129,15 @@ struct AppHomePagePayload: Payloadprotocol {
     }
 }
 
+/// 个人中心菜单
+struct AppUserCenterPayload: Payloadprotocol {
+    var payloadType: PayloadType { .GET }
+    var requestPath: String { "/Chukchis/proselytist" }
+    var param: [String: Any] {
+        return [:]
+    }
+}
+
 /// 城市选择器
 struct CityListPayload: Payloadprotocol {
     var payloadType: PayloadType { .GET }

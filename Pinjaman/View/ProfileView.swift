@@ -1,21 +1,18 @@
 import SwiftUI
-
-// MARK: - API 数据模型
-struct ServiceItem: Identifiable, Decodable {
-    let id = UUID()
-    let title: String
-    let icon: String
-}
+import Kingfisher
 
 // MARK: - 主视图
 struct ProfileView: View {
-    @State private var serviceItems: [ServiceItem] = []
+    @EnvironmentObject var appSeting: AppSettings
+    @State private var userCenterModel: PersonCenterModel?
     
     var body: some View {
         VStack(spacing: 16) {
             profileArea
                        
-            certifiedArea
+            if userCenterModel?.manlihood != nil && userCenterModel?.manlihood == 0 {
+                certifiedArea
+            }
             
             optionArea
             
@@ -23,7 +20,7 @@ struct ProfileView: View {
         }
         .padding(.top, 50)
         .onAppear {
-            loadData()
+            onFetchProfileList()
         }
         .background(Color.pink.opacity(0.1).ignoresSafeArea())
     }
@@ -31,17 +28,23 @@ struct ProfileView: View {
     var profileArea: some View {
         // 顶部用户信息
         HStack {
+//            KFImage(URL(string: "https://example.com/your-image.jpg"))
+//                .placeholder({
+//                })
+//                .resizable()
+//                .frame(width: 60, height: 60)
+//                .foregroundColor(.blue)
             Image(systemName: "person.crop.circle.fill")
                 .resizable()
                 .frame(width: 60, height: 60)
                 .foregroundColor(.blue)
             
             VStack(alignment: .leading, spacing: 4) {
-                Text("91****8888")
+                Text(appSeting.loginModel?.counterretaliation ?? "")
                     .font(.headline)
-                Text("Welcome to Pinjaman Hebat")
-                    .font(.subheadline)
-                    .foregroundColor(.gray)
+//                Text(appSeting.loginModel?.counterretaliation ?? "")
+//                    .font(.subheadline)
+//                    .foregroundColor(.gray)
             }
             Spacer()
         }.padding(.horizontal, 16)
@@ -75,46 +78,64 @@ struct ProfileView: View {
                 .font(.headline)
                 .padding(.horizontal)
             
-            ForEach(serviceItems) { item in
-                HStack {
-                    Image(systemName: item.icon)
-                        .frame(width: 36, height: 36)
-                        .background(Color.pink.opacity(0.2))
-                        .cornerRadius(8)
-                        .foregroundColor(.pink)
-                    
-                    Text(item.title)
-                        .font(.body)
-                    
-                    Spacer()
-                    
-                    Image(systemName: "chevron.right")
-                        .foregroundColor(.gray)
-                }
-                .padding()
-                .background(Color.white)
-                .cornerRadius(12)
-                .shadow(color: Color.black.opacity(0.05), radius: 3, x: 0, y: 2)
-                .padding(.horizontal)
+            if userCenterModel?.mercantilism?.count ?? 0 > 0 {
+                serviceList
             }
         }
-        
     }
     
-    // MARK: - 模拟 API 请求
-    func loadData() {
-        // 模拟从 API 获取结果
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            self.serviceItems = [
-                ServiceItem(title: "Loan conditions", icon: "doc.text"),
-                ServiceItem(title: "Privacy agreement", icon: "lock.shield"),
-                ServiceItem(title: "Online service", icon: "message"),
-                ServiceItem(title: "About Us", icon: "person.2"),
-                ServiceItem(title: "Set up", icon: "gearshape")
-            ]
+    var serviceList: some View {
+        ForEach(userCenterModel?.mercantilism ?? []) { item in
+            HStack {
+//                Image(systemName: item.icon)
+//                    .frame(width: 36, height: 36)
+//                    .background(Color.pink.opacity(0.2))
+//                    .cornerRadius(8)
+//                    .foregroundColor(.pink)
+                
+                KFImage(URL(string: item.poikilitic ?? "")!)
+                    .placeholder({
+                        Image(systemName: "")
+                            .frame(width: 36, height: 36)
+                            .background(Color.pink.opacity(0.2))
+                            .cornerRadius(8)
+                            .foregroundColor(.pink)
+                    })
+                    .resizable()
+                    .frame(width: 36, height: 36)
+                    .cornerRadius(8)
+                
+                Text(item.daceloninae)
+                    .font(.body)
+                
+                Spacer()
+                
+                Image(systemName: "chevron.right")
+                    .foregroundColor(.gray)
+            }
+            .padding()
+            .background(Color.white)
+            .cornerRadius(12)
+            .shadow(color: Color.black.opacity(0.05), radius: 3, x: 0, y: 2)
+            .padding(.horizontal)
         }
     }
 }
+
+extension ProfileView {
+    func onFetchProfileList() {
+        Task {
+            do {
+                let payLoad = AppUserCenterPayload()
+                let userCenterResponse: PJResponse<PersonCenterModel> = try await NetworkManager.shared.request(payLoad)
+                self.userCenterModel = userCenterResponse.unskepticalness
+            } catch {
+                
+            }
+        }
+    }
+}
+
 struct ProfileView_Previews: PreviewProvider {
     static var previews: some View {
         ProfileView()

@@ -8,40 +8,54 @@
 import SwiftUI
 
 struct HomeView: View {
+    @EnvironmentObject var appSeting: AppSettings
+    @State var homeModel: HomeModel?
+    
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0, content: {
                 topImg
                 amountArea
                 playnowButton
-                productIntroView
-                productList
+                if homeModel != nil {
+                    if (homeModel?.getProdList()?.count ?? 0)  == 0 {
+                        productIntroView
+                    } else {
+                        productList
+                    }
+                }
             })
             .background(productBgColor)
         }
+        .onReceive(NotificationCenter.default.publisher(for: .didLogin)) { n in
+            self.onFetchData()
+        }
         .ignoresSafeArea(edges: .top)
+        .onAppear {
+            self.onFetchData()
+        }
     }
     
     var topImg: some View {
         Image("home_topImg")
             .resizable()
-            .frame(width: .infinity)
+            .frame(maxWidth: .infinity)
     }
     
     var amountArea: some View {
         VStack {
             VStack(alignment: .leading, spacing: 12) {
-                Text("Maximum loan amount")                        .font(.system(size: 18, weight: .regular))
+                Text(self.homeModel?.getProdLimitContent() ?? "").font(.system(size: 18, weight: .regular))
 
-                Text("₹ 8,900,000")
+                Text(self.homeModel?.getProdLimitAmount() ?? "")
                     .font(.system(size: 52, weight: .semibold))
 
                 HStack {
                     Spacer()
                     VStack {
-                        Text("Loan term")
+                        Text(self.homeModel?.getProdExpiredContent() ?? "")
                             .font(.system(size: 14, weight: .regular))
-                        Text("120 day")
+                        Text(self.homeModel?.getProdExpiredText() ?? "")
                             .font(.system(size: 24, weight: .semibold))
                     }
                     Spacer()
@@ -51,25 +65,25 @@ struct HomeView: View {
                     
                     Spacer()
                     VStack {
-                        Text("Interest rate")
+                        Text(self.homeModel?.getProdinterestContent() ?? "")
                             .font(.system(size: 14, weight: .regular))
-                        Text("0.03%/day")
+                        Text(self.homeModel?.getProdinterestRate() ?? "")
                             .font(.system(size: 24, weight: .semibold))
                     }
                     Spacer()
                 }
-                .frame(width: .infinity)
+                .frame(maxWidth: .infinity)
             }
             .padding(16)
         }
         .foregroundColor(.white)
-        .frame(width: .infinity)
+        .frame(maxWidth: .infinity)
         .background(primaryColor)
     }
     
     var playnowButton: some View {
         Button {
-            
+            onClickPlayNow()
         } label: {
             ZStack(alignment: .center) {
                 LinearGradient(colors: [Color.pink,
@@ -78,7 +92,7 @@ struct HomeView: View {
                                startPoint: .bottom,
                                endPoint: .top)
                 HStack {
-                    Text("Apply Now")
+                    Text(self.homeModel?.getApplayButtonText() ?? "")
                     Image("home_playnowIcon")
                 }
                 .foregroundColor(.white)
@@ -92,19 +106,19 @@ struct HomeView: View {
         VStack {
             Image("home_product_first")
                 .resizable()
-                .frame(width: .infinity)
+                .frame(maxWidth: .infinity)
             Image("home_product_second")
                 .resizable()
-                .frame(width: .infinity)
+                .frame(maxWidth: .infinity)
             Image("home_product_third")
                 .resizable()
-                .frame(width: .infinity)
+                .frame(maxWidth: .infinity)
         }
         .frame(maxWidth: .infinity)
     }
     
     var productList: some View {
-        ForEach(0..<5, id: \.self) { _ in
+        ForEach(0..<(homeModel?.getProdList()?.count ?? 0), id: \.self) { _ in
             HomeProductListItem()
         }
     }
@@ -184,9 +198,37 @@ struct HomeProductListItem: View {
     }
 }
 
+extension HomeView {
+    func onFetchData() {
+        Task {
+            do {
+                let payLoad = AppHomePagePayload()
+                let homeResponse: PJResponse<HomeModel> = try await NetworkManager.shared.request(payLoad)
+                print("homeModel.unskepticalness.hoised = \(homeResponse.unskepticalness.poikilitic?.sordidnesses)")
+                self.homeModel = homeResponse.unskepticalness
+            } catch {
+                
+            }
+        }
+    }
+    
+    func onClickPlayNow() {
+        if !appSeting.isLogin() {
+            NotificationCenter.default.post(name: .showLogin, object: nil)
+            return
+        }
+        guard homeModel != nil,
+        let prodId = homeModel?.getprdId()  else {
+            return
+        }
+        getRequestPermit(with: prodId)
+    }
+    
+    func getRequestPermit(with prdId: Int) {
+        
+    }
+}
+
 #Preview {
-//    ZStack(alignment: .top) {
-//        HomeProductListItem()
-//    }
     HomeView()
 }
