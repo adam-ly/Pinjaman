@@ -1,4 +1,4 @@
-module Pods_Pinjaman {
+framework module Pods_Pinjaman {
   umbrella header "Pods-Pinjaman-umbrella.h"
 
   export *

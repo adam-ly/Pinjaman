@@ -10,6 +10,7 @@ import Network
 
 @main
 struct PinjamanApp: App {
+    
     @StateObject var settings = AppSettings.shared
     @State var canEnterHomePage: Bool = false
     @State var showLoginView: Bool = false
@@ -17,17 +18,21 @@ struct PinjamanApp: App {
     @State var currentToast = ToastContent(title: "")
     @State var showLoading: Bool = false
     
+    init() {
+        setupNavigationBarAppearance()
+    }
+    
     var body: some Scene {
         WindowGroup {
             content
                 .environmentObject(settings)
                 .alertSnack()
                 .loading(isLoading: $showLoading)
-                .onReceive(NotificationCenter.default.publisher(for: .showLoading)) { notification in
-                    guard let dict = notification.userInfo as? [String: Bool] else {
-                        return
-                    }
-                    self.showLoading = dict[Notification.Name.showLogin.rawValue] ?? false
+                .onReceive(NotificationCenter.default.publisher(for: .showLoading)) { notification in                    
+                    self.showLoading = true
+                }
+                .onReceive(NotificationCenter.default.publisher(for: .hideLoading)) { notification in
+                    self.showLoading = false
                 }
                 .onReceive(NotificationCenter.default.publisher(for: .showToast)) { notification in
                     // 从通知的 userInfo 中获取数据
@@ -54,9 +59,6 @@ struct PinjamanApp: App {
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: .showLogin)) { n in
-            guard let hasLogin = n as? Bool, !hasLogin else {
-                return
-            }
             withAnimation {
                 showLoginView = true
             }
@@ -70,11 +72,23 @@ struct PinjamanApp: App {
             }
         }
         )
-        
-        
     }
     
     func sceneWillResignActive(_ scene: UIScene) {
         
+    }
+    
+    // 在你的 App 入口处调用此方法
+    func setupNavigationBarAppearance() {
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.titleTextAttributes = [.foregroundColor: UIColor.white]
+        appearance.largeTitleTextAttributes = [.foregroundColor: UIColor.white]
+        appearance.backgroundColor = UIColor(linkTextColor)
+        
+        let proxy = UINavigationBar.appearance()
+        proxy.tintColor = .white
+        proxy.standardAppearance = appearance
+        proxy.scrollEdgeAppearance = appearance
     }
 }

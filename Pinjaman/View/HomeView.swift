@@ -9,31 +9,38 @@ import SwiftUI
 
 struct HomeView: View {
     @EnvironmentObject var appSeting: AppSettings
-    @State var homeModel: HomeModel?
+    @State var homeModel: HomeModel?    
+    @State private var shouldNavigate = false
     
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 0, content: {
-                topImg
-                amountArea
-                playnowButton
-                if homeModel != nil {
-                    if (homeModel?.getProdList()?.count ?? 0)  == 0 {
-                        productIntroView
-                    } else {
-                        productList
+        NavigationView {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 0, content: {
+                    topImg
+                    amountArea
+                    playnowButton
+                    if homeModel != nil {
+                        if (homeModel?.getProdList()?.count ?? 0)  == 0 {
+                            productIntroView
+                        } else {
+                            productList
+                        }
                     }
-                }
-            })
-            .background(productBgColor)
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .didLogin)) { n in
-            self.onFetchData()
-        }
-        .ignoresSafeArea(edges: .top)
-        .onAppear {
-            self.onFetchData()
-        }
+                    NavigationLink(destination:CertifyView(prodId: "\(homeModel?.getprdId() ?? 0)"), isActive: $shouldNavigate) {
+                        EmptyView() // 隐藏的 NavigationLink 标签
+                    }
+                })
+                .background(productBgColor)
+            }
+            .hideTabBarOnPush()
+            .onReceive(NotificationCenter.default.publisher(for: .didLogin)) { n in
+                self.onFetchData()
+            }
+            .ignoresSafeArea(edges: .top)
+            .onAppear {
+                self.onFetchData()
+            }
+        }.tint(.white)
     }
     
     var topImg: some View {
@@ -45,17 +52,18 @@ struct HomeView: View {
     var amountArea: some View {
         VStack {
             VStack(alignment: .leading, spacing: 12) {
-                Text(self.homeModel?.getProdLimitContent() ?? "").font(.system(size: 18, weight: .regular))
+                Text(self.homeModel?.getProdLimitContent() ?? " ")
+                    .font(.system(size: 18, weight: .regular))
 
-                Text(self.homeModel?.getProdLimitAmount() ?? "")
+                Text(self.homeModel?.getProdLimitAmount() ?? " ")
                     .font(.system(size: 52, weight: .semibold))
 
                 HStack {
                     Spacer()
                     VStack {
-                        Text(self.homeModel?.getProdExpiredContent() ?? "")
+                        Text(self.homeModel?.getProdExpiredContent() ?? " ")
                             .font(.system(size: 14, weight: .regular))
-                        Text(self.homeModel?.getProdExpiredText() ?? "")
+                        Text(self.homeModel?.getProdExpiredText() ?? " ")
                             .font(.system(size: 24, weight: .semibold))
                     }
                     Spacer()
@@ -65,9 +73,9 @@ struct HomeView: View {
                     
                     Spacer()
                     VStack {
-                        Text(self.homeModel?.getProdinterestContent() ?? "")
+                        Text(self.homeModel?.getProdinterestContent() ?? " ")
                             .font(.system(size: 14, weight: .regular))
-                        Text(self.homeModel?.getProdinterestRate() ?? "")
+                        Text(self.homeModel?.getProdinterestRate() ?? " ")
                             .font(.system(size: 24, weight: .semibold))
                     }
                     Spacer()
@@ -92,7 +100,7 @@ struct HomeView: View {
                                startPoint: .bottom,
                                endPoint: .top)
                 HStack {
-                    Text(self.homeModel?.getApplayButtonText() ?? "")
+                    Text(self.homeModel?.getApplayButtonText() ?? " ")
                     Image("home_playnowIcon")
                 }
                 .foregroundColor(.white)
@@ -145,8 +153,9 @@ struct HomeProductListItem: View {
                 .foregroundColor(primaryColor)
             
             Spacer()
+            
             Button {
-                
+
             } label: {
                 ZStack(alignment: .center) {
                     RoundedRectangle(cornerRadius: 10)
@@ -225,7 +234,19 @@ extension HomeView {
     }
     
     func getRequestPermit(with prdId: Int) {
-        
+        Task {
+            do {
+                let payload = ProductAdmissionPayload(christhood: "\(prdId)")
+                let response: PJResponse<ProductRequestModel> = try await NetworkManager.shared.request(payload)
+                if response.unskepticalness.overprize == 200 {
+                    shouldNavigate = true
+                } else {
+                    ToastManager.shared.show(response.unskepticalness.peculated ?? "")
+                }
+            } catch {
+                
+            }
+        }
     }
 }
 

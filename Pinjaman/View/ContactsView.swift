@@ -8,73 +8,75 @@
 import SwiftUI
 
 struct ContactsView: View {
+    @State var prodId: String = ""
+    @State var contactModel: UserContactModel?
+    
     var body: some View {
-        VStack(spacing: 30) {
-            ContactItem()
-            ContactItem()
-            Spacer()
-            PrimaryButton(title: "Next") {
-                
+        VStack {
+            ScrollView {
+                content
+                    .padding(.top, 16)
             }
-            .padding(.horizontal, 16)
+            Spacer()
+            
+            PrimaryButton(title: "Next") {
+                onsubmitContacts()
+            }
+            .padding(.horizontal, 24)
+        }
+        .hideTabBarOnPush(showTabbar: false)
+        .navigationTitle(Text("Emergency contact"))
+        .onAppear {
+            onFetchContactInfo()
+        }
+    }
+    
+    var content: some View {
+        VStack(spacing: 30) {
+            ForEach(self.contactModel?.unthrobbing ?? []) { item in
+                ContactItem(item: item)
+            }
+            
         }
     }
 }
 
-struct ContactItem: View {
-    var body: some View {
-        VStack(alignment: .leading, spacing: 15) {
-            HStack {
-                Image("good_contact")
-                Text("Emergency contact 1")
-                    .font(.system(size: 18, weight: .medium))
-                    .foregroundColor(commonTextColor)
-            }
-            
-            VStack(alignment: .leading, spacing: 14) {
-                Button {
-                    
-                } label: {
-                    HStack {
-                        HStack(alignment: .center) {
-                            Text("Choose a relationship")
-                            Spacer()
-                            Image("good_drop")
-                        }
-                        .foregroundColor(secondaryTextColor)
-                        .padding(.horizontal, 12)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 48)
-                    }
-                    .foregroundColor(secondaryTextColor)
-                    .background(textFieldBgColor)
-                    .frame(height: 50)
-                    .cornerRadius(6)
-                }
+extension ContactsView {
+    func onFetchContactInfo() {
+        Task {
+            do {
+                let payload = GetContactInfoPayload(christhood: prodId)
+                let homeResponse: PJResponse<UserContactModel> = try await NetworkManager.shared.request(payload)
+                self.contactModel = homeResponse.unskepticalness
+            } catch {
                 
-                Button {
-                    
-                } label: {
-                    HStack {
-                        HStack(alignment: .center) {
-                            Text("Please select Phone number")
-                            Spacer()
-                            Image("good_contactBook")
-                        }
-                        .foregroundColor(secondaryTextColor)
-                        .padding(.horizontal, 12)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 48)
-                    }
-                    .foregroundColor(secondaryTextColor)
-                    .background(textFieldBgColor)
-                    .frame(height: 50)
-                    .cornerRadius(6)
-                }
             }
-            .foregroundColor(commonTextColor)
         }
-        .padding(.horizontal, 16)
+    }
+    
+    func onsubmitContacts() {
+        Task {
+            do {
+                let contactDictionaries = contactModel?.unthrobbing?.map { item in
+                    return [
+                        "singularly": item.singularly ?? "",
+                        "contendent": item.contendent ?? "",
+                        "marrowbone": item.marrowbone ?? ""
+                    ]
+                }
+                guard let jsonData = try? JSONEncoder().encode(contactDictionaries),
+                      let jsonString = String(data: jsonData, encoding: .utf8) else {
+                    ToastManager.shared.show("Invalid Data")
+                    return
+                }
+                print("jsonString = \(jsonString)")
+                let payload = SaveContactInfoPayload(christhood: prodId, unskepticalness: jsonString)
+                let response: PJResponse<EmptyModel> = try await NetworkManager.shared.request(payload)
+                print("success")
+            } catch {
+                
+            }
+        }
     }
 }
 

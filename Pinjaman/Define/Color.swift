@@ -15,3 +15,4 @@ let secondaryTextColor = Color("secondaryTextColor") // #898989
 let productBgColor = Color("productBgColor") // #FFE3F2
 let tipsColor = Color("tipsColor")
 let tipsbgColor = Color("tipsbgColor")
+let certifyColor = Color("certifyColor")

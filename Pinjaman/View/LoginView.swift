@@ -14,12 +14,10 @@ struct LoginView: View {
     @State private var agree = true
     @State private var showToast: Bool = false
     @State private var toastMessage: String = ""
-    
     @Binding var isPresented: Bool
-    
     @FocusState private var isPhoneNumberFocused: Bool
     @FocusState private var isCodeNumberFocused: Bool
-    @State var showLoading = false
+
     // 追蹤倒計時是否正在進行
     @State private var isCountingDown = false
     // 倒計時的總時間（秒）
@@ -315,17 +313,29 @@ extension LoginView {
     }
     
     func onLogin() {
-        showLoading = true
         Task {
             do {
                 let payLoad = CodeLoginOrRegisterPayload.init(counterretaliation: phoneNumber, underhangman: password)
                 let loginResponse: PJResponse<LoginModel> = try await NetworkManager.shared.request(payLoad)
-                showLoading = false
                 appSeting.loginModel = loginResponse.unskepticalness
                 closePage()
                 NotificationCenter.default.post(name: .didLogin, object: nil)
             } catch {
-                showLoading = false
+                
+            }
+        }
+    }
+    
+    func logout() {
+        Task {
+            do {
+                let payLoad = CodeLoginOrRegisterPayload.init(counterretaliation: phoneNumber, underhangman: password)
+                let loginResponse: PJResponse<LoginModel> = try await NetworkManager.shared.request(payLoad)
+                appSeting.loginModel = loginResponse.unskepticalness
+                closePage()
+                NotificationCenter.default.post(name: .didLogin, object: nil)
+            } catch {
+                
             }
         }
     }
@@ -353,7 +363,6 @@ struct MainPreviewView: View {
             } label: {
                 Text("Login Button")
             }
-
         }.overlay {
             LoginView(isPresented: $showLoginView)
         }

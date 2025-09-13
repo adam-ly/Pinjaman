@@ -204,7 +204,6 @@ struct UploadIdentityInfoPayload: Payloadprotocol {
     // and `param` (strings) separately in your networking layer.
     
     // Request parameters
-    let tribunitial: Data // This is the file data to be uploaded
     let oxystome: String
     let redowl: String
     
@@ -222,19 +221,20 @@ struct SaveIdentityInfoPayload: Payloadprotocol {
     var requestPath: String { "/Chukchis/detach" }
 
     // 请求参数
-    let geanticlinal: String
-    let bartering: String
-    let contendent: String
-    let christhood: String
-
-    var param: [String: Any] {
-        return [
-            "geanticlinal": geanticlinal,
-            "bartering": bartering,
-            "contendent": contendent,
-            "christhood": christhood
-        ]
-    }
+//    let geanticlinal: String
+//    let bartering: String
+//    let contendent: String
+//    let christhood: String
+    
+    var param: [String: Any]
+//    var param: [String: Any] {
+//        return [
+//            "geanticlinal": geanticlinal,
+//            "bartering": bartering,
+//            "contendent": contendent,
+//            "christhood": christhood
+//        ]
+//    }
 }
 
 /// 获取用户信息（第二项）
@@ -257,30 +257,7 @@ struct SaveUserInfoSecondItemPayload: Payloadprotocol {
     var payloadType: PayloadType { .POST }
     var requestPath: String { "/Chukchis/noncodified" }
 
-    // 请求参数
-    let christhood: String
-    let unexemptable: String
-    let cac: String
-    let verbigerating: String
-    let danuri: String
-    let bathulda: String
-    let tantum: String
-    let luetic: String
-    let nazified: String
-
-    var param: [String: Any] {
-        return [
-            "christhood": christhood,
-            "unexemptable": unexemptable,
-            "cac": cac,
-            "verbigerating": verbigerating,
-            "danuri": danuri,
-            "bathulda": bathulda,
-            "tantum": tantum,
-            "luetic": luetic,
-            "nazified": nazified
-        ]
-    }
+    var param: [String: Any]
 }
 
 /// 获取工作信息（第三项）
@@ -302,33 +279,8 @@ struct GetWorkInfoPayload: Payloadprotocol {
 struct SaveWorkInfoPayload: Payloadprotocol {
     var payloadType: PayloadType { .POST }
     var requestPath: String { "/Chukchis/counterretaliation" }
-    
-    // 请求参数
-    let christhood: String
-    let nephogram: String
-    let lineage: String
-    let telegnosis: String
-    let metaphysic: String
-    let leverhulme: String
-    let nematic: String
-    let sanskritize: String
-    let mistrustfully: String
-    let beggarlice: String
-    
-    var param: [String: Any] {
-        return [
-            "christhood": christhood,
-            "nephogram": nephogram,
-            "lineage": lineage,
-            "telegnosis": telegnosis,
-            "metaphysic": metaphysic,
-            "leverhulme": leverhulme,
-            "nematic": nematic,
-            "sanskritize": sanskritize,
-            "mistrustfully": mistrustfully,
-            "beggarlice": beggarlice
-        ]
-    }
+
+    var param: [String: Any]
 }
 
 /// 获取联系人信息（第四项）
@@ -353,16 +305,32 @@ struct SaveContactInfoPayload: Payloadprotocol {
 
     // 请求参数
     let christhood: String
-    let unskepticalness: [String]
+    let unskepticalness: String
     
     var param: [String: Any] {
         return [
             "christhood": christhood,
             // 将字符串数组转换为一个用逗号分隔的字符串，以适应 [String: String] 格式
-            "unskepticalness": unskepticalness.joined(separator: ",")
+            "unskepticalness": unskepticalness
         ]
     }
 }
+
+/// 获取绑卡信息（第五项）
+struct GetBankInfoPayload: Payloadprotocol {
+    var payloadType: PayloadType { .POST }
+    var requestPath: String { "/Chukchis/overbrow" }
+
+    // 请求参数
+    let christhood: String
+    
+    var param: [String: Any] {
+        return [
+            "christhood": christhood,            
+        ]
+    }
+}
+
 
 /// 下单接口 （所有认证项已完成 点击产品详情页底部申请按钮调用）
 /// 获取跳转位置

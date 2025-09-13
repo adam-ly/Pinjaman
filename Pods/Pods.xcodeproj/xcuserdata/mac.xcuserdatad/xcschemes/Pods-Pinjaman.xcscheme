@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "2874822B27C7FE766B46EB4E6B3F6919"
-               BuildableName = "libPods-Pinjaman.a"
+               BuildableName = "Pods_Pinjaman.framework"
                BlueprintName = "Pods-Pinjaman"
                ReferencedContainer = "container:Pods.xcodeproj">
             </BuildableReference>

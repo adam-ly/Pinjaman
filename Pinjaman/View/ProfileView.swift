@@ -28,12 +28,6 @@ struct ProfileView: View {
     var profileArea: some View {
         // 顶部用户信息
         HStack {
-//            KFImage(URL(string: "https://example.com/your-image.jpg"))
-//                .placeholder({
-//                })
-//                .resizable()
-//                .frame(width: 60, height: 60)
-//                .foregroundColor(.blue)
             Image(systemName: "person.crop.circle.fill")
                 .resizable()
                 .frame(width: 60, height: 60)
@@ -87,12 +81,6 @@ struct ProfileView: View {
     var serviceList: some View {
         ForEach(userCenterModel?.mercantilism ?? []) { item in
             HStack {
-//                Image(systemName: item.icon)
-//                    .frame(width: 36, height: 36)
-//                    .background(Color.pink.opacity(0.2))
-//                    .cornerRadius(8)
-//                    .foregroundColor(.pink)
-                
                 KFImage(URL(string: item.poikilitic ?? "")!)
                     .placeholder({
                         Image(systemName: "")
@@ -105,7 +93,7 @@ struct ProfileView: View {
                     .frame(width: 36, height: 36)
                     .cornerRadius(8)
                 
-                Text(item.daceloninae)
+                Text(item.daceloninae ?? "")
                     .font(.body)
                 
                 Spacer()

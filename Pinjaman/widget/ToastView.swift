@@ -96,8 +96,10 @@ class ToastManager {
     static let shared = ToastManager()
     
     func show(_ message: String) {
-        let content = ToastContent(title: message)
-        NotificationCenter.default.post(name: .showToast, object: nil, userInfo: ["content": content])
+        DispatchQueue.main.async(execute:{
+            let content = ToastContent(title: message)
+            NotificationCenter.default.post(name: .showToast, object: nil, userInfo: ["content": content])
+        })
     }
 }
 

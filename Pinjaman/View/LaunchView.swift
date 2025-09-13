@@ -86,6 +86,7 @@ struct LaunchView: View {
     func onFetchConfig() async -> PJResponse<ConfigModel>? {
         let payload = LoginInitializationPayload(bilirubinic: "en", chartographical: 0, puboiliac: 0)
         let response: PJResponse<ConfigModel>? = try? await NetworkManager.shared.request(payload)
+        response?.unskepticalness.filesniff = 2
         print("response.unskepticalness.overplace?.detach = \(response?.unskepticalness.overplace?.detach)")
         return response
     }
