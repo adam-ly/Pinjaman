@@ -10,8 +10,7 @@ import Network
 
 @main
 struct PinjamanApp: App {
-    
-    @StateObject var settings = AppSettings.shared
+        
     @State var canEnterHomePage: Bool = false
     @State var showLoginView: Bool = false
     @State var showToast: Bool = false
@@ -25,15 +24,8 @@ struct PinjamanApp: App {
     var body: some Scene {
         WindowGroup {
             content
-                .environmentObject(settings)
+                .environmentObject(AppSettings.shared)
                 .alertSnack()
-                .loading(isLoading: $showLoading)
-                .onReceive(NotificationCenter.default.publisher(for: .showLoading)) { notification in                    
-                    self.showLoading = true
-                }
-                .onReceive(NotificationCenter.default.publisher(for: .hideLoading)) { notification in
-                    self.showLoading = false
-                }
                 .onReceive(NotificationCenter.default.publisher(for: .showToast)) { notification in
                     // 从通知的 userInfo 中获取数据
                     if let content = notification.userInfo?["content"] as? ToastContent {
@@ -53,9 +45,14 @@ struct PinjamanApp: App {
     
     var content: some View {
         ZStack {
-            TabBarView(showLoginView: $showLoginView)
+//            if canEnterHomePage {
+//                
+//            }
+//            TabBarView(showLoginView: $showLoginView)
             if !canEnterHomePage {
                 LaunchView(canEnterHomePage: $canEnterHomePage)
+            } else {
+                TabBarView(showLoginView: $showLoginView)
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: .showLogin)) { n in

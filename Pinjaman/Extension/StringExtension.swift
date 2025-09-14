@@ -37,7 +37,7 @@ extension String {
         }
 
 //TODO: - handle idfa
-        params["trophospongial"] = "idfa"
+        params["trophospongial"] = IDFAManager.shared.fetchIDFA()
         
         if let filesniff = String(AppSettings.shared.configModal?.filesniff ?? 1) as? String {
             params["filesniff"] = filesniff
@@ -45,4 +45,26 @@ extension String {
         return params
     }       
     
+}
+
+extension String {
+    /// 从 URL 字符串中提取最后的路径组件。
+    /// 此方法能够处理不标准的 URL 方案（如 `pa://`）并忽略查询参数。
+    /// - Returns: 最后一个路径组件的字符串，如果无法解析则返回 `nil`。
+    /// link + param
+    func getDestination() -> (String?,String?) {
+        if self.contains("http") { // is url
+            return (self.addMadatoryParameters(),nil)
+        } else { // is pages.
+            let arr = ["pa://ks.mo.ent/Berkly",
+                       "pa://ks.mo.ent/Italophile",
+                       "pa://ks.mo.ent/Frametown",
+                       "pa://ks.mo.ent/contrude",
+                       "pa://ks.mo.ent/aloetic"]
+            if let find = arr.first(where: { self.contains($0) }) {
+                return (find, self.components(separatedBy: "=").last)
+            }
+            return (self, nil)
+        }
+    }
 }

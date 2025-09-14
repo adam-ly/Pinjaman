@@ -11,6 +11,11 @@ struct AuthenticateTextItem: View {
     @State var item: SpotItem
     @State var phoneNumber: String = ""
     
+    init(item: SpotItem) {
+        self.item = item
+        self.phoneNumber = item.dynastes
+    }
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
             Text(item.daceloninae ?? "")
@@ -18,7 +23,7 @@ struct AuthenticateTextItem: View {
                 .foregroundColor(commonTextColor)
         
             HStack {
-                TextField(item.daceloninae ?? item.unreproachable ?? "Please fill out", text: $phoneNumber)
+                TextField(item.dynastes.count > 0 ? item.dynastes : (item.unpreferable ?? "Please fill out"), text: $phoneNumber)
                     .onChange(of: phoneNumber) { value in
                         item.dynastes = phoneNumber
                     }

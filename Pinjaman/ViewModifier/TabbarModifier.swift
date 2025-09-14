@@ -11,13 +11,21 @@ import SwiftUI
 struct TabBarHiddenModifier: ViewModifier {
     @State var showTabbar: Bool = true
     func body(content: Content) -> some View {
-        content
-            .padding(.bottom, 34)
-            .ignoresSafeArea(edges: .bottom)
-            .onAppear {
-                // 视图出现时，隐藏 Tab Bar
-                findTabBarController(isHidden: !showTabbar)
-            }
+        if showTabbar {
+            content
+                .onAppear {
+                    // 视图出现时，隐藏 Tab Bar
+                    findTabBarController(isHidden: !showTabbar)
+                }
+        } else {
+            content
+                .padding(.bottom, 34)
+                .ignoresSafeArea(edges: .bottom)
+                .onAppear {
+                    // 视图出现时，隐藏 Tab Bar
+                    findTabBarController(isHidden: !showTabbar)
+                }
+        }
     }
     
     private func findTabBarController(isHidden: Bool) {

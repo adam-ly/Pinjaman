@@ -24,7 +24,7 @@ class ContactsManager: ObservableObject {
 
         store.requestAccess(for: .contacts) { [weak self] granted, error in
             DispatchQueue.main.async {
-                if granted {
+                if granted {                    
                     self?.isShowingContactPicker = true
                 } else {
                     self?.isShowingPermissionAlert = true

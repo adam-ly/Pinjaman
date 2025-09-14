@@ -11,14 +11,6 @@ import UIKit
 // MARK: - 网络框架
 class NetworkManager {
     static let shared = NetworkManager()
-    var isLoading: Bool = false {
-        didSet {
-            let loading = isLoading
-            DispatchQueue.main.async(execute: {                
-                NotificationCenter.default.post(name: loading ? .showLoading : .hideLoading, object: ["showLoading" : loading])
-            })
-        }
-    }
     
     private init() {}
     
@@ -26,9 +18,7 @@ class NetworkManager {
     
     // MARK: - UPLOAD请求
     func upload<T: Codable>(_ payload: any Payloadprotocol, fileData: Data, fileName: String, mimeType: String) async throws -> PJResponse<T> {
-        isLoading = true
         guard let url = buildURL(for: payload) else {
-            isLoading = false
             throw URLError(.badURL)
         }
         print("upload url = \(url)")
@@ -45,11 +35,9 @@ class NetworkManager {
         do {
             let (data, _) = try await URLSession.shared.data(for: request)
             print("Result = \(try JSONSerialization.jsonObject(with: data, options: []))")
-            isLoading = false
             let decoded = try JSONDecoder().decode(PJResponse<T>.self, from: data)
             return decoded
         } catch {
-            isLoading = false
             print(error)
             ToastManager.shared.show(error.localizedDescription)
             throw error
@@ -58,9 +46,7 @@ class NetworkManager {
 
     // MARK: - 通用请求
     func request<T: Codable>(_ payload: any Payloadprotocol) async throws -> PJResponse<T> {
-        isLoading = true
         guard let url = buildURL(for: payload) else {
-            isLoading = false
             ToastManager.shared.show("Invalid URL")
             throw URLError(.badURL)
         }
@@ -69,6 +55,7 @@ class NetworkManager {
 
         switch payload.payloadType {
         case .GET:
+            
             // Re-construct the URL with query items for GET requests
             var components = URLComponents(url: url, resolvingAgainstBaseURL: false)
             if !payload.param.isEmpty {
@@ -79,6 +66,7 @@ class NetworkManager {
             guard let finalURL = components?.url else { throw URLError(.badURL) }
             request = URLRequest(url: finalURL)
             request.httpMethod = "GET"
+            print("URL == \(finalURL.absoluteString)")
 
         case .POST:
             print("URL == \(url)")
@@ -96,7 +84,6 @@ class NetworkManager {
             request.httpBody = oamString.data(using: .utf8)
             print("Param == \(oamString)")
         default:
-            isLoading = false
             ToastManager.shared.show("Unsupported request type")
             throw NSError(domain: "Unsupported request type", code: -1)
         }
@@ -104,19 +91,30 @@ class NetworkManager {
         do {
             // Use URLSession.shared.data(for: request) to handle all request types
             let (data, response) = try await URLSession.shared.data(for: request)
+            print(try JSONSerialization.jsonObject(with: data, options: []))
             
-            print("Result = \(try JSONSerialization.jsonObject(with: data, options: []))")
             // Validate the HTTP response status code, similar to the provided get/post methods
             guard let httpResponse = response as? HTTPURLResponse,
                   let statusCode = (response as? HTTPURLResponse)?.statusCode,
                   statusCode == 200
             else {
-                isLoading = false
                 let error = NSError(domain: "Request failed", code: (response as? HTTPURLResponse)?.statusCode ?? 500, userInfo: nil)
                 ToastManager.shared.show(error.localizedDescription)
                 throw error
             }
-            isLoading = false
+            if let param = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any],
+               let goss = param["goss"] as? Int, goss != 0,
+                let diarmuid = param["diarmuid"] as? String {
+                switch goss {
+                case -2: // logout
+                    ToastManager.shared.show(diarmuid)
+                    throw NSError(domain: "logout", code: goss)
+                default:
+                    ToastManager.shared.show(diarmuid)
+                    throw NSError(domain: "logout", code: goss)
+                }            
+            }
+            
             // Decode the data
             let decoded = try JSONDecoder().decode(PJResponse<T>.self, from: data)
             
@@ -133,7 +131,6 @@ class NetworkManager {
                 throw NSError(domain: "Unsupported response type", code: -1)
             }
         } catch {
-            isLoading = false
             ToastManager.shared.show(error.localizedDescription)
             print(error)
             throw error
@@ -165,7 +162,7 @@ class NetworkManager {
     }
     
     /// 返回拼接好的 URL（GET 使用）
-    private func buildURL(for payload: Payloadprotocol) -> URL? {
+     func buildURL(for payload: Payloadprotocol) -> URL? {
         let url = (baseURL + payload.requestPath).addMadatoryParameters()
         return URL(string: url)
     }

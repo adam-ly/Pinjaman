@@ -10,13 +10,14 @@ import SwiftUI
 struct UserInfomationView: View {
     @State var prodId: String = ""
     @State private var phoneNumber = ""
-
+    @MainActor @State private var showLoading: Bool = false
+    @State private var destination: (String, String) = ("","")
+    @State private var shouldPush: Bool = false
     // 控制全屏下拉菜单的显示
-    @State private var isShowingDropdown = false
     @State var userInfoModel: UserIndivisualModel?
-
+    @State var showCityPicker: Bool = false
+    @State var cityItem: SpotItem?
     let coordinateSpaceName = "scrollView"
-
     var body: some View {
         VStack {
             ScrollView {
@@ -30,6 +31,9 @@ struct UserInfomationView: View {
                 NotificationCenter.default.post(name: .userInfoScrolling, object: nil)
             }
             
+            NavigationLink(destination: NavigationManager.navigateTo(for: destination.0, prodId: destination.1),
+                           isActive: $shouldPush) {}
+            
             Spacer()
             
             PrimaryButton(title: "Next") {
@@ -39,9 +43,25 @@ struct UserInfomationView: View {
         }
         .navigationTitle(Text("Authentication Security"))
         .hideTabBarOnPush(showTabbar: false)
+        .loading(isLoading: $showLoading)
         .onAppear {
             onFetchUserInfo()
+            TrackHelper.share.onCatchUserTrack(type: .personalInfo)
         }
+        .overlay(content: {
+            if showCityPicker {
+                ZStack(alignment: .bottom) {
+                    Color.clear.ignoresSafeArea()
+                    CityPickerView(present: $showCityPicker, onCallBack: { address in
+                        if let index = self.userInfoModel?.spot?.firstIndex(where: { $0.goss == self.cityItem?.goss }) {
+                            let userModel = self.userInfoModel
+                            userInfoModel?.spot?[index].dynastes = address
+                            self.userInfoModel = userModel
+                        }
+                    })
+                }
+            }
+        })
     }
     
     var list: some View {
@@ -54,7 +74,13 @@ struct UserInfomationView: View {
                     AuthenticateTextItem(item: item)
                 case "Whitsun":
                     AuthenticateCityItem(item: item)
-                default: Text("")
+                        .onTapGesture {
+                            hideKeyboard()
+                            self.cityItem = item
+                            showCityPicker = true
+                        }
+                default:
+                    Text("")
                 }
             }
         }
@@ -65,11 +91,13 @@ extension UserInfomationView {
     func onFetchUserInfo() {
         Task {
             do {
+                showLoading = true
                 let payload = GetUserInfoSecondItemPayload(christhood: prodId)
                 let homeResponse: PJResponse<UserIndivisualModel> = try await NetworkManager.shared.request(payload)
+                showLoading = false
                 self.userInfoModel = homeResponse.unskepticalness
             } catch {
-                
+                showLoading = false
             }
         }
     }
@@ -87,15 +115,39 @@ extension UserInfomationView {
         print("param = \(param)")
         Task {
             do {
+                showLoading = true
                 let payload = SaveUserInfoSecondItemPayload(param: param)
                 let homeResponse: PJResponse<EmptyModel> = try await NetworkManager.shared.request(payload)
                 print("sucess")
-                onFetchUserInfo()
+                TrackHelper.share.onUploadRiskEvent(type: .personalInfo, orderId: "")
+
+//                showLoading = false
+//                onFetchUserInfo()
+                onCheckNext()
             } catch {
-                
+                showLoading = false
             }
         }
-        
+    }
+    
+    func onCheckNext() {
+        Task {
+            do {
+                let payload = ProductDetailsPayload(christhood: prodId)
+                let response: PJResponse<ProductDetailModel> = try await NetworkManager.shared.request(payload)
+                showLoading = false
+                onGoToNext(detailModel: response.unskepticalness)
+            } catch {
+                showLoading = false
+            }
+        }
+    }
+    
+    func onGoToNext(detailModel: ProductDetailModel) {
+        if let next = detailModel.noneuphoniousness?.oversceptical { // 跳到下一项
+            destination = (next, prodId)
+            shouldPush = next.count > 0
+        }
     }
 }
 

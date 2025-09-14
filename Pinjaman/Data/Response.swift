@@ -262,6 +262,33 @@ class ProductDetailModel: Codable {
     let ridding: [AuthItem]?             // 认证项
     let noneuphoniousness: NextStep?     // 下一步认证项
     let neurocentrum: Neurocentrum?         // 借款协议
+    
+    // 1. 定义 CodingKeys 以便手动解码
+    private enum CodingKeys: String, CodingKey {
+        case overprize, demotika, chummies, popular, lucubrator, ridding, noneuphoniousness, neurocentrum
+    }
+    
+    // 2. 实现自定义的 Decodable 初始化方法
+    required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        
+        // 解码其他属性，这些属性没有问题，可以使用默认的 decodeIfPresent
+        self.overprize = try container.decodeIfPresent(Int.self, forKey: .overprize)
+        self.demotika = try container.decodeIfPresent(ProductInfo.self, forKey: .demotika)
+        self.chummies = try container.decodeIfPresent(Int.self, forKey: .chummies)
+        self.popular = try container.decodeIfPresent(String.self, forKey: .popular)
+        self.lucubrator = try container.decodeIfPresent(UserInfo.self, forKey: .lucubrator)
+        self.ridding = try container.decodeIfPresent([AuthItem].self, forKey: .ridding)
+        self.neurocentrum = try container.decodeIfPresent(Neurocentrum.self, forKey: .neurocentrum)
+        
+        // 3. 处理 noneuphoniousness 属性
+        // 使用 try? 尝试将它解码为 NextStep 类型
+        if let nextStep = try? container.decodeIfPresent(NextStep.self, forKey: .noneuphoniousness) {
+            self.noneuphoniousness = nextStep
+        } else {
+            self.noneuphoniousness = nil
+        }
+    }
 }
 
 // 产品信息
@@ -279,7 +306,7 @@ class ProductInfo: Codable {
     let toxosozin: String?       // 订单号 (同上)
     let peritonealize: FeeInfo?  // 额度和费用信息
     let cones: [String]?         // 额度范围
-    let mindedness: [Int]?       // 借款期限范围
+    let mindedness: [LossyString]?       // 借款期限范围
     let shulem: Int?             // 订单id
     let expatriated: String?     // html 描述
     let barnlike: Int?
@@ -360,7 +387,7 @@ class IdentityInfo: Codable {
 /// MARK: - 身份信息項 (IdentityInfoItem)
 /// 頂層數據模型，對應整個 JSON 對象
 class IdentityCardResponse: Codable {
-    let contendent: String?        // 姓名
+    let contendent: String?          // 姓名
     let cinctured: String?
     let bivouacked: String?
     let geanticlinal: String?
@@ -370,9 +397,39 @@ class IdentityCardResponse: Codable {
     let pseudostigma: String?
     let concierges: String?
     let affectlessness: String?
-    let uncranked: String?         // 彈窗頂部文案
-    @LossyString var befitted: String?
+    let uncranked: String?           // 彈窗頂部文案
+    @LossyString var befitted: String? // 正確使用 IntOrString 屬性包裝器
     let unexcorticated: [IdentityInfoItem]? // 證件信息列表
+    
+    // 自定义编码键，确保键名正确
+    private enum CodingKeys: String, CodingKey {
+        case contendent, cinctured, bivouacked, geanticlinal, immethodic, sweepwasher, easternism, pseudostigma, concierges, affectlessness, uncranked, befitted, unexcorticated
+    }
+    
+    required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        
+        // 使用 decodeIfPresent() 来安全地处理可能缺失的键
+        contendent = try container.decodeIfPresent(String.self, forKey: .contendent)
+        cinctured = try container.decodeIfPresent(String.self, forKey: .cinctured)
+        bivouacked = try container.decodeIfPresent(String.self, forKey: .bivouacked)
+        geanticlinal = try container.decodeIfPresent(String.self, forKey: .geanticlinal)
+        immethodic = try container.decodeIfPresent(String.self, forKey: .immethodic)
+        sweepwasher = try container.decodeIfPresent(String.self, forKey: .sweepwasher)
+        easternism = try container.decodeIfPresent(Bool.self, forKey: .easternism)
+        pseudostigma = try container.decodeIfPresent(String.self, forKey: .pseudostigma)
+        concierges = try container.decodeIfPresent(String.self, forKey: .concierges)
+        affectlessness = try container.decodeIfPresent(String.self, forKey: .affectlessness)
+        uncranked = try container.decodeIfPresent(String.self, forKey: .uncranked)
+        unexcorticated = try container.decodeIfPresent([IdentityInfoItem].self, forKey: .unexcorticated)
+        
+        // 特殊处理 befitted 属性，使其兼容 Int 和 String 类型
+        if let intValue = try? container.decodeIfPresent(Int.self, forKey: .befitted) {
+            self.befitted = String(intValue)
+        } else {
+            self.befitted = try? container.decodeIfPresent(String.self, forKey: .befitted)
+        }
+    }
 }
 
 /// 對應 JSON 數據中 unexcorticated 陣列的每個元素
@@ -408,12 +465,28 @@ class IdentityInfoItem: ObservableObject, Codable, Identifiable {
 }
 
 // MARK: - 用户个人信息模型
-class UserIndivisualModel: Codable {
+class UserIndivisualModel: Codable, Identifiable {
     let spot: [SpotItem]?   // 个人信息项数组
 }
 
 // 单个信息项
-class SpotItem: Codable, Identifiable {
+
+class SpotItem: Codable, Identifiable, Hashable {
+    
+    static func == (lhs: SpotItem, rhs: SpotItem) -> Bool {
+        return lhs.goss == rhs.goss &&
+               lhs.oxystome == rhs.oxystome &&
+               lhs.dynastes == rhs.dynastes
+    }
+    
+    // 实现 Hashable 协议的 hash 方法
+    func hash(into hasher: inout Hasher) {
+        // 结合 id、contendent 和 oxystome 进行哈希计算
+        hasher.combine(goss)
+        hasher.combine(oxystome)
+        hasher.combine(dynastes)
+    }
+    
     @LossyString var serphoid: String?       // 字段顺序 ID
     let daceloninae: String?    // 标题（如 "婚姻状况"）
     let unreproachable: String? // 占位提示文案
@@ -428,6 +501,7 @@ class SpotItem: Codable, Identifiable {
     var dynastes: String = "" // 当前选择值（如 "Belum Kawin"）
     let ootid: Int?             // 选中索引
     let obtected: Int?          // inputType=1 使用数字键盘
+    let unpreferable: String?   // 银行卡内容
     
     // 1. 定义 CodingKeys，包含所有需要手动解码的键
     private enum CodingKeys: String, CodingKey {
@@ -445,6 +519,7 @@ class SpotItem: Codable, Identifiable {
         case dynastes
         case ootid
         case obtected
+        case unpreferable
     }
     
     // 2. 手动实现 Decodable 初始化方法
@@ -467,6 +542,7 @@ class SpotItem: Codable, Identifiable {
         self.dynastes = try container.decodeIfPresent(String.self, forKey: .dynastes) ?? ""
         self.ootid = try container.decodeIfPresent(Int.self, forKey: .ootid)
         self.obtected = try container.decodeIfPresent(Int.self, forKey: .obtected)
+        self.unpreferable = try container.decodeIfPresent(String.self, forKey: .unpreferable)
     }
     
     // 3. 必须实现 Encodable 方法，以确保 Codable 协议完整
@@ -486,6 +562,7 @@ class SpotItem: Codable, Identifiable {
         try container.encode(dynastes, forKey: .dynastes)
         try container.encodeIfPresent(ootid, forKey: .ootid)
         try container.encodeIfPresent(obtected, forKey: .obtected)
+        try container.encodeIfPresent(unpreferable, forKey: .unpreferable)
     }
 }
 
@@ -516,43 +593,6 @@ class UserWorkModel: Codable {
     let spot: [SpotItem]?   // 工作信息项数组
 }
 
-//// 单个工作信息项
-//class WorkSpotItem: Codable {
-//    @LossyString var serphoid: String?       // 字段顺序 ID
-//    let daceloninae: String?    // 标题（如 "公司名称"、"工作城市"）
-//    let unreproachable: String? // 占位提示文案
-//    let goss: String?           // 提交时的参数 key（如 company_name, work_city）
-//    let machiavellian: String?  // 字段类型（如 "phone", "first"...）
-//    let vermeer: [VermeerItem]? // 可选值数组
-//    let prateful: Int?          // 默认值
-//    let thortveitite: Int?      // 是否必填（1=必填，0=非必填）
-//    let uncurtailed: String?    // 认证状态文案（如 "已认证"）
-//    let outfieldsman: Bool?     // 是否已认证
-//    let dynastes: String?       // 当前填写/选择值
-//    let ootid: Int?             // 选中索引
-//}
-
-//
-//// MARK: - 用户银行卡信息模型
-//class UserCardModel: Codable {
-//    let spot: [CardSpotItem]?   // 银行卡信息项数组
-//}
-//
-//// 单个银行卡信息项
-//class CardSpotItem: Codable {
-//    let daceloninae: String?    // 字段标题，例如 "Nama Bank"
-//    let goss: String?           // 提交时的参数 key，例如 "bankCode"
-//    let unreproachable: String? // 占位提示文案，例如 "Silakan pilih bank"
-//    let machiavellian: String?  // 字段类型（如 "want"）
-//    let vermeer: [VermeerItem]? // 银行选项数组
-//    let prateful: Int?          // 默认值
-//    let thortveitite: Int?      // 是否必填（1=必填，0=非必填）
-//    let uncurtailed: String?    // 填写状态，例如 "已填写"
-//    let dynastes: String?       // 当前填写/选择值
-//    let unpreferable: String?   // 可能是显示用的别名（例如 "Bank BTPN"）
-//    let ootid: Int?             // 选中索引
-//}
-
 // MARK: - 用户紧急联系人模型
 class UserContactModel: Codable {
     let unthrobbing: [UserContactItem]?   // 紧急联系人数组
@@ -581,10 +621,10 @@ struct LossyString: Codable {
     }
     
     init(from decoder: Decoder) throws {
-        let container = try decoder.singleValueContainer()
-        if let stringValue = try? container.decode(String.self) {
+        let container = try? decoder.singleValueContainer()
+        if let stringValue = try? container?.decode(String.self) {
             wrappedValue = stringValue
-        } else if let intValue = try? container.decode(Int.self) {
+        } else if let intValue = try? container?.decode(Int.self) {
             wrappedValue = String(intValue)
         } else {
             wrappedValue = nil
@@ -601,3 +641,240 @@ struct LossyString: Codable {
 class BankInfoModel: Codable {
     let spot: [SpotItem]?   // 工作信息项数组
 }
+
+// MARK:
+class LornOrderModel: Codable {
+    let nectarium: String?
+}
+
+import Foundation
+
+// MARK: - 主数据模型
+/// 订单列表数据模型
+import Foundation
+
+// MARK: - 主数据模型
+import Foundation
+
+// MARK: - 主数据模型
+/// 订单列表数据模型
+struct OrderListModel: Codable {
+    /// 订单列表数据
+    let mercantilism: [OrderModel]?
+    /// 状态码，例如 1
+    let moonie: Int?
+}
+
+// MARK: - 订单详情模型
+/// 单个订单详情模型
+struct OrderModel: Codable, Identifiable {
+    /// 订单 ID
+    @LossyString var shulem: String?
+    @LossyString var centroids: String?
+    let orthotolidin: Int?
+    /// 产品名称
+    let multilayer: String?
+    /// 产品 logo URL
+    let underspore: String?
+    /// 订单状态
+    @LossyString var osmic: String?
+    let pungling: String?
+    let spinosely: String?
+    /// 状态名称
+    let bullrushes: String?
+    /// 该笔订单的描述
+    let letorate: String?
+    /// 借款金额
+    let eveready: String?
+    let naevus: String?
+    /// H5 跳转地址
+    let intertwist: String?
+    /// 到期时间
+    let dissuade: String?
+    /// 应还
+    let unmatured: String?
+    /// 借款时间
+    let slabness: String?
+    /// 应还时间
+    let unamazement: String?
+    /// 借款期限
+    let duramens: String?
+    /// 订单列表显示数据
+    let forheed: [OrderItem]?
+    /// 借款协议 展示文案
+    let deactivations: String?
+    /// 借款协议 跳转 URL
+    let romanticalism: String?
+    
+    /// Conform to Identifiable protocol using the order ID as a unique identifier.
+    var id: String =  UUID().uuidString
+    
+    private enum CodingKeys: String, CodingKey {
+        case shulem
+        case centroids
+        case orthotolidin
+        case multilayer
+        case underspore
+        case osmic
+        case pungling
+        case spinosely
+        case bullrushes
+        case letorate
+        case eveready
+        case naevus
+        case intertwist
+        case dissuade
+        case unmatured
+        case slabness
+        case unamazement
+        case duramens
+        case forheed
+        case deactivations
+        case romanticalism
+    }
+}
+
+// MARK: - 订单列表显示数据
+/// 订单列表显示数据项模型
+struct OrderItem: Codable, Identifiable {
+    /// Conform to Identifiable protocol with a unique UUID, as this item has no unique identifier from the server.
+    var id: String = UUID().uuidString
+    
+    /// 标题
+    let daceloninae: String?
+    /// 值
+    let basilicae: String?
+    
+    private enum CodingKeys: String, CodingKey {
+        case daceloninae
+        case basilicae
+    }
+}
+// MARK: - 地址项模型
+struct AddressItem: Codable, Identifiable, Hashable {
+    // `Identifiable` 协议要求，使用唯一的 ID
+    var id = UUID()
+
+    let serphoid: Int?        // JSON 键: serphoid
+    let goss: String?         // JSON 键: goss (城市代码/ID)
+    let contendent: String?   // JSON 键: contendent (城市名称)
+    let umbelliferae: String? // JSON 键: umbelliferae (上级ID)
+    let parachor: String?     // JSON 键: parachor (上级ID)
+    let untripped: String?    // JSON 键: untripped
+    let repartitionable: String? // JSON 键: repartitionable
+    let forheed: [AddressItem]?  // JSON 键: forheed (子地址列表)
+
+    // 使用 CodingKeys 将 JSON 中的键名映射到 Swift 属性名，以便于理解和使用。
+    enum CodingKeys: String, CodingKey {
+        case serphoid
+        case goss
+        case contendent
+        case umbelliferae
+        case parachor
+        case untripped
+        case repartitionable
+        case forheed
+    }
+    
+    // MARK: - 自定义 Codable 方法
+    
+    /// 自定义解码器，用于处理 JSON 中可能缺失的键
+    public init(from decoder: Decoder) throws {
+        // 创建一个键容器
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        
+        // 使用 decodeIfPresent 方法安全地解码每一个可选属性。
+        // 如果 JSON 中缺少某个键，该方法会返回 nil，而不会抛出错误，
+        // 从而避免程序闪退。
+        self.serphoid = try container.decodeIfPresent(Int.self, forKey: .serphoid)
+        self.goss = try container.decodeIfPresent(String.self, forKey: .goss)
+        self.contendent = try container.decodeIfPresent(String.self, forKey: .contendent)
+        self.umbelliferae = try container.decodeIfPresent(String.self, forKey: .umbelliferae)
+        self.parachor = try container.decodeIfPresent(String.self, forKey: .parachor)
+        self.untripped = try container.decodeIfPresent(String.self, forKey: .untripped)
+        self.repartitionable = try container.decodeIfPresent(String.self, forKey: .repartitionable)
+        self.forheed = try container.decodeIfPresent([AddressItem].self, forKey: .forheed)
+    }
+    
+    /// 自定义编码器，用于在将模型转换为 JSON 时，只包含非 nil 的值
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        
+        // 使用 encodeIfPresent 方法安全地编码每一个可选属性。
+        // 如果属性值为 nil，则不会将其写入到 JSON 中。
+        try container.encodeIfPresent(self.serphoid, forKey: .serphoid)
+        try container.encodeIfPresent(self.goss, forKey: .goss)
+        try container.encodeIfPresent(self.contendent, forKey: .contendent)
+        try container.encodeIfPresent(self.umbelliferae, forKey: .umbelliferae)
+        try container.encodeIfPresent(self.parachor, forKey: .parachor)
+        try container.encodeIfPresent(self.untripped, forKey: .untripped)
+        try container.encodeIfPresent(self.repartitionable, forKey: .repartitionable)
+        try container.encodeIfPresent(self.forheed, forKey: .forheed)
+    }
+}
+
+
+// ----------------------------------------
+// MARK: - 使用示例
+// ----------------------------------------
+/*
+// 假设这是您的 JSON 数据
+let jsonString = """
+[
+  {
+    "serphoid": 1,
+    "goss": "0001",
+    "contendent": "Sumatera",
+    "untripped": null,
+    "repartitionable": null,
+    "forheed": [
+      {
+        "serphoid": 1,
+        "goss": "00010001",
+        "contendent": "Aceh",
+        "umbelliferae": "0001",
+        "repartitionable": null,
+        "forheed": [
+          {
+            "serphoid": 1,
+            "goss": "000100010001",
+            "contendent": "Kabupaten Aceh Barat",
+            "parachor": "00010001",
+            "forheed": []
+          }
+        ]
+      }
+    ]
+  }
+]
+"""
+
+func decodeAddressData() {
+    let jsonData = jsonString.data(using: .utf8)!
+
+    do {
+        // 由于 JSON 根是数组，我们直接解码为 [AddressItem]
+        let addresses = try JSONDecoder().decode([AddressItem].self, from: jsonData)
+
+        // 打印解析后的数据
+        print("成功解析 \(addresses.count) 个地址项。")
+
+        if let firstAddress = addresses.first {
+            print("第一个地址项名称：\(firstAddress.contendent ?? "无")")
+
+            if let firstChild = firstAddress.forheed?.first {
+                print("第一个子地址项名称：\(firstChild.contendent ?? "无")")
+
+                if let firstGrandchild = firstChild.forheed?.first {
+                    print("第一个孙地址项名称：\(firstGrandchild.contendent ?? "无")")
+                }
+            }
+        }
+
+    } catch {
+        print("解码失败: \(error)")
+    }
+}
+
+decodeAddressData()
+*/

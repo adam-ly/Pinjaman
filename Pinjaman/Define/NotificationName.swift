@@ -13,9 +13,7 @@ extension Notification.Name {
     static let showAlert = Notification.Name("showAlert")
     static let showLogin = Notification.Name("showLogin")
     static let didLogin  = Notification.Name("didLogin")
-    static let showLoading = Notification.Name("showLoading")
-    static let hideLoading = Notification.Name("hideLoading")
+    static let didLogout  = Notification.Name("didLogout")
     static let userInfoScrolling = Notification.Name("userInfoScrolling")
-    static let didOpenPicker = Notification.Name("didOpenPicker")
 }
 

@@ -3,11 +3,13 @@ import Kingfisher
 
 struct CertifyView: View {
     @Environment(\.presentationMode) var presentationMode
+    @MainActor @State private var showLoading: Bool = false
     @State var detailModel: ProductDetailModel?
     @State var prodId: String
     @State private var agree = false
     @State private var shouldPush: Bool = false
-    @State private var destination: String = ""
+    @State private var destination: (String, String) = ("","")
+    
     // 认证项目状态枚举
     enum CertificationStatus {
         case pending // 待处理
@@ -39,17 +41,21 @@ struct CertifyView: View {
                     certifyItems
                 }
             }
-            NavigationLink(destination: onPushToView(), isActive: $shouldPush) {}
+            NavigationLink(destination: NavigationManager.navigateTo(for: destination.0, prodId: destination.1),
+                           isActive: $shouldPush) {}
             Spacer()
-            agreement
+            if let agreementContent = detailModel?.neurocentrum?.daceloninae, agreementContent.count > 0 {
+                agreement
+            }
             PrimaryButton(title: detailModel?.demotika?.bullrushes ?? "") {
-                
+                onClickSubmitButton()
             }
             .padding(.horizontal, 24)
         }
         .navigationTitle(detailModel?.demotika?.multilayer ?? "")
         .hideTabBarOnPush(showTabbar: false)
         .background(Color.white)
+        .loading(isLoading: $showLoading)
         .refreshable(action: {
             _ = try? await onFetchDetail()
         })
@@ -101,26 +107,6 @@ struct CertifyView: View {
         .foregroundColor(.white)
         .frame(maxWidth: .infinity)
         .background(primaryColor)
-        .sheet(isPresented: $agree) {
-            // 使用 ZStack 来堆叠半透明背景和内容
-            ZStack {
-                // 1. 半透明背景
-                Color.clear
-                    .edgesIgnoringSafeArea(.all) // 忽略所有安全区域，确保覆盖全屏
-                
-                // 2. 你的核心内容
-                VStack {
-                    Text("这是一个全屏半透明覆盖视图")
-                        .font(.headline)
-                        .foregroundColor(.white)
-                    
-                    Button("关闭") {
-
-                    }
-                    .buttonStyle(.borderedProminent)
-                }
-            }
-        }
     }
     
     var certifyItems: some View {
@@ -137,12 +123,7 @@ struct CertifyView: View {
             
             ForEach(detailModel?.ridding ?? []) { item in
                 getItem(item: item).onTapGesture {
-                    if let next = detailModel?.noneuphoniousness?.oversceptical{ // 跳到下一项
-                        destination = next
-                    } else { // 跳到对应页面
-                        destination = item.oversceptical ?? ""
-                    }
-                    shouldPush = destination.count > 0
+                    onGoToNext(item: item)
                 }
             }
         }
@@ -192,21 +173,32 @@ struct CertifyView: View {
                 Image(agree ? "option_select" : "option_unselect")
             }
             
-            Text("I have read and agree")
+            Text(detailModel?.neurocentrum?.daceloninae ?? "")
                 .font(.system(size: 14, weight: .regular))
                 .foregroundColor(secondaryTextColor)
-            Text("<Loan Agreement>")
-                .font(.system(size: 14, weight: .regular))
-                .underline()
-                .foregroundColor(linkTextColor)
                 .onTapGesture {
                     print("privacy click")
+                    if let link = detailModel?.neurocentrum?.heterogenean, link.count > 0 {
+                        destination = (link, "")
+                        shouldPush = true
+                    }
                 }
         }
     }
    
+    func onGoToNext(item: AuthItem) {
+        if let next = detailModel?.noneuphoniousness?.oversceptical { // 跳到下一项
+            destination = (next, prodId)
+        } else if let hasFinish = item.thortveitite, hasFinish == 0 {
+            destination = (item.oversceptical ?? "", prodId)
+        } else {
+            destination = ("","")
+        }
+        shouldPush = destination.0.count > 0
+    }
+    
     @ViewBuilder
-    func onPushToView() -> some View {
+    func onPushToView(destination: String) -> some View {
         switch destination {
         case "Algeciras": // photo
             IdentifyView(prodId: prodId)
@@ -216,22 +208,60 @@ struct CertifyView: View {
             WorkAuthenticationVieW(prodId: prodId)
         case "unpilled": // contact
             ContactsView(prodId: prodId)
-        default: // web 
+        case "synastry": // bank
             PropertyView(prodId: prodId)
+        default:
+            if destination.contains("http"),
+               let url = URL(string: destination.addMadatoryParameters()) {
+                WebView(url: url)
+            } else {
+                Text("Text")
+            }
         }
     }
 }
 
 extension CertifyView {
     func onFetchDetail() async throws -> ProductDetailModel {
+        showLoading = true
         let payload = ProductDetailsPayload(christhood: prodId)
         let response: PJResponse<ProductDetailModel> = try await NetworkManager.shared.request(payload)
         self.detailModel = response.unskepticalness
+        showLoading = false
         return response.unskepticalness
     }
     
-    func onGotoCertifyItem() {
+    func onClickSubmitButton() {
+        // find out the item that has not finish
+        if let item = detailModel?.ridding?.first(where: { $0.thortveitite == 0 }) {
+            destination = (item.oversceptical ?? "", prodId)
+            shouldPush = true
+            return
+        }
         
+        guard let prodId = detailModel?.demotika?.charca ,
+           let amount = detailModel?.demotika?.pityroid,
+           let term   = detailModel?.demotika?.duramens,
+           let type   = detailModel?.demotika?.spliffs else {
+            ToastManager.shared.show("Missing parameters")
+            return
+        }
+        
+        
+        showLoading = true
+        Task {
+            do {
+                let payLoad = PlaceOrderPayload(charca: prodId, pityroid: amount, duramens: term, spliffs: type)
+                let response: PJResponse<LornOrderModel> = try await NetworkManager.shared.request(payLoad)
+                showLoading = false
+                if let link = response.unskepticalness.nectarium {
+                    destination = (link, prodId)
+                    shouldPush = true
+                }
+            } catch {
+                showLoading = false
+            }
+        }
     }
 }
 

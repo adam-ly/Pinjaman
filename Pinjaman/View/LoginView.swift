@@ -9,6 +9,7 @@ import SwiftUI
 
 struct LoginView: View {
     @EnvironmentObject var appSeting: AppSettings
+    @MainActor @State private var showLoading: Bool = false
     @State private var phoneNumber = ""
     @State private var password = ""
     @State private var agree = true
@@ -17,13 +18,15 @@ struct LoginView: View {
     @Binding var isPresented: Bool
     @FocusState private var isPhoneNumberFocused: Bool
     @FocusState private var isCodeNumberFocused: Bool
-
+    @State private var shouldNavigate: Bool = false
     // 追蹤倒計時是否正在進行
     @State private var isCountingDown = false
     // 倒計時的總時間（秒）
     @State private var countdownTime = 60
     // 定義計時器，每秒觸發一次
     @State private var timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+    
+    @State var url: URL?
     
     var body: some View {
         ZStack(alignment: .center) {
@@ -36,7 +39,13 @@ struct LoginView: View {
                 }
             contentView
                 .offset(y: isPresented ? 0 : UIScreen.main.bounds.size.height)
-        }.onAppear {
+            
+            NavigationLink(destination: desitnationView(), isActive: $shouldNavigate) {
+                EmptyView() // 隐藏的 NavigationLink 标签
+            }
+        }
+        .loading(isLoading: $showLoading)
+        .onAppear {
             isPhoneNumberFocused = true
         }
     }
@@ -216,13 +225,16 @@ struct LoginView: View {
                 Image(agree ? "option_select" : "option_unselect")
             }
             
-            Text("I consent to the")
-                .foregroundColor(secondaryTextColor)
-            Text("<Privacy policy>")
-                .underline()
-                .onTapGesture {
-                    print("privacy click")
-                }
+            HStack (spacing: 0) {
+                Text("I consent to the")
+                    .foregroundColor(secondaryTextColor)
+                Text("<Privacy policy>")
+                    .underline()
+                    .foregroundColor(linkTextColor)
+                    .onTapGesture {
+                        onOpenPrivacyLink()
+                    }
+            }
         }
     }
     
@@ -263,6 +275,24 @@ struct LoginView: View {
             isPresented = false
         }
     }
+    
+    private func onOpenPrivacyLink() {
+        guard let link = appSeting.configModal?.undefense,
+              let url = URL(string: link) else {
+            return
+        }
+        self.url = url
+        shouldNavigate = true
+    }
+    
+    @ViewBuilder
+    func desitnationView() -> some View {
+        if let link = self.url {
+            WebView(url: link)
+        } else {
+            Text("")
+        }
+    }
 }
 
 extension LoginView {
@@ -289,25 +319,31 @@ extension LoginView {
     }
     
     func onGetCode() {
+        TrackHelper.share.onCatchUserTrack(type: .register)
+        showLoading = true
         Task {
             do {
                 let payLoad = GetSMSCodePayload.init(sensationally: phoneNumber)
                 let getCode: PJResponse<EmptyModel> = try await NetworkManager.shared.request(payLoad)
+                showLoading = false
                 ToastManager.shared.show(getCode.diarmuid)
             } catch {
-
+                showLoading = false
             }
         }
     }
     
     func onGetVoiceCode() {
+        TrackHelper.share.onCatchUserTrack(type: .register)
+        showLoading = true
         Task {
             do {
                 let payLoad = GetVoiceCodePayload.init(sensationally: phoneNumber)
                 let getCode: PJResponse<EmptyModel> = try await NetworkManager.shared.request(payLoad)
+                showLoading = false
                 ToastManager.shared.show(getCode.diarmuid)
             } catch {
-
+                showLoading = false
             }
         }
     }
@@ -315,27 +351,16 @@ extension LoginView {
     func onLogin() {
         Task {
             do {
+                showLoading = true
                 let payLoad = CodeLoginOrRegisterPayload.init(counterretaliation: phoneNumber, underhangman: password)
                 let loginResponse: PJResponse<LoginModel> = try await NetworkManager.shared.request(payLoad)
+                TrackHelper.share.onUploadRiskEvent(type: .register, orderId: "")
+                showLoading = false
                 appSeting.loginModel = loginResponse.unskepticalness
                 closePage()
                 NotificationCenter.default.post(name: .didLogin, object: nil)
             } catch {
-                
-            }
-        }
-    }
-    
-    func logout() {
-        Task {
-            do {
-                let payLoad = CodeLoginOrRegisterPayload.init(counterretaliation: phoneNumber, underhangman: password)
-                let loginResponse: PJResponse<LoginModel> = try await NetworkManager.shared.request(payLoad)
-                appSeting.loginModel = loginResponse.unskepticalness
-                closePage()
-                NotificationCenter.default.post(name: .didLogin, object: nil)
-            } catch {
-                
+                showLoading = false
             }
         }
     }

@@ -9,8 +9,10 @@ import SwiftUI
 
 struct HomeView: View {
     @EnvironmentObject var appSeting: AppSettings
-    @State var homeModel: HomeModel?    
     @State private var shouldNavigate = false
+    @State var homeModel: HomeModel?
+    @State var destination: String = ""
+    @State var showLoading: Bool = false
     
     var body: some View {
         NavigationView {
@@ -25,8 +27,8 @@ struct HomeView: View {
                         } else {
                             productList
                         }
-                    }
-                    NavigationLink(destination:CertifyView(prodId: "\(homeModel?.getprdId() ?? 0)"), isActive: $shouldNavigate) {
+                    }                    
+                    NavigationLink(destination: NavigationManager.navigateTo(for: destination, prodId: "\(homeModel?.getprdId() ?? 0)"), isActive: $shouldNavigate) {
                         EmptyView() // 隐藏的 NavigationLink 标签
                     }
                 })
@@ -37,8 +39,10 @@ struct HomeView: View {
                 self.onFetchData()
             }
             .ignoresSafeArea(edges: .top)
+            .loading(isLoading: $showLoading)
             .onAppear {
                 self.onFetchData()
+                self.onTrackLocation()
             }
         }.tint(.white)
     }
@@ -211,16 +215,20 @@ extension HomeView {
     func onFetchData() {
         Task {
             do {
+                showLoading = true
                 let payLoad = AppHomePagePayload()
                 let homeResponse: PJResponse<HomeModel> = try await NetworkManager.shared.request(payLoad)
                 print("homeModel.unskepticalness.hoised = \(homeResponse.unskepticalness.poikilitic?.sordidnesses)")
                 self.homeModel = homeResponse.unskepticalness
+                showLoading = false
             } catch {
-                
+                showLoading = false
             }
         }
+        onfetchAddress()
     }
     
+    // 点击按钮
     func onClickPlayNow() {
         if !appSeting.isLogin() {
             NotificationCenter.default.post(name: .showLogin, object: nil)
@@ -233,20 +241,55 @@ extension HomeView {
         getRequestPermit(with: prodId)
     }
     
+    // 准入接口
     func getRequestPermit(with prdId: Int) {
+        showLoading = true
         Task {
             do {
                 let payload = ProductAdmissionPayload(christhood: "\(prdId)")
                 let response: PJResponse<ProductRequestModel> = try await NetworkManager.shared.request(payload)
-                if response.unskepticalness.overprize == 200 {
-                    shouldNavigate = true
-                } else {
+                showLoading = false
+                guard let code = response.unskepticalness.overprize, code == 200 else {
                     ToastManager.shared.show(response.unskepticalness.peculated ?? "")
+                    return
                 }
+                
+                if let path = response.unskepticalness.nectarium?.getDestination().0 as? String,
+                    !path.isEmpty {
+                    destination = path
+                    shouldNavigate = true
+                }
+            } catch {
+                showLoading = false
+            }
+        }
+    }
+    
+    func onfetchAddress() {
+        guard appSeting.address.count <= 0 else {
+            return
+        }
+        Task {
+            do {
+                let payload = CityListPayload()
+                let response:PJResponse<[AddressItem]> = try await NetworkManager.shared.request(payload)
+                appSeting.address = response.unskepticalness
+                print(appSeting.address.count)
+                print(AppSettings.shared.address.count)
             } catch {
                 
             }
         }
+    }
+    
+    func onTrackLocation() {
+        appSeting.adressManager.onLocationUpdate = { _ in
+            TrackHelper.share.onUploadPosition()
+            appSeting.adressManager.stopUpdatingLocation()
+        }
+        
+        TrackHelper.share.onUploadGoogleMarket()
+        TrackHelper.share.onUploadDeviceInfo()
     }
 }
 

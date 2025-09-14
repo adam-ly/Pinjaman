@@ -7,29 +7,70 @@
 
 import SwiftUI
 
+enum OrderType: String, CaseIterable, Equatable {
+    case all
+    case inProgress
+    case pendingRepayment
+    case settled
+    
+    func tabTitle() -> String {
+        switch self {
+        case .all:
+            return "All"
+        case .inProgress:
+            return "Apply"
+        case .pendingRepayment:
+            return "Repayment"
+        case .settled:
+            return "Finished"
+        }
+    }
+    
+    func getId() -> String {
+        switch self {
+        case .all:
+            return "4"
+        case .inProgress:
+            return "7"
+        case .pendingRepayment:
+            return "6"
+        case .settled:
+            return "5"
+        }
+    }
+}
+
 struct OrderView: View {
-    @State private var selectedTab = "All"
-    let tabs = ["All", "Apply", "Repayment", "Finished"]
+    
+    @State private var selectedTab = OrderType.all
+    @State private var orderListModel: OrderListModel?
+    @State private var shouldNavigate = false
+    @MainActor @State private var showLoading: Bool = false
+    
+    @State var destination: (String, String) = ("","")
+    
+    let tabs = [OrderType.all,
+                OrderType.inProgress,
+                OrderType.pendingRepayment,
+                OrderType.settled]
     
     init() {
         UISegmentedControl.appearance().selectedSegmentTintColor = UIColor(linkTextColor)
         UISegmentedControl.appearance().setTitleTextAttributes([.foregroundColor: UIColor.white], for: .selected)
         UISegmentedControl.appearance().setTitleTextAttributes([.foregroundColor: UIColor(secondaryTextColor)], for: .normal)
     }
-    
-    // 模拟订单数据
-    let orders = [
-        OrderItem(name: "Pinjaman Rebat", amount: "8,900,000", duration: "120days", interestRate: "0.05%", borrowDate: "08-28-2022", repaymentDate: "12-28-2023"),
-        OrderItem(name: "Pinjaman Rebat", amount: "8,900,000", duration: "120days", interestRate: "0.05%", borrowDate: "08-28-2022", repaymentDate: "12-28-2023"),
-        OrderItem(name: "Pinjaman Rebat", amount: "8,900,000", duration: "120days", interestRate: "0.05%", borrowDate: "08-28-2022", repaymentDate: "12-28-2023")
-    ]
-    
+       
     var body: some View {
         NavigationView {
             content
                 .navigationTitle("Order List")
                 .navigationBarTitleDisplayMode(.inline)
-        }
+                .hideTabBarOnPush(showTabbar: true)
+                .loading(isLoading: $showLoading)
+                .onAppear {
+                    onFetchOrder()
+                }
+        }.tint(.white)
     }
     
     var content: some View {
@@ -37,21 +78,21 @@ struct OrderView: View {
             orderType
                 .frame(height: 50)
                 .padding(.top, 12)
-            
             // 订单列表
             ScrollView {
                 VStack {
-                    ForEach(0..<orders.count, id: \.self) {
-                        index in
-                        OrderItemView(
-                            order: orders[index],
-                            isLastItem: index == orders.count - 1,
-                            onApplyTap: {
-                                print("Apply for order \(index + 1)")
+                    ForEach(orderListModel?.mercantilism ?? []) { item in
+                        OrderItemView(order: item) { link in
+                            if let dest = link.getDestination() as? (String?, String?), let link = dest.0 {
+                                self.destination = (link, dest.1 ?? "")
+                                shouldNavigate = true
                             }
-                        )
+                        }
                     }
                 }
+            }
+            NavigationLink(destination: NavigationManager.navigateTo(for: destination.0, prodId: destination.1), isActive: $shouldNavigate) {
+                EmptyView() // 隐藏的 NavigationLink 标签
             }
         }
         .background(Color(UIColor.systemGray6))
@@ -59,36 +100,35 @@ struct OrderView: View {
     
     var orderType: some View {
         Picker("", selection: $selectedTab) {
-            ForEach(tabs, id: \.self) { text in
-                Text(text).frame(height: 40)
+            ForEach(tabs, id: \.self) { type in
+                Text(type.tabTitle()).frame(height: 40)
             }
         }
         .pickerStyle(.segmented)
         .tint(.purple)
         .accentColor(.green)
         .padding(.horizontal)
+        .onChange(of: selectedTab) { newValue in
+            onFetchOrder()
+        }
     }
 }
 
-// 扩展View添加底部边框
-//extension View {
-//    func border(bottom: Bool = false, top: Bool = false, color: Color, width: CGFloat) -> some View {
-//        let border = Rectangle()
-//            .foregroundColor(color)
-//            .frame(height: width)
-//
-//        if bottom {
-//            return Group {
-//                self.overlay(border, alignment: .bottom)
-//            }
-//        } else if top {
-//            return Group {
-//                self.overlay(border, alignment: .top)
-//            }
-//        }
-//        return self
-//    }
-//}
+extension OrderView {
+    func onFetchOrder() {
+        Task {
+            do {
+                showLoading = true
+                let payload = OrderListPayload(polianite: self.selectedTab.getId())
+                let response: PJResponse<OrderListModel> = try await NetworkManager.shared.request(payload)
+                showLoading = false
+                self.orderListModel = response.unskepticalness
+            } catch {
+                showLoading = false
+            }
+        }
+    }
+}
 
 #Preview {
     OrderView()

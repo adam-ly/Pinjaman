@@ -10,10 +10,10 @@ import SwiftUI
 
 struct PropertyView: View {
     @State var prodId: String = ""
+    @MainActor @State private var showLoading: Bool = false
+    @State private var destination: (String, String) = ("","")
+    @State private var shouldPush: Bool = false
     @State private var phoneNumber = ""
-
-    // 控制全屏下拉菜单的显示
-    @State private var isShowingDropdown = false
     @State var bankInfoModel: BankInfoModel?
 
     let coordinateSpaceName = "scrollView"
@@ -31,6 +31,9 @@ struct PropertyView: View {
                 NotificationCenter.default.post(name: .userInfoScrolling, object: nil)
             }
             
+            NavigationLink(destination: NavigationManager.navigateTo(for: destination.0, prodId: destination.1),
+                           isActive: $shouldPush) {}
+            
             Spacer()
             
             PrimaryButton(title: "Next") {
@@ -40,8 +43,10 @@ struct PropertyView: View {
         }
         .navigationTitle(Text("Authentication Security"))
         .hideTabBarOnPush(showTabbar: false)
+        .loading(isLoading: $showLoading)
         .onAppear {
-            onFetchUserInfo()
+            onFetchBankInfo()
+            TrackHelper.share.onCatchUserTrack(type: .bindCard)
         }
     }
     
@@ -63,14 +68,16 @@ struct PropertyView: View {
 }
 
 extension PropertyView {
-    func onFetchUserInfo() {
+    func onFetchBankInfo() {
         Task {
             do {
+                showLoading = true
                 let payload = GetBankInfoPayload(christhood: prodId)
                 let homeResponse: PJResponse<BankInfoModel> = try await NetworkManager.shared.request(payload)
+                showLoading = false
                 self.bankInfoModel = homeResponse.unskepticalness
             } catch {
-                
+                showLoading = false
             }
         }
     }
@@ -88,15 +95,38 @@ extension PropertyView {
         print("param = \(param)")
         Task {
             do {
-                let payload = SaveUserInfoSecondItemPayload(param: param)
+                showLoading = true
+                let payload = SubmitBankInfoPayload(param: param)
                 let homeResponse: PJResponse<EmptyModel> = try await NetworkManager.shared.request(payload)
+                TrackHelper.share.onUploadRiskEvent(type: .bindCard, orderId: "")
                 print("sucess")
-                onFetchUserInfo()
+//                showLoading = false
+//                onFetchBankInfo()
+                onCheckNext()
             } catch {
-                
+                showLoading = false
             }
         }
-        
+    }
+    
+    func onCheckNext() {
+        Task {
+            do {
+                let payload = ProductDetailsPayload(christhood: prodId)
+                let response: PJResponse<ProductDetailModel> = try await NetworkManager.shared.request(payload)
+                showLoading = false
+                onGoToNext(detailModel: response.unskepticalness)
+            } catch {
+                showLoading = false
+            }
+        }
+    }
+    
+    func onGoToNext(detailModel: ProductDetailModel) {
+        if let next = detailModel.noneuphoniousness?.oversceptical { // 跳到下一项
+            destination = (next, prodId)
+            shouldPush = next.count > 0
+        }
     }
 }
 

@@ -21,7 +21,11 @@ struct InformationConfirmPopUp: View {
             ZStack(alignment: .top) {
                 VStack(spacing: 10) {
                     ForEach(identityCardModel?.unexcorticated ?? []) { item in
-                        ConfirmationTextItem(item: item)
+                        if item.goss == "geanticlinal" {
+                            ConfirmationTimeItem(item: item)
+                        } else {
+                            ConfirmationTextItem(item: item)
+                        }
                     }
                     Text("Check identity information and make sure it is true after sending it cannot be changed!")
                         .multilineTextAlignment(.center)
@@ -43,7 +47,7 @@ struct InformationConfirmPopUp: View {
                     .padding(.bottom, 16)
                 }
                 
-            }.background(
+            }.background (
                 ZStack(alignment: .top, content: {
                     Image("pd_popupBg")
                         .resizable()
@@ -96,6 +100,70 @@ struct ConfirmationTextItem: View {
             }
             .foregroundColor(secondaryTextColor)
             .background(textFieldBgColor)
+            .frame(height: 44)
+            .cornerRadius(10)
+        }
+        .foregroundColor(commonTextColor)
+        .padding(.horizontal, 16)
+    }
+}
+
+struct ConfirmationTimeItem: View {
+    @State var item: IdentityInfoItem
+    @State private var selectedDate = Date()
+    @State var dateString: String
+    
+    private let dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "dd-MM-YYYY"
+        return formatter
+    }()
+    
+    init(item: IdentityInfoItem) {
+        self.item = item
+        self.selectedDate = dateFormatter.date(from: item.estaminets) ?? Date()
+        self.dateString = item.estaminets
+    }
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            Text(item.samplings ?? "")
+                .font(.system(size: 16, weight: .regular))
+                .foregroundColor(commonTextColor)
+        
+            ZStack {
+                ZStack {
+                    DatePicker( "",
+                        selection: $selectedDate,
+                        displayedComponents: [.date]
+                    )
+                    .tint(linkTextColor)
+                    .labelsHidden() // 隐藏 DatePicker 默认的标签
+                    .datePickerStyle(.automatic)
+                    .scaleEffect(x:4, y:1)
+                    .onChange(of: selectedDate) { newValue in
+                        self.item.estaminets = dateFormatter.string(from: selectedDate)
+                        self.dateString = self.item.estaminets
+                        print("self.dateString = \(self.dateString)")
+                    }
+                    
+                    RoundedRectangle(cornerRadius: 10)
+                        .foregroundColor(textFieldBgColor)
+                        .background(textFieldBgColor)
+                        .frame(height: 44)
+                        .allowsHitTesting(false)
+                }
+                
+                HStack(content: {
+                    Text(dateString)
+                        .padding(.horizontal, 15)
+                        .padding(.vertical, 12)
+                        .foregroundColor(commonTextColor)
+                    Spacer()
+                })
+                .allowsHitTesting(false)
+            }
+            .foregroundColor(secondaryTextColor)
             .frame(height: 44)
             .cornerRadius(10)
         }

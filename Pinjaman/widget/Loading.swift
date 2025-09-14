@@ -12,6 +12,7 @@ struct LoadingModifier: ViewModifier {
 
     func body(content: Content) -> some View {
         ZStack(alignment: .center) {
+            
             // 原始视图内容，当加载时可以禁用其交互
             content
                 .disabled(isLoading)
@@ -24,6 +25,7 @@ struct LoadingModifier: ViewModifier {
                     .background(Color(.systemGray6))
                     .cornerRadius(10)
                     .shadow(radius: 10)
+                    .tint(.black)
             }
         }
     }

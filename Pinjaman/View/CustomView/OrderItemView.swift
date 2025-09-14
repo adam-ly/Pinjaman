@@ -6,23 +6,12 @@
 //
 
 import SwiftUI
-
-// 订单数据模型
-struct OrderItem: Identifiable {
-    let id = UUID()
-    let name: String
-    let amount: String
-    let duration: String
-    let interestRate: String
-    let borrowDate: String
-    let repaymentDate: String
-}
+import Kingfisher
 
 // 可复用的订单项视图
 struct OrderItemView: View {
-    let order: OrderItem
-    let isLastItem: Bool
-    let onApplyTap: () -> Void
+    @State var order: OrderModel
+    let onApplyTap: (String) -> Void
     
     var body: some View {
         content
@@ -31,7 +20,6 @@ struct OrderItemView: View {
     var content: some View {
         ZStack {
             VStack(alignment: .leading, spacing: 12) {
-                
                 headerArea
                 
                 contentArea
@@ -43,17 +31,29 @@ struct OrderItemView: View {
             .cornerRadius(10)
             .shadow(color: .gray.opacity(0.1), radius: 5, x: 0, y: 2)
             .padding(.horizontal, 20)
-            .padding(.bottom, isLastItem ? 20 : 15)
         }
     }
     
     var headerArea: some View {
         HStack {
-            Image("AppLogo")
-                .resizable()
-                .frame(width: 32, height: 32)
-                .cornerRadius(4)
-            Text(order.name)
+            if let url = URL(string: order.underspore ?? "") {
+                KFImage(url)
+                    .resizable()
+                    .placeholder({ _ in
+                        RoundedRectangle(cornerRadius: 6)
+                            .frame(width: 32, height: 32)
+                            .background(productBgColor)
+                    })
+                    .frame(width: 32, height: 32)
+                    .aspectRatio(contentMode: .fit)
+                    .cornerRadius(4)
+            } else {
+                Image("AppLogo")
+                    .resizable()
+                    .frame(width: 32, height: 32)
+                    .cornerRadius(6)
+            }
+            Text(order.multilayer ?? "")
                 .font(.system(size: 16, weight: .medium))
                 .foregroundColor(.black)
         }
@@ -62,38 +62,27 @@ struct OrderItemView: View {
     var contentArea: some View {
         VStack {
             HStack {
-                Text(order.amount)
+                Text(order.eveready ?? "")
                     .font(.system(size: 24, weight: .bold))
                     .foregroundColor(.black)
                 Spacer()
-                Text(order.duration)
+                Text(order.duramens ?? "")
                     .font(.system(size: 14))
                     .foregroundColor(.gray)
-                Text(order.interestRate)
-                    .font(.system(size: 14))
-                    .foregroundColor(.gray)
-                    .padding(.leading, 5)
             }
             .padding(.bottom, 10)
-            
+
             VStack(alignment: .leading, spacing: 5) {
-                HStack {
-                    Text("Borrowing date")
-                        .font(.system(size: 14))
-                        .foregroundColor(.gray)
-                    Spacer()
-                    Text(order.borrowDate)
-                        .font(.system(size: 14))
-                        .foregroundColor(.black)
-                }
-                HStack {
-                    Text("Repayment date")
-                        .font(.system(size: 14))
-                        .foregroundColor(.gray)
-                    Spacer()
-                    Text(order.repaymentDate)
-                        .font(.system(size: 14))
-                        .foregroundColor(.black)
+                ForEach(order.forheed ?? []) { item in
+                    HStack {
+                        Text(item.daceloninae ?? "")
+                            .font(.system(size: 14))
+                            .foregroundColor(.gray)
+                        Spacer()
+                        Text(item.basilicae ?? "")
+                            .font(.system(size: 14))
+                            .foregroundColor(.black)
+                    }
                 }
             }
             .padding(.bottom, 10)
@@ -105,20 +94,23 @@ struct OrderItemView: View {
     
     var bottomArea: some View {
         HStack {
-            Button {
-                // 处理贷款协议点击
-                print("Loan agreement tapped")
-            } label: {
-                Text("Loan Agreement")
-                    .font(.system(size: 14))
-                    .foregroundColor(.blue)
-                    .underline()
+            if let privacy = order.deactivations {
+                Button {
+                    print(order.romanticalism)
+                } label: {
+                    Text(privacy)
+                        .font(.system(size: 14))
+                        .foregroundColor(.blue)
+                        .underline()
+                }
             }
+            
             Spacer()
+            
             Button {
-                onApplyTap()
+                onApplyTap(order.intertwist ?? "")
             } label: {
-                Text("Apply")
+                Text(order.bullrushes ?? "")
                     .font(.system(size: 14, weight: .medium))
                     .frame(height: 32)
                     .frame(minWidth: 60)
@@ -128,14 +120,5 @@ struct OrderItemView: View {
                     .cornerRadius(16)
             }
         }
-    }
-}
-
-#Preview {
-    ZStack {
-        Color.yellow.ignoresSafeArea()
-        OrderItemView(order: OrderItem(name: "Pinjaman Rebat", amount: "8,900,000", duration: "120days", interestRate: "0.05%", borrowDate: "08-28-2022", repaymentDate: "12-28-2023"), isLastItem: false, onApplyTap: {
-            
-        })
     }
 }

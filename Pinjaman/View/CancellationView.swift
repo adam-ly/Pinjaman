@@ -8,12 +8,20 @@
 import SwiftUI
 
 struct CancellationView: View {
-    @State private var agree = true
+    @EnvironmentObject var appSeting: AppSettings
+    @MainActor @State private var showLoading: Bool = false
+    @State private var agree = false
 
     var body: some View {
+        content
+            .hideTabBarOnPush(showTabbar: false)
+            .navigationTitle(appSeting.userCenterModel?.roshelle?.daceloninae ?? "")
+    }
+    
+    var content: some View {
         VStack(spacing: 36) {
             Image("me_cancellation")
-            Text("The account cannot be restored after cancellation. To ensure the security of your account, before submitting a request, please confirm that you have successfully managed the services related to your account and note:")
+            Text(appSeting.userCenterModel?.roshelle?.anticreationist ?? "")
                 .multilineTextAlignment(.center)
                 .font(.system(size: 16, weight: .regular))
                 .padding(.horizontal, 24)
@@ -33,14 +41,27 @@ struct CancellationView: View {
             } label: {
                 Image(agree ? "option_select" : "option_unselect")
             }
-            
-            Text("I consent to the")
-                .foregroundColor(secondaryTextColor)
-            Text("<Privacy policy>")
-                .underline()
-                .onTapGesture {
-                    print("privacy click")
-                }
+            Text(appSeting.userCenterModel?.roshelle?.expatriated ?? "")
+                .font(.system(size: 14, weight: .regular))
+        }
+        .padding(.horizontal, 16)
+    }
+    
+    func onCancellation() {
+        guard agree else {
+            return
+        }
+        
+        Task {
+            do {
+                showLoading = true
+                let payload = DeactivateAccountPayload()
+                let response: PJResponse<EmptyModel> = try await NetworkManager.shared.request(payload)
+                showLoading = false
+                appSeting.logout()
+            } catch {
+                showLoading = false
+            }
         }
     }
 }

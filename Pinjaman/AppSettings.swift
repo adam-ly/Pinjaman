@@ -10,9 +10,12 @@ import SwiftUI
 
 class AppSettings: ObservableObject {    
     static let shared = AppSettings()
+    lazy var adressManager = AddressManager.shared
+    var address: [AddressItem] = []
     
-    @Published var user: UserInfo?
     @Published var configModal: ConfigModel?
+    @Published var userCenterModel: PersonCenterModel?
+    
     @Published var loginModel: LoginModel? {
         didSet {
             // Step 3: Automatically save the model whenever it changes
@@ -37,5 +40,10 @@ class AppSettings: ObservableObject {
     
     func isLogin() -> Bool {
         loginModel != nil
+    }
+    
+    func logout(){
+        loginModel = nil
+        userCenterModel = nil
     }
 }

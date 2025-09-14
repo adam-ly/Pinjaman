@@ -16,6 +16,7 @@ struct TabBarView: View {
             set: { tappedTab in
                 // 在這裡放入我們的攔截邏輯
                 if !appSeting.isLogin() && tappedTab != 0 {
+                    self.selectedTab = 0
                     print("攔截成功！使用者未登入，準備彈出登入頁面。")
                     // 執行攔截動作：彈出登入頁
                     showLoginView = true
