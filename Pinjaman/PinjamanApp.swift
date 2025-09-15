@@ -27,14 +27,11 @@ struct PinjamanApp: App {
                 .environmentObject(AppSettings.shared)
                 .alertSnack()
                 .onReceive(NotificationCenter.default.publisher(for: .showToast)) { notification in
-                    // 从通知的 userInfo 中获取数据
                     if let content = notification.userInfo?["content"] as? ToastContent {
-                        // 更新状态，这将触发 Toast 的显示和计时器重置
                         self.currentToast = content
                         self.showToast = true
                     }
                 }
-                // 将 toast 修饰符应用到整个视图上
                 .toast(
                     isPresented: $showToast,
                     // 如果 currentToast 为 nil，提供一个空的 ToastContent
@@ -45,10 +42,6 @@ struct PinjamanApp: App {
     
     var content: some View {
         ZStack {
-//            if canEnterHomePage {
-//                
-//            }
-//            TabBarView(showLoginView: $showLoginView)
             if !canEnterHomePage {
                 LaunchView(canEnterHomePage: $canEnterHomePage)
             } else {

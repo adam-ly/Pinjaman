@@ -8,13 +8,13 @@
 import SwiftUI
 
 struct CancellationView: View {
+    @EnvironmentObject var navigationState: NavigationState
     @EnvironmentObject var appSeting: AppSettings
     @MainActor @State private var showLoading: Bool = false
     @State private var agree = false
 
     var body: some View {
         content
-            .hideTabBarOnPush(showTabbar: false)
             .navigationTitle(appSeting.userCenterModel?.roshelle?.daceloninae ?? "")
     }
     
@@ -59,6 +59,8 @@ struct CancellationView: View {
                 let response: PJResponse<EmptyModel> = try await NetworkManager.shared.request(payload)
                 showLoading = false
                 appSeting.logout()
+                navigationState.shouldGoToRoot = false
+                NotificationCenter.default.post(name: .didLogout, object: nil)
             } catch {
                 showLoading = false
             }

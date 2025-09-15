@@ -1,57 +1,44 @@
 import SwiftUI
+class NavigationState: ObservableObject {
+    @Published var shouldGoToRoot: Bool = false
+    @Published var destination: String = ""
+    @Published var param: String = ""
+}
 
 struct TabBarView: View {
+    @StateObject private var navigationState = NavigationState()
     @EnvironmentObject var appSeting: AppSettings
-    @State private var selectedTab = 0
+    @State private var selectedTag = 0
     @Binding var showLoginView: Bool
     
-    // 1. 建立我們的自定義綁定 (這是關鍵)
-    private var tabSelectionBinding: Binding<Int> {
-        Binding(
-            // `get`：當 TabView 需要讀取當前選中項時調用
-            get: {
-                return self.selectedTab
-            },
-            // `set`：當使用者點擊 Tab，TabView 嘗試寫入新值時調用
-            set: { tappedTab in
-                // 在這裡放入我們的攔截邏輯
-                if !appSeting.isLogin() && tappedTab != 0 {
-                    self.selectedTab = 0
-                    print("攔截成功！使用者未登入，準備彈出登入頁面。")
-                    // 執行攔截動作：彈出登入頁
-                    showLoginView = true
-                } else {
-                    // 如果不需要攔截，就正常更新我們的狀態
-                    self.selectedTab = tappedTab
+    var body: some View {                        
+        NavigationView {
+            VStack{
+                ZStack {
+                    HomeView()
+                        .opacity(selectedTag == 0 ? 1 : 0)
+                    OrderView()
+                        .opacity(selectedTag == 1 ? 1 : 0)
+                    ProfileView()
+                        .opacity(selectedTag == 2 ? 1 : 0)
+                    NavigationLink(destination: NavigationManager.navigateTo(for: navigationState.destination, prodId: navigationState.param), isActive: $navigationState.shouldGoToRoot) {
+                        EmptyView() // 隐藏的 NavigationLink 标签
+                    }
                 }
+                tabArea
             }
-        )
-    }
-    
-    var body: some View {
-        TabView(selection: tabSelectionBinding) {
-            HomeView()
-                .tabItem {
-                    Image(systemName: "house.fill")
-                    Text("首页")
-                }
-                .tag(0)
-            
-            // 贷款页面 - 添加登录拦截
-            OrderView()
-                .tabItem {
-                    Image(systemName: "creditcard.fill")
-                    Text("贷款")
-                }
-                .tag(1)
-            
-            // 个人中心页面 - 添加登录拦截
-            ProfileView()
-                .tabItem {
-                    Image(systemName: "person.fill")
-                    Text("我的")
-                }
-                .tag(2)
+        }
+        .tint(.white)
+        .environmentObject(navigationState)
+        .onReceive(NotificationCenter.default.publisher(for: .didLogout)) { n in
+            selectedTag = 0
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .onSwitchTab)) { n in
+            guard let userInfo = n.userInfo as? [String: Any],
+                  let tab = userInfo["tab"] as? Int else {
+                return
+            }
+            selectedTag = tab
         }
         .onAppear {
             let appearance = UITabBarAppearance()
@@ -71,6 +58,56 @@ struct TabBarView: View {
                 UITabBar.appearance().scrollEdgeAppearance = appearance
             }
         }
+    }
+    
+    var tabArea: some View {
+        HStack(alignment: .center) {
+            Spacer()
+            Button {
+                selectedTag = 0
+                NotificationCenter.default.post(name: .onLanding, object: nil, userInfo: ["tag" : selectedTag])
+            } label: {
+                TabButton(selectedTag: $selectedTag, tag: 0, image: "home_unselected", selectedImage: "home_selected")
+            }
+            Spacer()
+            Button {
+                if !appSeting.isLogin() {
+                    showLoginView = true
+                } else {
+                    selectedTag = 1
+                    NotificationCenter.default.post(name: .onLanding, object: nil, userInfo: ["tag" : selectedTag])
+                }
+            } label: {
+                TabButton(selectedTag: $selectedTag, tag: 1, image: "order_unselected", selectedImage: "order_selected")
+            }
+            Spacer()
+            Button {
+                if !appSeting.isLogin() {
+                    showLoginView = true
+                } else {
+                    selectedTag = 2
+                    NotificationCenter.default.post(name: .onLanding, object: nil, userInfo: ["tag" : selectedTag])
+                }
+            } label: {
+                TabButton(selectedTag: $selectedTag, tag: 2, image: "me_unselected", selectedImage: "me_selected")
+            }
+            Spacer()
+        }
+        .frame(height: 50)
+        .background(commonTextColor)
+        .cornerRadius(25)
+        .padding(.horizontal, 16)
+    }
+}
+
+struct TabButton: View {
+    @Binding var selectedTag: Int
+    var tag: Int
+    var image: String
+    var selectedImage: String
+    var body: some View {
+        Image(selectedTag == tag ? selectedImage : image)
+            .frame(minWidth: 38, minHeight: 38)
     }
 }
 

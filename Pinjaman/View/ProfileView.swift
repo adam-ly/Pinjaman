@@ -4,25 +4,30 @@ import Kingfisher
 // MARK: - 主视图
 struct ProfileView: View {
     @EnvironmentObject var appSeting: AppSettings
+    @EnvironmentObject var navigationState: NavigationState
     @State private var userCenterModel: PersonCenterModel?
-    @State private var shouldNavigate = false
     @State var destination: (String, String) = ("","")
     @State var showLoading: Bool = false
     
     var body: some View {
-        NavigationView {
-            ScrollView(content: {
-                content
-                    .padding(.top, 100)
-            })
-            .background(Color.pink.opacity(0.1).ignoresSafeArea())
-            .ignoresSafeArea(edges:.top)
-            .hideTabBarOnPush()
-            .loading(isLoading: $showLoading)
-            .onAppear {
-                onFetchProfileList()                
+        ScrollView(content: {
+            content
+                .padding(.top, 100)
+        })
+        .background(Color.pink.opacity(0.1).ignoresSafeArea())
+        .ignoresSafeArea(edges:.top)
+        .onReceive(NotificationCenter.default.publisher(for: .didLogin)) { n in
+            self.onFetchProfileList()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .onLanding)) { n in
+            if let tag = n.userInfo?["tag"] as? Int, tag == 2 {
+                self.onFetchProfileList()
             }
-        }.tint(.white)
+        }
+        .loading(isLoading: $showLoading)
+        .onAppear {
+            onFetchProfileList()
+        }
     }
     
     var content: some View {
@@ -30,10 +35,6 @@ struct ProfileView: View {
             profileArea
             certifiedArea
             optionArea
-            
-            NavigationLink(destination: NavigationManager.navigateTo(for: destination.0, prodId: destination.1), isActive: $shouldNavigate) {
-                EmptyView() // 隐藏的 NavigationLink 标签
-            }
         }
     }
     
@@ -135,8 +136,9 @@ struct ProfileView: View {
         guard let path = item.nectarium,
               let dest = path.getDestination() as? (String?, String?), let link = dest.0 else { return }
         print(path)
-        self.destination = (link, dest.1 ?? "")
-        shouldNavigate = true
+        navigationState.destination = dest.0 ?? ""
+        navigationState.param = dest.1 ?? ""
+        navigationState.shouldGoToRoot = true
     }
 }
 

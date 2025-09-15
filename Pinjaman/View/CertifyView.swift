@@ -2,14 +2,16 @@ import SwiftUI
 import Kingfisher
 
 struct CertifyView: View {
+    @EnvironmentObject var navigationState: NavigationState
     @Environment(\.presentationMode) var presentationMode
     @MainActor @State private var showLoading: Bool = false
     @State var detailModel: ProductDetailModel?
     @State var prodId: String
     @State private var agree = false
-    @State private var shouldPush: Bool = false
-    @State private var destination: (String, String) = ("","")
-    
+//    @State private var shouldPush: Bool = false
+//    @State private var destination: (String, String) = ("","")
+//    @EnvironmentObject var navigationState: NavigationState
+
     // 认证项目状态枚举
     enum CertificationStatus {
         case pending // 待处理
@@ -41,8 +43,7 @@ struct CertifyView: View {
                     certifyItems
                 }
             }
-            NavigationLink(destination: NavigationManager.navigateTo(for: destination.0, prodId: destination.1),
-                           isActive: $shouldPush) {}
+
             Spacer()
             if let agreementContent = detailModel?.neurocentrum?.daceloninae, agreementContent.count > 0 {
                 agreement
@@ -53,7 +54,6 @@ struct CertifyView: View {
             .padding(.horizontal, 24)
         }
         .navigationTitle(detailModel?.demotika?.multilayer ?? "")
-        .hideTabBarOnPush(showTabbar: false)
         .background(Color.white)
         .loading(isLoading: $showLoading)
         .refreshable(action: {
@@ -179,8 +179,11 @@ struct CertifyView: View {
                 .onTapGesture {
                     print("privacy click")
                     if let link = detailModel?.neurocentrum?.heterogenean, link.count > 0 {
-                        destination = (link, "")
-                        shouldPush = true
+//                        destination = (link, "")
+//                        shouldPush = true
+                        navigationState.destination = link
+                        navigationState.param = ""
+                        navigationState.shouldGoToRoot = true
                     }
                 }
         }
@@ -188,36 +191,20 @@ struct CertifyView: View {
    
     func onGoToNext(item: AuthItem) {
         if let next = detailModel?.noneuphoniousness?.oversceptical { // 跳到下一项
-            destination = (next, prodId)
+//            destination = (next, prodId)
+            navigationState.destination = next
+            navigationState.param = prodId
         } else if let hasFinish = item.thortveitite, hasFinish == 0 {
-            destination = (item.oversceptical ?? "", prodId)
+//            destination = (item.oversceptical ?? "", prodId)
+            navigationState.destination = item.oversceptical ?? ""
+            navigationState.param = prodId
         } else {
-            destination = ("","")
+//            destination = ("","")
+            navigationState.destination = ""
+            navigationState.param = ""
         }
-        shouldPush = destination.0.count > 0
-    }
-    
-    @ViewBuilder
-    func onPushToView(destination: String) -> some View {
-        switch destination {
-        case "Algeciras": // photo
-            IdentifyView(prodId: prodId)
-        case "saxpence": // user info
-            UserInfomationView(prodId: prodId)
-        case "bordarius": // work
-            WorkAuthenticationVieW(prodId: prodId)
-        case "unpilled": // contact
-            ContactsView(prodId: prodId)
-        case "synastry": // bank
-            PropertyView(prodId: prodId)
-        default:
-            if destination.contains("http"),
-               let url = URL(string: destination.addMadatoryParameters()) {
-                WebView(url: url)
-            } else {
-                Text("Text")
-            }
-        }
+//        shouldPush = destination.0.count > 0
+        navigationState.shouldGoToRoot = true
     }
 }
 
@@ -234,12 +221,15 @@ extension CertifyView {
     func onClickSubmitButton() {
         // find out the item that has not finish
         if let item = detailModel?.ridding?.first(where: { $0.thortveitite == 0 }) {
-            destination = (item.oversceptical ?? "", prodId)
-            shouldPush = true
+//            destination = (item.oversceptical ?? "", prodId)
+//            shouldPush = true
+            navigationState.destination = item.oversceptical ?? ""
+            navigationState.param = prodId
+            navigationState.shouldGoToRoot = true
             return
         }
         
-        guard let prodId = detailModel?.demotika?.charca ,
+        guard let orderId = detailModel?.demotika?.charca ,
            let amount = detailModel?.demotika?.pityroid,
            let term   = detailModel?.demotika?.duramens,
            let type   = detailModel?.demotika?.spliffs else {
@@ -251,12 +241,17 @@ extension CertifyView {
         showLoading = true
         Task {
             do {
-                let payLoad = PlaceOrderPayload(charca: prodId, pityroid: amount, duramens: term, spliffs: type)
+                let payLoad = PlaceOrderPayload(charca: orderId, pityroid: amount, duramens: term, spliffs: type)
                 let response: PJResponse<LornOrderModel> = try await NetworkManager.shared.request(payLoad)
                 showLoading = false
-                if let link = response.unskepticalness.nectarium {
-                    destination = (link, prodId)
-                    shouldPush = true
+                
+                TrackHelper.share.onCatchUserTrack(type: .startLoanReview)
+                TrackHelper.share.onUploadRiskEvent(type: .startLoanReview, orderId: orderId)
+                
+                if let link = response.unskepticalness.nectarium?.getDestination().0 as? String {
+                    navigationState.destination = link
+                    navigationState.param = prodId
+                    navigationState.shouldGoToRoot = true
                 }
             } catch {
                 showLoading = false

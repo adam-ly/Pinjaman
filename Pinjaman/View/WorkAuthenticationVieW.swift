@@ -8,12 +8,12 @@
 import SwiftUI
 
 struct WorkAuthenticationVieW: View {
-    
+    @EnvironmentObject var navigationState: NavigationState
     @State var prodId: String = ""
     @State private var phoneNumber = ""
     @MainActor @State private var showLoading: Bool = false
-    @State private var destination: (String, String) = ("","")
-    @State private var shouldPush: Bool = false
+//    @State private var destination: (String, String) = ("","")
+//    @State private var shouldPush: Bool = false
     // 控制全屏下拉菜单的显示
     @State private var isShowingDropdown = false
     @State var workModel: UserWorkModel?
@@ -33,8 +33,6 @@ struct WorkAuthenticationVieW: View {
                 hideKeyboard()
                 NotificationCenter.default.post(name: .userInfoScrolling, object: nil)
             }
-            NavigationLink(destination: NavigationManager.navigateTo(for: destination.0, prodId: destination.1),
-                           isActive: $shouldPush) {}
             Spacer()
             
             PrimaryButton(title: "Next") {
@@ -42,8 +40,8 @@ struct WorkAuthenticationVieW: View {
             }
             .padding(.horizontal, 24)
         }
+        .ignoresSafeArea(.keyboard, edges: .bottom) // 讓視圖忽略鍵盤安全區
         .navigationTitle(Text("Authentication Security"))
-        .hideTabBarOnPush(showTabbar: false)
         .loading(isLoading: $showLoading)
         .onAppear {
             onFetchUserInfo()
@@ -143,8 +141,11 @@ extension WorkAuthenticationVieW {
     
     func onGoToNext(detailModel: ProductDetailModel) {
         if let next = detailModel.noneuphoniousness?.oversceptical { // 跳到下一项
-            destination = (next, prodId)
-            shouldPush = next.count > 0
+            navigationState.destination = next
+            navigationState.param = prodId
+            navigationState.shouldGoToRoot = true
+        } else {
+            navigationState.shouldGoToRoot = false
         }
     }
 }

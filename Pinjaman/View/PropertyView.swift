@@ -9,10 +9,9 @@ import Foundation
 import SwiftUI
 
 struct PropertyView: View {
-    @State var prodId: String = ""
+    @EnvironmentObject var navigationState: NavigationState
     @MainActor @State private var showLoading: Bool = false
-    @State private var destination: (String, String) = ("","")
-    @State private var shouldPush: Bool = false
+    @State var prodId: String = ""
     @State private var phoneNumber = ""
     @State var bankInfoModel: BankInfoModel?
 
@@ -22,17 +21,13 @@ struct PropertyView: View {
         VStack {
             ScrollView {
                 ScrollViewOffsetTracker(coordinateSpaceName: coordinateSpaceName)
-                list
-                .padding(.top, 16)
+                list.padding(.top, 16)
             }
             .coordinateSpace(name: coordinateSpaceName)
             .onPreferenceChange(ScrollViewOffsetPreferenceKey.self) { offset in
                 hideKeyboard()
                 NotificationCenter.default.post(name: .userInfoScrolling, object: nil)
             }
-            
-            NavigationLink(destination: NavigationManager.navigateTo(for: destination.0, prodId: destination.1),
-                           isActive: $shouldPush) {}
             
             Spacer()
             
@@ -41,8 +36,8 @@ struct PropertyView: View {
             }
             .padding(.horizontal, 24)
         }
+        .ignoresSafeArea(.keyboard, edges: .bottom) // 讓視圖忽略鍵盤安全區
         .navigationTitle(Text("Authentication Security"))
-        .hideTabBarOnPush(showTabbar: false)
         .loading(isLoading: $showLoading)
         .onAppear {
             onFetchBankInfo()
@@ -124,8 +119,11 @@ extension PropertyView {
     
     func onGoToNext(detailModel: ProductDetailModel) {
         if let next = detailModel.noneuphoniousness?.oversceptical { // 跳到下一项
-            destination = (next, prodId)
-            shouldPush = next.count > 0
+            navigationState.destination = next
+            navigationState.param = prodId
+            navigationState.shouldGoToRoot = true
+        } else {
+            navigationState.shouldGoToRoot = false
         }
     }
 }

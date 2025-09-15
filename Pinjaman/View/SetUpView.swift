@@ -8,10 +8,9 @@
 import SwiftUI
 
 struct SetUpView: View {
+    @EnvironmentObject var navigationState: NavigationState
     @EnvironmentObject var appSeting: AppSettings
-    @State private var shouldNavigate = false
     @MainActor @State private var showLoading: Bool = false
-
     var body: some View {
         VStack {
             // 主内容
@@ -23,18 +22,13 @@ struct SetUpView: View {
                 cancelAndLogout
                 
                 Spacer()
-
-                explaination
                 
-                NavigationLink(destination: CancellationView(), isActive: $shouldNavigate) {
-                    EmptyView() // 隐藏的 NavigationLink 标签
-                }
+                explaination
             }
             .padding(.horizontal, 20)
         }
         .background(Color(UIColor.systemGray6))
         .edgesIgnoringSafeArea(.bottom)
-        .hideTabBarOnPush(showTabbar: false)
         .navigationTitle("Set up")
     }
     
@@ -78,7 +72,8 @@ struct SetUpView: View {
             // 账户取消
             Button {
                 // 账户取消操作
-                shouldNavigate = true
+                navigationState.destination = Destination.cancellation.rawValue
+                navigationState.shouldGoToRoot = true
             } label: {
                 HStack {
                     Image(systemName: "envelope")
@@ -143,6 +138,8 @@ extension SetUpView {
                 let loginResponse: PJResponse<EmptyModel> = try await NetworkManager.shared.request(payLoad)
                 showLoading = false
                 appSeting.logout()
+                navigationState.shouldGoToRoot = false
+                NotificationCenter.default.post(name: .didLogout, object: nil)
             } catch {
                 showLoading = false
             }

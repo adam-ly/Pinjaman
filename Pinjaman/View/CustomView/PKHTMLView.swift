@@ -9,16 +9,31 @@ import SwiftUI
 import WebKit
 import StoreKit
 
+struct PKWebView: View {
+    let htmlLink: String
+    let shouldGoBackToHome: Bool
+    @State var title: String = ""
+    
+    var body: some View {
+        PKHTMLView(title: $title, htmlLink: htmlLink, shouldGoBackToHome: shouldGoBackToHome)
+            .navigationTitle(title)
+    }
+}
+
 // 一个用于桥接 WKWebView 和 SwiftUI 的视图
 struct PKHTMLView: UIViewControllerRepresentable {
-    
+    @EnvironmentObject var navigationState: NavigationState
+    @Environment(\.presentationMode) var presentationMode
+    @Binding var title: String
     // 输入参数，用于加载和控制视图行为
     let htmlLink: String
     let shouldGoBackToHome: Bool
     
     // UIViewControllerRepresentable 协议方法：创建并配置视图控制器
     func makeUIViewController(context: Context) -> PKHTMLViewController {
-        let viewController = PKHTMLViewController(htmlLink: htmlLink, shouldReturnHome: shouldGoBackToHome)
+        let viewController = PKHTMLViewController(htmlLink: htmlLink, shouldReturnHome: shouldGoBackToHome, onGetName: { name in
+            self.title = name
+        })
         viewController.delegate = context.coordinator
         return viewController
     }
@@ -68,34 +83,18 @@ struct PKHTMLView: UIViewControllerRepresentable {
                 
                 // 根据消息名称分发处理逻辑
                 switch message.name {
-                case "WikipediaBishop":
-                    if let urlString = message.body as? String {
-                        self.handleRedirect(routeStr: urlString)
-                    }
-                case "JungThe":
+                case "Jariah": // 关闭当前webview
                     self.handleCloseWebView()
-                case "LessentielProgramme":
+                case "Naemorhedus"://带参数页面跳转
                     if let args = message.body as? [String], args.count >= 2, let urlString = args[0] as? String, let params = args[1] as? String {
                         self.handleRedirectWithParams(urlString: urlString, params: params)
                     }
-                case "FlagPsychiatrist":
+                case "pollute": // 回到首页，并关闭当前页
                     self.handleSwitchTab(index: 0)
-                case "AtHad":
-                    self.handleSwitchTab(index: 2)
-                case "OlympicAt":
-                    self.handleRedirectToLogin()
-                case "RedIn":
-                    if let phoneNumber = message.body as? String {
-                        self.handleCall(phoneNumber: phoneNumber)
-                    }
-                case "DistinctUsfsa":
+                case "blahlaut": // app store评分功能
                     self.handleAppStoreReview()
-                case "ArticleFlame":
+                case "Ribhus": // 确认申请埋点调用方法
                     self.handleTrackApplicationConfirmation()
-                case "ReliableSaid":
-                    self.handleStartCardBinding()
-                case "UntilAlexandria":
-                    self.handleEndCardBinding()
                 default:
                     print("未处理的 JS 消息: \(message.name)")
                 }
@@ -103,39 +102,24 @@ struct PKHTMLView: UIViewControllerRepresentable {
         }
         
         // MARK: - JS 消息处理方法
-        
-        private func handleRedirect(routeStr: String) {
-            print("页面跳转: \(routeStr)")
-            // 可以在这里实现真实的路由逻辑
-        }
-        
         private func handleCloseWebView() {
             print("关闭当前 Web 视图")
             // 可以在这里实现返回上一页的逻辑，例如使用 parent.dismiss()
+            parent.presentationMode.wrappedValue.dismiss()
         }
         
         private func handleRedirectWithParams(urlString: String, params: String) {
             print("带参数页面跳转: URL: \(urlString), 参数: \(params)")
             // 可以在这里实现带参数的跳转逻辑
+            
         }
         
         private func handleSwitchTab(index: Int) {
             print("回到主页并关闭当前页，切换到 Tab: \(index)")
-            // 可以在这里实现切换 Tab 的逻辑
+            parent.navigationState.shouldGoToRoot = false
+            NotificationCenter.default.post(name: .onSwitchTab, object: nil, userInfo: ["tab": 0])
         }
-        
-        private func handleRedirectToLogin() {
-            print("跳转到登录页并清空页面栈")
-            // 可以在这里实现跳转到登录页的逻辑
-        }
-        
-        private func handleCall(phoneNumber: String) {
-            let telURL = "tel://\(phoneNumber)"
-            if let url = URL(string: telURL), UIApplication.shared.canOpenURL(url) {
-                UIApplication.shared.open(url)
-            }
-        }
-        
+               
         private func handleAppStoreReview() {
             if #available(iOS 10.3, *) {
                 SKStoreReviewController.requestReview()
@@ -149,16 +133,8 @@ struct PKHTMLView: UIViewControllerRepresentable {
         private func handleTrackApplicationConfirmation() {
             print("记录确认申请埋点")
             // 可以在这里调用埋点统计 SDK
-        }
-        
-        private func handleStartCardBinding() {
-            print("开始绑卡时间记录")
-            // 可以在这里记录事件
-        }
-        
-        private func handleEndCardBinding() {
-            print("结束绑卡时间记录")
-            // 可以在这里记录事件
+            TrackHelper.share.onCatchUserTrack(type: .endLoanReview)
+            TrackHelper.share.onUploadRiskEvent(type: .endLoanReview, orderId: "")
         }
     }
 }
@@ -178,9 +154,11 @@ class PKHTMLViewController: UIViewController {
     var htmlLink: String
     var shouldGoBackToHome: Bool
     
-    init(htmlLink: String, shouldReturnHome: Bool = false) {
+    var onGetName: ((String) -> Void)?
+    init(htmlLink: String, shouldReturnHome: Bool = false, onGetName: ((String) -> Void)?) {
         self.htmlLink = htmlLink
         self.shouldGoBackToHome = shouldReturnHome
+        self.onGetName = onGetName
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -198,6 +176,7 @@ class PKHTMLViewController: UIViewController {
             let request = URLRequest(url: url)
             webView.load(request)
         }
+        webView.addObserver(self, forKeyPath: "title", options: .new, context: nil)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -209,17 +188,11 @@ class PKHTMLViewController: UIViewController {
         let userContentController = WKUserContentController()
         
         // 添加 JS 消息处理名称，这些名称与你的 JavaScript 端相对应
-        userContentController.add(delegate!, name: "WikipediaBishop")
-        userContentController.add(delegate!, name: "JungThe")
-        userContentController.add(delegate!, name: "LessentielProgramme")
-        userContentController.add(delegate!, name: "FlagPsychiatrist")
-        userContentController.add(delegate!, name: "AtHad")
-        userContentController.add(delegate!, name: "OlympicAt")
-        userContentController.add(delegate!, name: "RedIn")
-        userContentController.add(delegate!, name: "DistinctUsfsa")
-        userContentController.add(delegate!, name: "ArticleFlame")
-        userContentController.add(delegate!, name: "ReliableSaid")
-        userContentController.add(delegate!, name: "UntilAlexandria")
+        userContentController.add(delegate!, name: "Jariah") // 关闭当前webview
+        userContentController.add(delegate!, name: "Naemorhedus") //带参数页面跳转
+        userContentController.add(delegate!, name: "pollute") // 回到首页，并关闭当前页
+        userContentController.add(delegate!, name: "blahlaut") // app store评分功能
+        userContentController.add(delegate!, name: "Ribhus") // 确认申请埋点调用方法
         
         let webConfiguration = WKWebViewConfiguration()
         webConfiguration.userContentController = userContentController
@@ -241,7 +214,7 @@ class PKHTMLViewController: UIViewController {
     
     private func setupProgressView() {
         let progressView = UIProgressView(progressViewStyle: .default)
-        progressView.tintColor = .systemBlue
+        progressView.tintColor = .systemPink
         view.addSubview(progressView)
         progressView.translatesAutoresizingMaskIntoConstraints = false
         
@@ -262,6 +235,10 @@ class PKHTMLViewController: UIViewController {
         if keyPath == "estimatedProgress", let webView = object as? WKWebView {
             progressView.progress = Float(webView.estimatedProgress)
             progressView.isHidden = webView.estimatedProgress == 1.0
+        } else if keyPath == "title" {
+            print("title = \(webView.title)")
+            onGetName?(webView.title ?? "")
+            navigationItem.title = webView.title
         }
     }
     
@@ -271,58 +248,3 @@ class PKHTMLViewController: UIViewController {
     }
 }
 
-struct WebView: UIViewRepresentable {
-    let url: URL
-
-    // 1. makeUIView: 创建和配置 WKWebView
-    func makeUIView(context: Context) -> WKWebView {
-        let webView = WKWebView()
-        return webView
-    }
-    
-    // 2. updateUIView: 当 SwiftUI 视图状态更新时调用
-    func updateUIView(_ uiView: WKWebView, context: Context) {
-        let request = URLRequest(url: url)
-        uiView.load(request)
-    }
-    
-    // 可选：添加 Coordinator 来处理 WKWebView 的代理方法
-    func makeCoordinator() -> Coordinator {
-        Coordinator(self)
-    }
-    
-    class Coordinator: NSObject, WKNavigationDelegate {
-        var parent: WebView
-        
-        init(_ parent: WebView) {
-            self.parent = parent
-        }
-        
-        // 示例: 可以在这里添加导航代理方法，如加载完成等
-        func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-            print("Web view finished loading.")
-        }
-    }
-}
-
-struct WebViewExample: View {
-    let url = URL(string: "https://www.google.com")!
-    
-    var body: some View {
-        NavigationView {
-            VStack {
-                // 使用你创建的 WebView 结构体
-                WebView(url: url)
-            }
-            .navigationTitle("Web View")
-            .navigationBarTitleDisplayMode(.inline)
-        }
-    }
-}
-
-// 预览
-struct WebViewExample_Previews: PreviewProvider {
-    static var previews: some View {
-        WebViewExample()
-    }
-}

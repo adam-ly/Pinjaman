@@ -15,5 +15,7 @@ extension Notification.Name {
     static let didLogin  = Notification.Name("didLogin")
     static let didLogout  = Notification.Name("didLogout")
     static let userInfoScrolling = Notification.Name("userInfoScrolling")
+    static let onSwitchTab = Notification.Name("onSwitchTab")
+    static let onLanding = Notification.Name("onLanding")
 }
 

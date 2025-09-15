@@ -41,13 +41,13 @@ enum OrderType: String, CaseIterable, Equatable {
 }
 
 struct OrderView: View {
-    
+    @EnvironmentObject var appSeting: AppSettings
     @State private var selectedTab = OrderType.all
     @State private var orderListModel: OrderListModel?
-    @State private var shouldNavigate = false
+    @EnvironmentObject var navigationState: NavigationState
     @MainActor @State private var showLoading: Bool = false
     
-    @State var destination: (String, String) = ("","")
+//    @State var destination: (String, String) = ("","")
     
     let tabs = [OrderType.all,
                 OrderType.inProgress,
@@ -61,16 +61,36 @@ struct OrderView: View {
     }
        
     var body: some View {
-        NavigationView {
-            content
-                .navigationTitle("Order List")
-                .navigationBarTitleDisplayMode(.inline)
-                .hideTabBarOnPush(showTabbar: true)
-                .loading(isLoading: $showLoading)
-                .onAppear {
-                    onFetchOrder()
+        GeometryReader { geometry in
+            VStack(spacing: 0) {
+                VStack {
+                    ZStack(alignment: .bottom) {
+                        linkTextColor
+                        Text("Order List")
+                            .font(.system(size: 17, weight: .medium))
+                            .foregroundColor(.white)
+                            .padding(.bottom, 10)
+                    }
                 }
-        }.tint(.white)
+                .frame(height: 40 + 44)
+                .onReceive(NotificationCenter.default.publisher(for: .didLogin)) { n in
+                    self.onFetchOrder()
+                }
+                .onReceive(NotificationCenter.default.publisher(for: .onLanding)) { n in
+                    if let tag = n.userInfo?["tag"] as? Int, tag == 1 {
+                        self.onFetchOrder()
+                    }
+                }
+                content
+                    .loading(isLoading: $showLoading)
+                    .onAppear {
+                        if appSeting.isLogin() {
+                            onFetchOrder()
+                        }
+                    }
+            }
+            .ignoresSafeArea(edges:.top)
+        }
     }
     
     var content: some View {
@@ -84,15 +104,13 @@ struct OrderView: View {
                     ForEach(orderListModel?.mercantilism ?? []) { item in
                         OrderItemView(order: item) { link in
                             if let dest = link.getDestination() as? (String?, String?), let link = dest.0 {
-                                self.destination = (link, dest.1 ?? "")
-                                shouldNavigate = true
+                                navigationState.destination = link
+                                navigationState.param = dest.1 ?? ""
+                                navigationState.shouldGoToRoot = true
                             }
                         }
                     }
                 }
-            }
-            NavigationLink(destination: NavigationManager.navigateTo(for: destination.0, prodId: destination.1), isActive: $shouldNavigate) {
-                EmptyView() // 隐藏的 NavigationLink 标签
             }
         }
         .background(Color(UIColor.systemGray6))

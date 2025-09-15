@@ -37,19 +37,22 @@ struct LaunchView: View {
     }
     
     func precheck() {
+        NetworkPermissionManager.shared.checkConnectionStatus {[self] isConnected, type in
+            if isConnected {
+                isNetworkDisable = false
+                showTryAgainButton = false
+                onProcessChecking()
+            } else {
+                isNetworkDisable = true
+                showTryAgainButton = true
+                NotificationCenter.postAlert(alertType: .network)
+            }
+        }
+    }
+    
+    func onProcessChecking() {
         Task {
             do {
-                // 1. 先检查网络是否可用
-                let connectStatus = await NetworkPermissionManager.shared.checkConnectionStatus()
-                if !connectStatus.isConnected {
-                    await MainActor.run {
-                        isNetworkDisable = true
-                        showTryAgainButton = true
-                        NotificationCenter.postAlert(alertType: .network)
-                    }
-                    return
-                }
-                
                 // 2. 检查IDFA
                 let (idfa, status) = await IDFAManager.shared.requestIDFA()
                 // google_market上报
@@ -93,11 +96,6 @@ struct LaunchView: View {
         }
     }
     
-    func checkNetwork() async -> Bool {
-        let isConnected = await isNetworkConnected()
-        return isConnected
-    }
-    
     func onFetchConfig() async -> PJResponse<ConfigModel>? {
         showLoading = true
         let payload = LoginInitializationPayload(bilirubinic: "en", chartographical: 0, puboiliac: 0)
@@ -106,23 +104,6 @@ struct LaunchView: View {
         print("response.unskepticalness.overplace?.detach = \(response?.unskepticalness.overplace?.detach)")
         showLoading = false
         return response
-    }
-        
-    
-    func isNetworkConnected() async -> Bool {
-        return await withCheckedContinuation { continuation in
-            let monitor = NWPathMonitor()
-            monitor.pathUpdateHandler = { path in
-                if path.status == .satisfied {
-                    continuation.resume(returning: true)
-                } else {
-                    continuation.resume(returning: false)
-                }
-                monitor.cancel()
-            }
-            let queue = DispatchQueue(label: "NetworkMonitor")
-            monitor.start(queue: queue)
-        }
     }
 }
 

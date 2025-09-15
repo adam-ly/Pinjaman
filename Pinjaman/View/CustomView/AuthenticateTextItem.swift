@@ -29,6 +29,7 @@ struct AuthenticateTextItem: View {
                     }
                     .padding(.horizontal, 15)
                     .padding(.vertical, 12)
+                    .keyboardType(item.obtected == 1 ? .numberPad : .default)
                     .tint(.linkText)
                     .foregroundColor(.black)
             }

@@ -175,7 +175,7 @@ class Mercantilism: Codable {
 }
 
 // aladfar
-class Aladfar: Codable {
+class Aladfar: Codable, Identifiable {
     // --- 通用字段 ---
     let nectarium: String? // 跳转url
     let towaoc: String? // 图片url
@@ -202,7 +202,7 @@ class Aladfar: Codable {
     let acromiodeltoid: String? // 产品标签颜色
     let declares: Int? // 不确定用途
     let mygale: String? // 不确定用途
-    let orthotolidin: String? // 不确定用途
+    @LossyString var orthotolidin: String? // 不确定用途
     let subband: Int? // 产品类型 1 API 2 H5
     let urethroscopy: String? // 不确定用途
     let morphonomy: Int? // 今天是否点击 0否 1是
@@ -211,7 +211,134 @@ class Aladfar: Codable {
     let recompiled: [String]? // 不确定用途
     let lagunas: Int? // 不确定用途
     let nonadmission: String? // 最大额度
+    
+    // 1. 定义 CodingKeys 枚举，对应 JSON 键名
+    enum CodingKeys: String, CodingKey {
+        case nectarium
+        case towaoc
+        case flippers
+        case christhood
+        case daceloninae
+        case serphoid
+        case multilayer
+        case underspore
+        case bullrushes
+        case plumbog
+        case pithecanthropoid
+        case rhadamanthine
+        case dirdums
+        case marocain
+        case cyclecar
+        case infantries
+        case ergothioneine
+        case atoners
+        case germann
+        case reconsolidate
+        case acromiodeltoid
+        case declares
+        case mygale
+        case orthotolidin
+        case subband
+        case urethroscopy
+        case morphonomy
+        case setover
+        case peerages
+        case recompiled
+        case lagunas
+        case nonadmission
+    }
+    
+    // 2. 编写 Decodable 的手动初始化器
+    required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        
+        // 使用 decodeIfPresent() 来安全地解码所有可选字段
+        // 如果 JSON 中不存在这个 key，它会返回 nil 而不会崩溃。
+        nectarium = try container.decodeIfPresent(String.self, forKey: .nectarium)
+        towaoc = try container.decodeIfPresent(String.self, forKey: .towaoc)
+        flippers = try container.decodeIfPresent(String.self, forKey: .flippers)
+        christhood = try container.decodeIfPresent(Int.self, forKey: .christhood)
+        daceloninae = try container.decodeIfPresent(String.self, forKey: .daceloninae)
+        
+        serphoid = try container.decodeIfPresent(Int.self, forKey: .serphoid)
+        multilayer = try container.decodeIfPresent(String.self, forKey: .multilayer)
+        underspore = try container.decodeIfPresent(String.self, forKey: .underspore)
+        bullrushes = try container.decodeIfPresent(String.self, forKey: .bullrushes)
+        plumbog = try container.decodeIfPresent(String.self, forKey: .plumbog)
+        pithecanthropoid = try container.decodeIfPresent(String.self, forKey: .pithecanthropoid)
+        rhadamanthine = try container.decodeIfPresent(String.self, forKey: .rhadamanthine)
+        dirdums = try container.decodeIfPresent(String.self, forKey: .dirdums)
+        marocain = try container.decodeIfPresent(String.self, forKey: .marocain)
+        cyclecar = try container.decodeIfPresent(String.self, forKey: .cyclecar)
+        infantries = try container.decodeIfPresent(String.self, forKey: .infantries)
+        ergothioneine = try container.decodeIfPresent(String.self, forKey: .ergothioneine)
+        atoners = try container.decodeIfPresent(String.self, forKey: .atoners)
+        germann = try container.decodeIfPresent(String.self, forKey: .germann)
+        reconsolidate = try container.decodeIfPresent([String].self, forKey: .reconsolidate)
+        acromiodeltoid = try container.decodeIfPresent(String.self, forKey: .acromiodeltoid)
+        declares = try container.decodeIfPresent(Int.self, forKey: .declares)
+        mygale = try container.decodeIfPresent(String.self, forKey: .mygale)
+        subband = try container.decodeIfPresent(Int.self, forKey: .subband)
+        urethroscopy = try container.decodeIfPresent(String.self, forKey: .urethroscopy)
+        morphonomy = try container.decodeIfPresent(Int.self, forKey: .morphonomy)
+        setover = try container.decodeIfPresent([String].self, forKey: .setover)
+        peerages = try container.decodeIfPresent(String.self, forKey: .peerages)
+        recompiled = try container.decodeIfPresent([String].self, forKey: .recompiled)
+        lagunas = try container.decodeIfPresent(Int.self, forKey: .lagunas)
+        nonadmission = try container.decodeIfPresent(String.self, forKey: .nonadmission)
+        
+        // 对 orthotolidin 进行特殊处理，兼容类型不匹配和 key 不存在
+        // 我们尝试按 String 解码，如果失败，就按 Int 解码，如果都失败，则设为 nil
+        do {
+            self.orthotolidin = try container.decodeIfPresent(String.self, forKey: .orthotolidin)
+        } catch {
+            if let intValue = try? container.decodeIfPresent(Int.self, forKey: .orthotolidin) {
+                self.orthotolidin = String(intValue)
+            } else {
+                self.orthotolidin = nil
+            }
+        }
+    }
+    
+    // 3. 编写 Encodable 的手动实现，以确保兼容性
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encodeIfPresent(nectarium, forKey: .nectarium)
+        try container.encodeIfPresent(towaoc, forKey: .towaoc)
+        try container.encodeIfPresent(flippers, forKey: .flippers)
+        try container.encodeIfPresent(christhood, forKey: .christhood)
+        try container.encodeIfPresent(daceloninae, forKey: .daceloninae)
+        
+        try container.encodeIfPresent(serphoid, forKey: .serphoid)
+        try container.encodeIfPresent(multilayer, forKey: .multilayer)
+        try container.encodeIfPresent(underspore, forKey: .underspore)
+        try container.encodeIfPresent(bullrushes, forKey: .bullrushes)
+        try container.encodeIfPresent(plumbog, forKey: .plumbog)
+        try container.encodeIfPresent(pithecanthropoid, forKey: .pithecanthropoid)
+        try container.encodeIfPresent(rhadamanthine, forKey: .rhadamanthine)
+        try container.encodeIfPresent(dirdums, forKey: .dirdums)
+        try container.encodeIfPresent(marocain, forKey: .marocain)
+        try container.encodeIfPresent(cyclecar, forKey: .cyclecar)
+        try container.encodeIfPresent(infantries, forKey: .infantries)
+        try container.encodeIfPresent(ergothioneine, forKey: .ergothioneine)
+        try container.encodeIfPresent(atoners, forKey: .atoners)
+        try container.encodeIfPresent(germann, forKey: .germann)
+        try container.encodeIfPresent(reconsolidate, forKey: .reconsolidate)
+        try container.encodeIfPresent(acromiodeltoid, forKey: .acromiodeltoid)
+        try container.encodeIfPresent(declares, forKey: .declares)
+        try container.encodeIfPresent(mygale, forKey: .mygale)
+        try container.encodeIfPresent(orthotolidin, forKey: .orthotolidin)
+        try container.encodeIfPresent(subband, forKey: .subband)
+        try container.encodeIfPresent(urethroscopy, forKey: .urethroscopy)
+        try container.encodeIfPresent(morphonomy, forKey: .morphonomy)
+        try container.encodeIfPresent(setover, forKey: .setover)
+        try container.encodeIfPresent(peerages, forKey: .peerages)
+        try container.encodeIfPresent(recompiled, forKey: .recompiled)
+        try container.encodeIfPresent(lagunas, forKey: .lagunas)
+        try container.encodeIfPresent(nonadmission, forKey: .nonadmission)
+    }
 }
+
 
 // MARK: - 个人中心数据模型
 class PersonCenterModel: Codable {
@@ -646,15 +773,6 @@ class BankInfoModel: Codable {
 class LornOrderModel: Codable {
     let nectarium: String?
 }
-
-import Foundation
-
-// MARK: - 主数据模型
-/// 订单列表数据模型
-import Foundation
-
-// MARK: - 主数据模型
-import Foundation
 
 // MARK: - 主数据模型
 /// 订单列表数据模型

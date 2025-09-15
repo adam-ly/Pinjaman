@@ -10,10 +10,9 @@ import SwiftUI
 struct ContactsView: View {
     @State var prodId: String = ""
     @State var contactModel: UserContactModel?
+    @EnvironmentObject var navigationState: NavigationState
+    @EnvironmentObject var appSeting: AppSettings
     @State private var showLoading = false
-    @State private var destination: (String, String) = ("","")
-    @State private var shouldPush: Bool = false
-    
     var body: some View {
         VStack {
             ScrollView {
@@ -21,16 +20,12 @@ struct ContactsView: View {
                     .padding(.top, 16)
             }
             
-            NavigationLink(destination: NavigationManager.navigateTo(for: destination.0, prodId: destination.1),
-                           isActive: $shouldPush) {}
-            
             Spacer()
             PrimaryButton(title: "Next") {
                 onsubmitContacts()
             }
             .padding(.horizontal, 24)
         }
-        .hideTabBarOnPush(showTabbar: false)
         .navigationTitle(Text("Emergency contact"))
         .loading(isLoading: $showLoading)
         .onAppear {
@@ -85,7 +80,6 @@ extension ContactsView {
                 let payload = SaveContactInfoPayload(christhood: prodId, unskepticalness: jsonString)
                 let response: PJResponse<EmptyModel> = try await NetworkManager.shared.request(payload)
                 print("success")
-//                showLoading = false
                 onCheckNext()
             } catch {
                 showLoading = false
@@ -108,8 +102,11 @@ extension ContactsView {
     
     func onGoToNext(detailModel: ProductDetailModel) {
         if let next = detailModel.noneuphoniousness?.oversceptical { // 跳到下一项
-            destination = (next, prodId)
-            shouldPush = next.count > 0
+            navigationState.destination = next
+            navigationState.param = prodId
+            navigationState.shouldGoToRoot = true
+        } else {
+            navigationState.shouldGoToRoot = false
         }
     }
 }

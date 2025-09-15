@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct LoginView: View {
+    @EnvironmentObject var navigationState: NavigationState
     @EnvironmentObject var appSeting: AppSettings
     @MainActor @State private var showLoading: Bool = false
     @State private var phoneNumber = ""
@@ -18,7 +19,6 @@ struct LoginView: View {
     @Binding var isPresented: Bool
     @FocusState private var isPhoneNumberFocused: Bool
     @FocusState private var isCodeNumberFocused: Bool
-    @State private var shouldNavigate: Bool = false
     // 追蹤倒計時是否正在進行
     @State private var isCountingDown = false
     // 倒計時的總時間（秒）
@@ -39,10 +39,6 @@ struct LoginView: View {
                 }
             contentView
                 .offset(y: isPresented ? 0 : UIScreen.main.bounds.size.height)
-            
-            NavigationLink(destination: desitnationView(), isActive: $shouldNavigate) {
-                EmptyView() // 隐藏的 NavigationLink 标签
-            }
         }
         .loading(isLoading: $showLoading)
         .onAppear {
@@ -270,10 +266,13 @@ struct LoginView: View {
         // 实际项目中这里会调用API进行登录验证
     }
     
-    private func closePage() {
-        withAnimation {
-            isPresented = false
-        }
+    private func closePage(callBack: (()->Void)? = nil) {
+        isCodeNumberFocused = false
+        isPhoneNumberFocused = false
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2, execute: {
+            withAnimation { isPresented = false }
+            callBack?()
+        })
     }
     
     private func onOpenPrivacyLink() {
@@ -281,17 +280,9 @@ struct LoginView: View {
               let url = URL(string: link) else {
             return
         }
-        self.url = url
-        shouldNavigate = true
-    }
-    
-    @ViewBuilder
-    func desitnationView() -> some View {
-        if let link = self.url {
-            WebView(url: link)
-        } else {
-            Text("")
-        }
+        navigationState.destination = link
+        navigationState.param = ""
+        navigationState.shouldGoToRoot = true
     }
 }
 
@@ -354,11 +345,12 @@ extension LoginView {
                 showLoading = true
                 let payLoad = CodeLoginOrRegisterPayload.init(counterretaliation: phoneNumber, underhangman: password)
                 let loginResponse: PJResponse<LoginModel> = try await NetworkManager.shared.request(payLoad)
-                TrackHelper.share.onUploadRiskEvent(type: .register, orderId: "")
-                showLoading = false
                 appSeting.loginModel = loginResponse.unskepticalness
-                closePage()
-                NotificationCenter.default.post(name: .didLogin, object: nil)
+                showLoading = false
+                TrackHelper.share.onUploadRiskEvent(type: .register, orderId: "")
+                closePage {
+                    NotificationCenter.default.post(name: .didLogin, object: nil)
+                }
             } catch {
                 showLoading = false
             }

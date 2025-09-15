@@ -83,10 +83,12 @@ extension View {
 
 extension NotificationCenter {
     static func postAlert(alertType: AlertType) {
-        NotificationCenter.default.post(
-            name: .showAlert,
-            object: alertType.alertSnack()
-        )
+        DispatchQueue.main.async(execute: {
+            NotificationCenter.default.post(
+                name: .showAlert,
+                object: alertType.alertSnack()
+            )
+        })
     }
 }
 

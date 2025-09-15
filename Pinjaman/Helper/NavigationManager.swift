@@ -23,6 +23,7 @@ enum Destination: String {
     case login = "pa://ks.mo.ent/Frametown"
     case homePage = "pa://ks.mo.ent/Italophile"
     case setting = "pa://ks.mo.ent/Berkly"
+    case cancellation = "pa://ks.mo.ent/cancellation"
 }
 
 /// 一个用于封装页面跳转逻辑的管理器
@@ -58,12 +59,14 @@ class NavigationManager {
         
         case Destination.setting.rawValue:
             SetUpView()
+        
+        case Destination.cancellation.rawValue:
+            CancellationView()
             
         default:
             // 处理所有未列举的字符串，包括外部 URL
-            if destination.contains("http"),
-               let url = URL(string: destination) {
-                WebView(url: url)
+            if destination.contains("http") {
+                PKWebView(htmlLink: destination, shouldGoBackToHome: false)
             } else {
                 Text("未知路由：\(destination)")
             }

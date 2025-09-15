@@ -10,10 +10,9 @@ import Kingfisher
 
 struct IdentifyView: View {
     @StateObject private var imagePickerManager = ImagePickerManager()
+    @EnvironmentObject var navigationState: NavigationState
     @EnvironmentObject var appSeting: AppSettings
     @MainActor @State private var showLoading: Bool = false
-    @State private var destination: (String, String) = ("","")
-    @State private var shouldPush: Bool = false
     @State private var selectedImage: UIImage?
     @State private var isShowingOptions = false
     @State var prodId: String
@@ -33,9 +32,6 @@ struct IdentifyView: View {
                  
             photoArea
             
-            NavigationLink(destination: NavigationManager.navigateTo(for: destination.0, prodId: destination.1),
-                           isActive: $shouldPush) {}
-            
             Spacer()
             
             PrimaryButton(title: "Next") {
@@ -45,7 +41,6 @@ struct IdentifyView: View {
         }
         .navigationTitle("Identity information")
         .padding(0)
-        .hideTabBarOnPush(showTabbar: false)
         .loading(isLoading: $showLoading)
         .onAppear {
             onFetchUserIdentityInfo()
@@ -214,8 +209,9 @@ extension IdentifyView {
                 parameter["christhood"] = prodId
                 let payload = SaveIdentityInfoPayload(param: parameter)
                 let response: PJResponse<EmptyModel> = try await NetworkManager.shared.request(payload)
+                showLoading = false
                 // refresh data
-                onFetchUserIdentityInfo()
+                onFetchUserIdentityInfo()                
             } catch {
                 showLoading = false
             }
@@ -223,6 +219,7 @@ extension IdentifyView {
     }
     
     func onFetchNext() {
+        showLoading = true
         guard let model = self.identityModel else {
             return
         }
@@ -256,8 +253,10 @@ extension IdentifyView {
     
     func onGoToNext(detailModel: ProductDetailModel) {
         if let next = detailModel.noneuphoniousness?.oversceptical { // 跳到下一项
-            destination = (next, prodId)
-            shouldPush = next.count > 0
+            navigationState.destination = next
+            navigationState.param = prodId
+            navigationState.shouldGoToRoot = true
+
         }
     }
     

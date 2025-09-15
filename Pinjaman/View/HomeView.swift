@@ -6,45 +6,53 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 struct HomeView: View {
+    
     @EnvironmentObject var appSeting: AppSettings
-    @State private var shouldNavigate = false
+    @EnvironmentObject var navigationState: NavigationState
+    
     @State var homeModel: HomeModel?
-    @State var destination: String = ""
     @State var showLoading: Bool = false
     
     var body: some View {
-        NavigationView {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 0, content: {
-                    topImg
-                    amountArea
-                    playnowButton
-                    if homeModel != nil {
-                        if (homeModel?.getProdList()?.count ?? 0)  == 0 {
-                            productIntroView
-                        } else {
-                            productList
-                        }
-                    }                    
-                    NavigationLink(destination: NavigationManager.navigateTo(for: destination, prodId: "\(homeModel?.getprdId() ?? 0)"), isActive: $shouldNavigate) {
-                        EmptyView() // 隐藏的 NavigationLink 标签
+        ScrollView {
+            VStack(alignment: .leading, spacing: 0, content: {
+                topImg
+                amountArea
+                playnowButton
+                if homeModel != nil {
+                    if (homeModel?.getProdList()?.count ?? 0)  == 0 {
+                        productIntroView
+                    } else {
+                        productList
                     }
+                }
+            })
+            .background(productBgColor)
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .didLogin)) { n in
+            self.onFetchData()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .onLanding)) { n in
+            if let tag = n.userInfo?["tag"] as? Int, tag == 0 {
+                self.onFetchData()
+            }
+        }
+        .refreshable(action: {
+            Task {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: {
+                    self.onFetchData()
                 })
-                .background(productBgColor)
             }
-            .hideTabBarOnPush()
-            .onReceive(NotificationCenter.default.publisher(for: .didLogin)) { n in
-                self.onFetchData()
-            }
-            .ignoresSafeArea(edges: .top)
-            .loading(isLoading: $showLoading)
-            .onAppear {
-                self.onFetchData()
-                self.onTrackLocation()
-            }
-        }.tint(.white)
+        })
+        .ignoresSafeArea(edges: .top)
+        .loading(isLoading: $showLoading)
+        .onAppear {
+            self.onFetchData()
+            self.onTrackLocation()
+        }
     }
     
     var topImg: some View {
@@ -130,13 +138,15 @@ struct HomeView: View {
     }
     
     var productList: some View {
-        ForEach(0..<(homeModel?.getProdList()?.count ?? 0), id: \.self) { _ in
-            HomeProductListItem()
+        ForEach(homeModel?.getProdList() ?? []) { item in
+            HomeProductListItem(item: item)
         }
     }
 }
 
 struct HomeProductListItem: View {
+    @State var item: Aladfar
+    
     var body: some View {
         ZStack(alignment: .bottom) {
             VStack(spacing: 12) {
@@ -151,24 +161,42 @@ struct HomeProductListItem: View {
     
     var topArea: some View {
         HStack {
-            Image("AppLogo")
-            Text("Pinjaman Hebat")
+            if let url = URL(string: item.underspore ?? "") {
+                KFImage(url)
+                    .resizable()
+                    .placeholder({ _ in
+                        RoundedRectangle(cornerRadius: 6)
+                            .frame(width: 28, height: 28)
+                            .background(productBgColor)
+                    })
+                    .frame(width: 28, height: 28)
+                    .aspectRatio(contentMode: .fit)
+                    .cornerRadius(4)
+            } else {
+                Image("AppLogo")
+                    .resizable()
+                    .frame(width: 28, height: 28)
+                    .cornerRadius(6)
+            }
+            
+            Text(item.multilayer ?? "")
                 .font(.system(size: 16, weight: .semibold))
                 .foregroundColor(primaryColor)
             
             Spacer()
             
             Button {
-
+              
             } label: {
-                ZStack(alignment: .center) {
-                    RoundedRectangle(cornerRadius: 10)
-                        .foregroundColor(primaryColor)
-                    Text("Apply")
+                Text(item.bullrushes ?? "")
+                    .padding(.horizontal,8)
+                    .padding(.vertical,5)
+                    .background(primaryColor)
                     .foregroundColor(.white)
                     .font(.system(size: 16, weight: .semibold))
-                }
-                .frame(width: 96, height: 28)
+                    .frame(height: 28)
+                    .frame(minWidth: 96)
+                    .cornerRadius(8)
             }
 
         }
@@ -177,10 +205,10 @@ struct HomeProductListItem: View {
     var bottomArea: some View {
         HStack {
             VStack {
-                Text("Loan term")
+                Text(item.pithecanthropoid ?? "")
                     .font(.system(size: 16, weight: .semibold))
                     .foregroundColor(primaryColor)
-                Text("120 day")
+                Text(item.plumbog ?? "")
                     .font(.system(size: 12, weight: .regular))
                     .foregroundColor(secondaryTextColor)
             }
@@ -188,10 +216,10 @@ struct HomeProductListItem: View {
             Spacer()
             
             VStack {
-                Text("Interest rate")
+                Text(item.dirdums ?? "")
                     .font(.system(size: 16, weight: .semibold))
                     .foregroundColor(primaryColor)
-                Text("0.03%/day")
+                Text(item.rhadamanthine ?? "")
                     .font(.system(size: 12, weight: .regular))
                     .foregroundColor(secondaryTextColor)
             }
@@ -199,10 +227,10 @@ struct HomeProductListItem: View {
             Spacer()
             
             VStack(spacing: 6) {
-                Text("Interest rate")
+                Text(item.infantries ?? "")
                     .font(.system(size: 16, weight: .semibold))
                     .foregroundColor(primaryColor)
-                Text("0.03%/day")
+                Text(item.marocain ?? "")
                     .font(.system(size: 12, weight: .regular))
                     .foregroundColor(secondaryTextColor)
             }
@@ -256,8 +284,10 @@ extension HomeView {
                 
                 if let path = response.unskepticalness.nectarium?.getDestination().0 as? String,
                     !path.isEmpty {
-                    destination = path
-                    shouldNavigate = true
+//                    destination = path
+                    navigationState.destination = path
+                    navigationState.param = "\(homeModel?.getprdId() ?? 0)"
+                    navigationState.shouldGoToRoot = true
                 }
             } catch {
                 showLoading = false
