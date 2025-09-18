@@ -41,13 +41,13 @@ struct ProfileView: View {
     var profileArea: some View {
         // 顶部用户信息
         HStack {
-            Image(systemName: "person.crop.circle.fill")
+            Image("me_avatar")
                 .resizable()
                 .frame(width: 60, height: 60)
                 .foregroundColor(.blue)
             
             VStack(alignment: .leading, spacing: 4) {
-                Text(appSeting.loginModel?.counterretaliation ?? "")
+                Text((appSeting.loginModel?.counterretaliation ?? "").masked3to7)
                     .font(.headline)
             }
             Spacer()
@@ -57,11 +57,11 @@ struct ProfileView: View {
     var certifiedArea: some View {
         HStack {
             VStack(alignment: .leading, spacing: 10) {
-                Text(userCenterModel?.manlihood == 0 ? "No Certified" : "Certified")
+                Text(userCenterModel?.manlihood == 0 ? LocalizeContent.uncertifyTitle.text() : LocalizeContent.certifyTitle.text())
                     .multilineTextAlignment(.leading)
                     .font(.system(size: 20, weight: .heavy))
                     .foregroundColor(commonTextColor)
-                Text(userCenterModel?.manlihood == 0 ? "Get a loan through certification" : "You have been certified and qualified for the loan")
+                Text(userCenterModel?.manlihood == 0 ? LocalizeContent.uncertifyDesc.text() : LocalizeContent.certifyDesc.text())
                     .font(.system(size: 14, weight: .regular))
                     .foregroundColor(secondaryTextColor)
             }
@@ -79,10 +79,13 @@ struct ProfileView: View {
         // 服务工具列表
         VStack(alignment: .leading, spacing: 0) {
             HStack {
-                Text("Services & Tools")
+                Text(LocalizeContent.serviceAndTool.text() )
                     .multilineTextAlignment(.leading)
                     .font(.system(size: 18, weight: .black))
                     .padding(.vertical, 16)
+                    .onTapGesture {
+                        NotificationCenter.default.post(name: .onSwitchTab, object: nil, userInfo: ["tab": 0])
+                    }
                 Spacer()
             }
             .padding(.horizontal, 16)

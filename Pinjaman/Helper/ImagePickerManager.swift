@@ -45,29 +45,29 @@ class ImagePickerManager: ObservableObject {
         }
     }
     
-    func checkPhotoLibraryPermission() {
-        let status = PHPhotoLibrary.authorizationStatus()
-        switch status {
-        case .authorized:
-            self.openPicker(sourceType: .photoLibrary)
-        case .limited: // iOS 14+
-            self.openPicker(sourceType: .photoLibrary)
-        case .notDetermined:
-            PHPhotoLibrary.requestAuthorization { newStatus in
-                DispatchQueue.main.async {
-                    if newStatus == .authorized || newStatus == .limited {
-                        self.openPicker(sourceType: .photoLibrary)
-                    } else {
-                        NotificationCenter.postAlert(alertType: .album)
-                    }
-                }
-            }
-        case .denied, .restricted:
-            NotificationCenter.postAlert(alertType: .album)
-        @unknown default:
-            return
-        }
-    }    
+//    func checkPhotoLibraryPermission() {
+//        let status = PHPhotoLibrary.authorizationStatus()
+//        switch status {
+//        case .authorized:
+//            self.openPicker(sourceType: .photoLibrary)
+//        case .limited: // iOS 14+
+//            self.openPicker(sourceType: .photoLibrary)
+//        case .notDetermined:
+//            PHPhotoLibrary.requestAuthorization { newStatus in
+//                DispatchQueue.main.async {
+//                    if newStatus == .authorized || newStatus == .limited {
+//                        self.openPicker(sourceType: .photoLibrary)
+//                    } else {
+////                        NotificationCenter.postAlert(alertType: .album)
+//                    }
+//                }
+//            }
+//        case .denied, .restricted:
+////            NotificationCenter.postAlert(alertType: .album)
+//        @unknown default:
+//            return
+//        }
+//    }    
 }
 
 /// 封装 UIImagePickerController 的视图

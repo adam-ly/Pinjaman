@@ -16,13 +16,13 @@ enum OrderType: String, CaseIterable, Equatable {
     func tabTitle() -> String {
         switch self {
         case .all:
-            return "All"
+            return LocalizeContent.orderAll.text()
         case .inProgress:
-            return "Apply"
+            return LocalizeContent.orderApply.text()
         case .pendingRepayment:
-            return "Repayment"
+            return LocalizeContent.orderRepayment.text()
         case .settled:
-            return "Finished"
+            return LocalizeContent.orderFinished.text()
         }
     }
     
@@ -46,9 +46,7 @@ struct OrderView: View {
     @State private var orderListModel: OrderListModel?
     @EnvironmentObject var navigationState: NavigationState
     @MainActor @State private var showLoading: Bool = false
-    
-//    @State var destination: (String, String) = ("","")
-    
+        
     let tabs = [OrderType.all,
                 OrderType.inProgress,
                 OrderType.pendingRepayment,
@@ -63,34 +61,38 @@ struct OrderView: View {
     var body: some View {
         GeometryReader { geometry in
             VStack(spacing: 0) {
-                VStack {
-                    ZStack(alignment: .bottom) {
-                        linkTextColor
-                        Text("Order List")
-                            .font(.system(size: 17, weight: .medium))
-                            .foregroundColor(.white)
-                            .padding(.bottom, 10)
-                    }
-                }
-                .frame(height: 40 + 44)
-                .onReceive(NotificationCenter.default.publisher(for: .didLogin)) { n in
-                    self.onFetchOrder()
-                }
-                .onReceive(NotificationCenter.default.publisher(for: .onLanding)) { n in
-                    if let tag = n.userInfo?["tag"] as? Int, tag == 1 {
-                        self.onFetchOrder()
-                    }
-                }
+                navBar
                 content
-                    .loading(isLoading: $showLoading)
-                    .onAppear {
-                        if appSeting.isLogin() {
-                            onFetchOrder()
-                        }
-                    }
             }
             .ignoresSafeArea(edges:.top)
+            .onReceive(NotificationCenter.default.publisher(for: .didLogin)) { n in
+                self.onFetchOrder()
+            }
+            .onReceive(NotificationCenter.default.publisher(for: .onLanding)) { n in
+                if let tag = n.userInfo?["tag"] as? Int, tag == 1 {
+                    self.onFetchOrder()
+                }
+            }
+            .loading(isLoading: $showLoading)
+            .onAppear {
+                if appSeting.isLogin() {
+                    onFetchOrder()
+                }
+            }
         }
+    }
+    
+    var navBar: some View {
+        VStack {
+            ZStack(alignment: .bottom) {
+                linkTextColor
+                Text(LocalizeContent.orderList.text())
+                    .font(.system(size: 17, weight: .medium))
+                    .foregroundColor(.white)
+                    .padding(.bottom, 10)
+            }
+        }
+        .frame(height: 40 + 44)
     }
     
     var content: some View {
@@ -98,19 +100,10 @@ struct OrderView: View {
             orderType
                 .frame(height: 50)
                 .padding(.top, 12)
-            // 订单列表
-            ScrollView {
-                VStack {
-                    ForEach(orderListModel?.mercantilism ?? []) { item in
-                        OrderItemView(order: item) { link in
-                            if let dest = link.getDestination() as? (String?, String?), let link = dest.0 {
-                                navigationState.destination = link
-                                navigationState.param = dest.1 ?? ""
-                                navigationState.shouldGoToRoot = true
-                            }
-                        }
-                    }
-                }
+            if (orderListModel?.mercantilism ?? []).count > 0 {
+                orderList
+            } else {
+                emptyView
             }
         }
         .background(Color(UIColor.systemGray6))
@@ -128,6 +121,32 @@ struct OrderView: View {
         .padding(.horizontal)
         .onChange(of: selectedTab) { newValue in
             onFetchOrder()
+        }
+    }
+    
+    var emptyView: some View {
+        VStack(spacing: 20) {
+            Image("order_empty")
+            Text(LocalizeContent.orderEmpty.text())
+                .font(.system(size: 14, weight: .regular))
+                .foregroundColor(secondaryTextColor)
+        }.frame(maxHeight: .infinity)
+    }
+    
+    var orderList: some View {
+        // 订单列表
+        ScrollView {
+            VStack {
+                ForEach(orderListModel?.mercantilism ?? []) { item in
+                    OrderItemView(order: item) { link in
+                        if let dest = link.getDestination() as? (String?, String?), let link = dest.0 {
+                            navigationState.destination = link
+                            navigationState.param = dest.1 ?? ""
+                            navigationState.shouldGoToRoot = true
+                        }
+                    }
+                }
+            }
         }
     }
 }

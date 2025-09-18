@@ -32,13 +32,13 @@ struct UserInfomationView: View {
                         
             Spacer()
             
-            PrimaryButton(title: "Next") {
+            PrimaryButton(title: LocalizeContent.next.text()) {
                 onsubmitUserInfo()
             }
             .padding(.horizontal, 24)
         }
         .ignoresSafeArea(.keyboard, edges: .bottom) // 讓視圖忽略鍵盤安全區
-        .navigationTitle(Text("Authentication Security"))
+        .navigationTitle(Text(LocalizeContent.authentication.text()))
         .loading(isLoading: $showLoading)
         .onAppear {
             onFetchUserInfo()

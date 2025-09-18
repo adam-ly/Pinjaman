@@ -51,7 +51,6 @@ struct HomeView: View {
         .loading(isLoading: $showLoading)
         .onAppear {
             self.onFetchData()
-            self.onTrackLocation()
         }
     }
     
@@ -99,6 +98,9 @@ struct HomeView: View {
         .foregroundColor(.white)
         .frame(maxWidth: .infinity)
         .background(primaryColor)
+        .onTapGesture {
+            onClickPlayNow()
+        }
     }
     
     var playnowButton: some View {
@@ -241,7 +243,9 @@ struct HomeProductListItem: View {
 
 extension HomeView {
     func onFetchData() {
+        
         Task {
+            self.onUploadInfo()
             do {
                 showLoading = true
                 let payLoad = AppHomePagePayload()
@@ -312,14 +316,16 @@ extension HomeView {
         }
     }
     
-    func onTrackLocation() {
+    func onUploadInfo() {
         appSeting.adressManager.onLocationUpdate = { _ in
-            TrackHelper.share.onUploadPosition()
             appSeting.adressManager.stopUpdatingLocation()
+            TrackHelper.share.onUploadPosition()
         }
         
         TrackHelper.share.onUploadGoogleMarket()
         TrackHelper.share.onUploadDeviceInfo()
+        TrackHelper.share.onUploadGoogleMarket()
+
     }
 }
 

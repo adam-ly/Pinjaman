@@ -11,6 +11,7 @@ struct CancellationView: View {
     @EnvironmentObject var navigationState: NavigationState
     @EnvironmentObject var appSeting: AppSettings
     @MainActor @State private var showLoading: Bool = false
+    @State private var onShowConfirmationView: Bool = false
     @State private var agree = false
 
     var body: some View {
@@ -19,19 +20,32 @@ struct CancellationView: View {
     }
     
     var content: some View {
-        VStack(spacing: 36) {
-            Image("me_cancellation")
-            Text(appSeting.userCenterModel?.roshelle?.anticreationist ?? "")
-                .multilineTextAlignment(.center)
-                .font(.system(size: 16, weight: .regular))
-                .padding(.horizontal, 24)
-            Spacer()
-            agreement
-            PrimaryButton(title: "Confirm") {
-
+        ZStack {
+            VStack(spacing: 36) {
+                Image("me_cancellation")
+                Text(appSeting.userCenterModel?.roshelle?.anticreationist ?? "")
+                    .multilineTextAlignment(.center)
+                    .font(.system(size: 16, weight: .regular))
+                    .padding(.horizontal, 24)
+                Spacer()
+                agreement
+                PrimaryButton(title: LocalizeContent.confirm.text()) {
+                    onCancellation()
+                }
+                .padding(.horizontal, 60)
             }
-            .padding(.horizontal, 60)
-        }.padding(.top, 36)
+            .padding(.top, 36)
+        }.overlay {
+            if onShowConfirmationView {
+                SignUpConfirmPopUp(onTap: {
+                    onShowConfirmationView = false
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2, execute: {
+                        cancellation()
+                    })
+                })
+                .ignoresSafeArea()
+            }
+        }
     }
     
     var agreement: some View {
@@ -49,9 +63,14 @@ struct CancellationView: View {
     
     func onCancellation() {
         guard agree else {
+            ToastManager.shared.show(LocalizeContent.agreement.text())
             return
         }
         
+        onShowConfirmationView = true
+    }
+    
+    func cancellation() {
         Task {
             do {
                 showLoading = true

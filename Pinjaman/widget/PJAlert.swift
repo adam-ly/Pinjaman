@@ -8,13 +8,12 @@
 import SwiftUI
 
 enum AlertType: String {
-    case network, camera, album, location, contact
+    case network, camera, location, contact
     func alertSnack() -> AlertSnack {
         let (title, msg) = titleMessage
         return AlertSnack(
             title: title,
-            message: msg,
-            confirmTitle: "去设置"
+            message: msg
         ) {
             // 统一跳转到 App 的设置页
             if let url = URL(string: UIApplication.openSettingsURLString) {
@@ -27,15 +26,13 @@ enum AlertType: String {
     private var titleMessage: (String, String) {
         switch self {
         case .network:
-            return ("网络权限已关闭", "请前往设置开启网络，否则无法加载数据")
+            return (LocalizeContent.networkDenyTitle.text(), LocalizeContent.networkDeny.text())
         case .camera:
-            return ("相机权限已关闭", "请前往设置开启相机，否则无法拍照")
-        case .album:
-            return ("相册权限已关闭", "请前往设置开启相册，否则无法选择照片")
+            return (LocalizeContent.cameraDenyTitle.text(), LocalizeContent.cameraDeny.text())
         case .location:
-            return ("定位权限已关闭", "请前往设置开启定位，否则无法获取位置")
+            return (LocalizeContent.locationDenyTitle.text(), LocalizeContent.locationDeny.text())
         case .contact:
-            return ("通讯录权限已关闭", "请前往设置开启通讯录，否则无法读取联系人")
+            return (LocalizeContent.contactDenyTitle.text(), LocalizeContent.contactDeny.text())
         }
     }
 }
@@ -45,9 +42,8 @@ struct AlertSnack: Identifiable {
     let title: String
     let message: String
     
-    let cancelTitle: String = "取消"          // 左侧取消按钮
-    
-    let confirmTitle: String                 // 右侧按钮文字
+    let cancelTitle: String = LocalizeContent.cancel.text() // 左侧取消按钮
+    let confirmTitle: String = LocalizeContent.goSetting.text() // 右侧按钮文字
     let confirmAction: () -> Void            // 点击回调
 }
 

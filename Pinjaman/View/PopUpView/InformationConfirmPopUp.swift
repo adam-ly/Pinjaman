@@ -27,7 +27,7 @@ struct InformationConfirmPopUp: View {
                             ConfirmationTextItem(item: item)
                         }
                     }
-                    Text("Check identity information and make sure it is true after sending it cannot be changed!")
+                    Text(LocalizeContent.confirmInfomationDesc.text())
                         .multilineTextAlignment(.center)
                         .font(.system(size: 12, weight: .regular))
                         .foregroundColor(linkTextColor)
@@ -39,7 +39,7 @@ struct InformationConfirmPopUp: View {
                 
                 VStack {
                     Spacer()
-                    PrimaryButton(title: "Confirm") {
+                    PrimaryButton(title: LocalizeContent.confirm.text()) {
                         isPresented = false
                         onConfirm?(getParam())
                     }
@@ -53,7 +53,7 @@ struct InformationConfirmPopUp: View {
                         .resizable()
                         .frame(height: 508)
                     HStack {
-                        Text("Confirm information")
+                        Text(LocalizeContent.confirmInfomation.text())
                             .font(.system(size: 18, weight: .medium))
                             .foregroundColor(.white)
                             .padding(.top,8)

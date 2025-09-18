@@ -6,30 +6,23 @@ class NavigationState: ObservableObject {
 }
 
 struct TabBarView: View {
-    @StateObject private var navigationState = NavigationState()
+//    @EnvironmentObject var navigationState: NavigationState
     @EnvironmentObject var appSeting: AppSettings
     @State private var selectedTag = 0
-    @Binding var showLoginView: Bool
-    
+    @State var showLoginView: Bool = false 
+
     var body: some View {                        
-        NavigationView {
-            VStack{
-                ZStack {
-                    HomeView()
-                        .opacity(selectedTag == 0 ? 1 : 0)
-                    OrderView()
-                        .opacity(selectedTag == 1 ? 1 : 0)
-                    ProfileView()
-                        .opacity(selectedTag == 2 ? 1 : 0)
-                    NavigationLink(destination: NavigationManager.navigateTo(for: navigationState.destination, prodId: navigationState.param), isActive: $navigationState.shouldGoToRoot) {
-                        EmptyView() // 隐藏的 NavigationLink 标签
-                    }
-                }
-                tabArea
+        VStack{
+            ZStack {
+                HomeView()
+                    .opacity(selectedTag == 0 ? 1 : 0)
+                OrderView()
+                    .opacity(selectedTag == 1 ? 1 : 0)
+                ProfileView()
+                    .opacity(selectedTag == 2 ? 1 : 0)                                
             }
+            tabArea
         }
-        .tint(.white)
-        .environmentObject(navigationState)
         .onReceive(NotificationCenter.default.publisher(for: .didLogout)) { n in
             selectedTag = 0
         }
@@ -40,6 +33,21 @@ struct TabBarView: View {
             }
             selectedTag = tab
         }
+        .onReceive(NotificationCenter.default.publisher(for: .showLogin)) { n in
+            withAnimation {
+                showLoginView = true
+            }
+        }
+        .overlay(content: {
+            if showLoginView {
+                LoginView(isPresented: $showLoginView)
+//                    .environmentObject(navigationState)
+                    .ignoresSafeArea()
+            } else {
+                Color.clear
+            }
+        }
+        )
         .onAppear {
             let appearance = UITabBarAppearance()
             appearance.configureWithOpaqueBackground()
@@ -114,7 +122,7 @@ struct TabButton: View {
 struct CustomTabBar_Previews_Content: View {
     @State var showLogin: Bool = false
     var body: some View {
-        TabBarView(showLoginView: $showLogin)
+        TabBarView()
             .environmentObject(AppSettings.shared)
     }
 }

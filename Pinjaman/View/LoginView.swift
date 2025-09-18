@@ -56,7 +56,7 @@ struct LoginView: View {
                         .edgesIgnoringSafeArea(.bottom)
                         .background(Color.clear)
                         .frame(maxWidth: .infinity)
-                    Text("Login")
+                    Text(LocalizeContent.loginTitle.text())
                         .font(.system(size: 24, weight: .bold))
                         .foregroundColor(.white)
                         .padding(.leading, 50)
@@ -83,7 +83,7 @@ struct LoginView: View {
                 contentArea
                     .padding(.horizontal, 20)
                 
-                PrimaryButton(title: "Log in") {
+                PrimaryButton(title: LocalizeContent.loginButton.text()) {
                     onPrecheckLogin()
                 }
                 .padding(.horizontal, 60)
@@ -97,13 +97,13 @@ struct LoginView: View {
     
     var titleArea: some View {
         VStack(alignment: .trailing, spacing: 10) {
-            Text("Hello")
+            Text(LocalizeContent.loginSubTitle.text())
                 .font(.system(size: 24, weight: .bold))
                 .fontWeight(.bold)
                 .foregroundColor(.white)
                 .multilineTextAlignment(.trailing)
             
-            Text("Welcome to Pinjaman Hebat")
+            Text(LocalizeContent.loginDesc.text())
                 .font(.system(size: 18, weight: .regular))
                 .foregroundColor(.white)
                 .multilineTextAlignment(.trailing)
@@ -118,18 +118,18 @@ struct LoginView: View {
             VStack(spacing: 15) {
                 // 手机号输入框
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Phone number")
+                    Text(LocalizeContent.phonenumber.text())
                         .font(.system(size: 18, weight: .medium))
                         .foregroundColor(.black)
                     HStack {
-                        Image("login_yn")
-                        Text("+01")
+                        Text(LocalizeContent.originCode.text())
                         Divider().frame(height: 50)
-                        TextField("Enter phone number", text: $phoneNumber)
+                        TextField(LocalizeContent.originCode.text(), text: $phoneNumber)
                             .padding(.horizontal, 15)
                             .padding(.vertical, 12)
                             .foregroundColor(.black)
                             .accentColor(.black)
+                            .keyboardType(.numberPad)
                             .focused($isPhoneNumberFocused)
                     }
                     .frame(height: 50)
@@ -140,16 +140,17 @@ struct LoginView: View {
                 
                 // 密码输入框
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Password")
+                    Text(LocalizeContent.verifyCode.text())
                         .font(.system(size: 18, weight: .medium))
                         .foregroundColor(.black)
                     HStack {
-                        SecureField("Enter password", text: $password)
+                        TextField(LocalizeContent.verifyCode.text(), text: $password)
                             .padding(.horizontal, 15)
                             .padding(.vertical, 12)
                             .cornerRadius(10)
                             .foregroundColor(.black)
                             .accentColor(.black)
+                            .keyboardType(.numberPad)
                             .focused($isCodeNumberFocused)
                                                
                         countDownButton
@@ -175,12 +176,12 @@ struct LoginView: View {
     var countDownButton: some View {
         Button {
             // 點擊後檢查是否正在倒計時
-            if !isCountingDown && phoneNumber.count > 0{
+            if !isCountingDown && phoneNumber.count > 0 {
                 // 如果沒有，開始倒計時
                 startCountdown()
                 onGetCode()
             } else {
-                ToastManager.shared.show("Please enter your phone number")
+                ToastManager.shared.show(LocalizeContent.phoneNumberEmpty.text())
             }
         } label: {
             Text(buttonText)
@@ -202,11 +203,15 @@ struct LoginView: View {
     
     var voiceButton: some View {
         Button {
-            onGetVoiceCode()
+            if phoneNumber.count > 0 {
+                onGetVoiceCode()
+            } else {
+                ToastManager.shared.show(LocalizeContent.phoneNumberEmpty.text())
+            }
         } label: {
             HStack(spacing: 2) {
                 Image("voice")
-                Text("Voice verification?")
+                Text(LocalizeContent.voiceVerification.text())
                     .foregroundColor(linkTextColor)
                     .underline()
             }
@@ -222,9 +227,9 @@ struct LoginView: View {
             }
             
             HStack (spacing: 0) {
-                Text("I consent to the")
+                Text(LocalizeContent.loginPrivacy.text())
                     .foregroundColor(secondaryTextColor)
-                Text("<Privacy policy>")
+                Text(LocalizeContent.loginPrivacyContent.text())
                     .underline()
                     .foregroundColor(linkTextColor)
                     .onTapGesture {
@@ -239,14 +244,14 @@ struct LoginView: View {
         if isCountingDown {
             return "\(countdownTime)s"
         } else {
-            return "Get Code"
+            return LocalizeContent.getCode.text()
         }
     }
     
     // 開始倒計時
     private func startCountdown() {
         isCountingDown = true
-        countdownTime = 3 // 重設倒計時時間
+        countdownTime = 60 // 重設倒計時時間
         
     }
     
@@ -290,18 +295,18 @@ extension LoginView {
     func onPrecheckLogin() {
         if phoneNumber.isEmpty {
             isPhoneNumberFocused = true
-            ToastManager.shared.show("Please enter your phone number")
+            ToastManager.shared.show(LocalizeContent.phoneNumberEmpty.text())
             return
         }
         
         if password.isEmpty {
             isCodeNumberFocused = true
-            ToastManager.shared.show("Please enter the verification code")
+            ToastManager.shared.show(LocalizeContent.phoneCodeEmpty.text())
             return
         }
         
         if !agree {
-            ToastManager.shared.show("Please read and agree to the Privacy Policy")
+            ToastManager.shared.show(LocalizeContent.agreement.text())
             showToast = true
             return
         }

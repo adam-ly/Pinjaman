@@ -22,14 +22,12 @@ struct SetUpView: View {
                 cancelAndLogout
                 
                 Spacer()
-                
-                explaination
             }
             .padding(.horizontal, 20)
         }
         .background(Color(UIColor.systemGray6))
         .edgesIgnoringSafeArea(.bottom)
-        .navigationTitle("Set up")
+        .navigationTitle(LocalizeContent.setup.text())
     }
     
     var appIcon: some View {
@@ -40,7 +38,7 @@ struct SetUpView: View {
                 .frame(width: 80, height: 80)
                 .cornerRadius(16)
 
-            Text("Pinjaman Hebat")
+            Text(UIDevice.appName())
                 .font(.system(size: 20, weight: .bold))
                 .foregroundColor(.black)
         }
@@ -51,11 +49,11 @@ struct SetUpView: View {
         // 版本信息
         VStack {
             HStack {
-                Text("Version")
+                Text(LocalizeContent.version.text())
                     .font(.system(size: 16))
                     .foregroundColor(commonTextColor)
                 Spacer()
-                Text("V1.0.0")
+                Text(UIDevice.appVersion())
                     .font(.system(size: 16, weight: .medium))
                     .foregroundColor(commonTextColor)
             }
@@ -80,7 +78,7 @@ struct SetUpView: View {
                         .foregroundColor(.pink)
                         .frame(width: 24, height: 24)
 
-                    Text("Account cancellation")
+                    Text(LocalizeContent.cancellation.text())
                         .font(.system(size: 16, weight: .medium))
                         .foregroundColor(.black)
 
@@ -103,7 +101,7 @@ struct SetUpView: View {
                         .foregroundColor(.pink)
                         .frame(width: 24, height: 24)
 
-                    Text("Logout")
+                    Text(LocalizeContent.logout.text())
                         .font(.system(size: 16, weight: .medium))
                         .foregroundColor(.black)
 

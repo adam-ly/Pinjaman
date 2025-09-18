@@ -14,14 +14,14 @@ struct IdentifyView: View {
     @EnvironmentObject var appSeting: AppSettings
     @MainActor @State private var showLoading: Bool = false
     @State private var selectedImage: UIImage?
-    @State private var isShowingOptions = false
     @State var prodId: String
     @State var identityModel: UserIdentityModel?
-    @State var sourceType: UIImagePickerController.SourceType?
+    @State var sourceType: UIImagePickerController.SourceType = .camera
     @State var identityType: String = "10"
     @State var onShowConfirmationView: Bool = false
     @State var identityCardModel: IdentityCardResponse?
-
+    @State var showConfirmPopUp: Bool = false
+    
     var body: some View {
         contentView
     }
@@ -34,54 +34,46 @@ struct IdentifyView: View {
             
             Spacer()
             
-            PrimaryButton(title: "Next") {
+            PrimaryButton(title: LocalizeContent.next.text()) {
                 onFetchNext()
             }
             .padding(.horizontal, 24)
         }
-        .navigationTitle("Identity information")
+        .navigationTitle(LocalizeContent.identityInfomation.text())
         .padding(0)
         .loading(isLoading: $showLoading)
         .onAppear {
             onFetchUserIdentityInfo()
             onRelocation()
         }
-        .confirmationDialog("选择图片来源", isPresented: $isShowingOptions, titleVisibility: .visible) {
-            
-            Button("Camera") {
-                sourceType = .camera
-                imagePickerManager.checkCameraPermission()
-            }
-            
-            if identityType == "11" {
-                Button("Album") {
-                    sourceType = .photoLibrary
-                    imagePickerManager.checkPhotoLibraryPermission()
-                }
-            }
-            
-            Button("Cancel", role: .cancel) {}
-        }
         .fullScreenCover(isPresented: $imagePickerManager.isShowingPicker) {
-            if let sourceType = sourceType {
-                ImagePickerView(isPresented: $imagePickerManager.isShowingPicker, onSelectedImage: { image in
-                    self.onUploadImage(image: image)
-                }, sourceType: sourceType)
-                .ignoresSafeArea()
-            }
-        }.overlay {
+            ImagePickerView(isPresented: $imagePickerManager.isShowingPicker, onSelectedImage: { image in
+                self.onUploadImage(image: image)
+            }, sourceType: sourceType)
+            .ignoresSafeArea()
+        }
+        .overlay {
             if onShowConfirmationView {
                 InformationConfirmPopUp(isPresented: $onShowConfirmationView, identityCardModel: $identityCardModel, onConfirm: { param in
                     print("param = \(param)")
                     onSubmitIdentityInfo(param: param)
                 })
                 .ignoresSafeArea()
+            } else if showConfirmPopUp { //
+                IdentifyCardPopup(identityType: identityType) {
+                    showConfirmPopUp = false
+                    if identityType == "11" {
+                        onOpenCameraForCard()
+                    } else {
+                        onOpenCameraForFace()
+                    }
+                }
             }
         }
     }
     
     var title: some View {
-        Text("Please fill in your personal data (don't worry, your information and data are protected)")
+        Text(LocalizeContent.productTips.text())
             .font(.system(size: 12, weight: .regular))
             .frame(maxWidth: .infinity)
             .padding(.horizontal, 16)
@@ -97,9 +89,7 @@ struct IdentifyView: View {
                     .font(.system(size: 16, weight: .medium))
                     .foregroundColor(commonTextColor)
                 Button { // 证件
-                    identityType = "11"
-                    isShowingOptions = true
-                    TrackHelper.share.onCatchUserTrack(type: .front)
+                    onTapCardButton()
                 } label: {
                     ZStack {
                         if let iconLink = self.identityModel?.aladfar?.caliology,
@@ -129,10 +119,7 @@ struct IdentifyView: View {
                     .font(.system(size: 16, weight: .medium))
                     .foregroundColor(commonTextColor)
                 Button { // 人脸
-                    // 如果是英语/印度 那么类型就是pan卡。
-                    identityType = (appSeting.configModal.unsafelyUnwrapped.filesniff ?? 0) == 1 ? "13" : "10"
-                    isShowingOptions = true
-                    TrackHelper.share.onCatchUserTrack(type: .selfie)
+                    onTapFaceButton()
                 } label: {
                     ZStack {
                         if let iconLink = self.identityModel?.aladfar?.circumvents,
@@ -156,6 +143,27 @@ struct IdentifyView: View {
                 }.disabled((self.identityModel?.aladfar?.circumvents?.count ?? 0) > 0)
             }
         }
+    }
+    
+    func onTapCardButton() {
+        identityType = "11"
+        showConfirmPopUp = true
+    }
+    
+    func onOpenCameraForCard() {
+        imagePickerManager.checkCameraPermission()
+        TrackHelper.share.onCatchUserTrack(type: .front)
+    }
+    
+    func onTapFaceButton() {
+        // 如果是英语/印度 那么类型就是pan卡。
+        identityType = (appSeting.configModal.unsafelyUnwrapped.filesniff ?? 0) == 1 ? "13" : "10"
+        showConfirmPopUp = true
+    }
+    
+    func onOpenCameraForFace() {
+        imagePickerManager.checkCameraPermission()
+        TrackHelper.share.onCatchUserTrack(type: .selfie)
     }
 }
 
@@ -182,7 +190,7 @@ extension IdentifyView {
         Task {
             showLoading = true
             do {
-                let data = await image.compressTo(maxSize: 1024 * 1024)
+                let data = await image.compressTo(maxSize: 1024 * 800)
                 let payload = UploadIdentityInfoPayload(oxystome: identityType, redowl: sourceType == .camera ? "1" : "2")
                 
                 let response: PJResponse<IdentityCardResponse> = try await NetworkManager.shared.upload(payload, fileData: data ?? Data(), fileName: "Image_ph.png", mimeType: "image/png")
@@ -221,20 +229,21 @@ extension IdentifyView {
     func onFetchNext() {
         showLoading = true
         guard let model = self.identityModel else {
+            showLoading = false
             return
         }
         
         // card empty -> show card
         if let caliology = model.aladfar?.caliology as? String, caliology.isEmpty {
-            identityType = "11"
-            isShowingOptions = true
+            showLoading = false
+            onTapCardButton()
             return
         }
         
         // face empty -> show face
         if let circumvents = model.aladfar?.circumvents, circumvents.isEmpty {
-            identityType = (appSeting.configModal.unsafelyUnwrapped.filesniff ?? 0) == 1 ? "13" : "10"
-            isShowingOptions = true
+            showLoading = false
+            onTapFaceButton()
             return
         }
         

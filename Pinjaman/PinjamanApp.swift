@@ -10,12 +10,10 @@ import Network
 
 @main
 struct PinjamanApp: App {
-        
+    @StateObject  var navigationState = NavigationState()
     @State var canEnterHomePage: Bool = false
-    @State var showLoginView: Bool = false
     @State var showToast: Bool = false
     @State var currentToast = ToastContent(title: "")
-    @State var showLoading: Bool = false
     
     init() {
         setupNavigationBarAppearance()
@@ -23,20 +21,29 @@ struct PinjamanApp: App {
     
     var body: some Scene {
         WindowGroup {
-            content
-                .environmentObject(AppSettings.shared)
-                .alertSnack()
-                .onReceive(NotificationCenter.default.publisher(for: .showToast)) { notification in
-                    if let content = notification.userInfo?["content"] as? ToastContent {
-                        self.currentToast = content
-                        self.showToast = true
+            NavigationView {
+                ZStack {
+                    content
+                    NavigationLink(destination: NavigationManager.navigateTo(for: navigationState.destination, prodId: navigationState.param), isActive: $navigationState.shouldGoToRoot) {
+                        EmptyView() // 隐藏的 NavigationLink 标签
                     }
                 }
-                .toast(
-                    isPresented: $showToast,
-                    // 如果 currentToast 为 nil，提供一个空的 ToastContent
-                    content: ToastView(message: self.currentToast)
-                )
+            }
+            .tint(.white)
+            .environmentObject(AppSettings.shared)
+            .environmentObject(navigationState)
+            .alertSnack()
+            .onReceive(NotificationCenter.default.publisher(for: .showToast)) { notification in
+                if let content = notification.userInfo?["content"] as? ToastContent {
+                    self.currentToast = content
+                    self.showToast = true
+                }
+            }
+            .toast(
+                isPresented: $showToast,
+                // 如果 currentToast 为 nil，提供一个空的 ToastContent
+                content: ToastView(message: self.currentToast)
+            )
         }
     }
     
@@ -45,23 +52,9 @@ struct PinjamanApp: App {
             if !canEnterHomePage {
                 LaunchView(canEnterHomePage: $canEnterHomePage)
             } else {
-                TabBarView(showLoginView: $showLoginView)
+                TabBarView()
             }
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .showLogin)) { n in
-            withAnimation {
-                showLoginView = true
-            }
-        }
-        .overlay(content: {
-            if showLoginView {
-                LoginView(isPresented: $showLoginView)
-                    .ignoresSafeArea()
-            } else {
-                Color.clear
-            }
-        }
-        )
+        }        
     }
     
     func sceneWillResignActive(_ scene: UIScene) {

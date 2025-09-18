@@ -68,3 +68,13 @@ extension String {
         }
     }
 }
+
+extension String  {
+    var masked3to7: String {
+        guard count >= 3 else { return self }
+        let start = index(self.startIndex, offsetBy: 2)
+        let end   = index(self.startIndex, offsetBy: min(7, count))
+        let mask  = String(repeating: "*", count: distance(from: start, to: end))
+        return replacingCharacters(in: start..<end, with: mask)
+    }
+}

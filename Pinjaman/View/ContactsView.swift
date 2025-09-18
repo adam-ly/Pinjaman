@@ -21,12 +21,12 @@ struct ContactsView: View {
             }
             
             Spacer()
-            PrimaryButton(title: "Next") {
+            PrimaryButton(title: LocalizeContent.next.text()) {
                 onsubmitContacts()
             }
             .padding(.horizontal, 24)
         }
-        .navigationTitle(Text("Emergency contact"))
+        .navigationTitle(Text(LocalizeContent.emergencyContact.text()))
         .loading(isLoading: $showLoading)
         .onAppear {
             onFetchContactInfo()

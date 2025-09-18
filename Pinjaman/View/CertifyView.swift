@@ -8,9 +8,6 @@ struct CertifyView: View {
     @State var detailModel: ProductDetailModel?
     @State var prodId: String
     @State private var agree = false
-//    @State private var shouldPush: Bool = false
-//    @State private var destination: (String, String) = ("","")
-//    @EnvironmentObject var navigationState: NavigationState
 
     // 认证项目状态枚举
     enum CertificationStatus {
@@ -25,16 +22,7 @@ struct CertifyView: View {
         let status: CertificationStatus
         let iconName: String
     }
-    
-    // 模拟认证项目数据
-    let certificationItems = [
-        CertificationItem(title: "Identity information", status: .pending, iconName: "person.fill") ,
-        CertificationItem(title: "Basic information", status: .pending, iconName: "doc.fill") ,
-        CertificationItem(title: "Job information", status: .pending, iconName: "briefcase.fill") ,
-        CertificationItem(title: "Emergency contact", status: .completed, iconName: "phone.fill") ,
-        CertificationItem(title: "Bind bank card", status: .completed, iconName: "creditcard.fill") 
-    ]
-    
+
     var body: some View {
         VStack {
             ScrollView {

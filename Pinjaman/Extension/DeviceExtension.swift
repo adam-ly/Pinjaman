@@ -16,7 +16,13 @@ import SystemConfiguration.CaptiveNetwork
 import CoreLocation
 
 extension UIDevice {
-    // MARK: - 私有方法
+    
+    static func appName() -> String {
+        Bundle.main.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String
+        ?? Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String
+        ?? "App"
+    }
+
     static func appVersion() -> String {
         Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
     }
