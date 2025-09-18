@@ -24,22 +24,7 @@
       "scale" : "2x"
     },
     {
-      "filename" : "Group 1171275867@3x.png",
       "idiom" : "universal",
-      "resizing" : {
-        "cap-insets" : {
-          "bottom" : 786,
-          "left" : 545,
-          "right" : 579,
-          "top" : 785
-        },
-        "center" : {
-          "height" : 1,
-          "mode" : "tile",
-          "width" : 1
-        },
-        "mode" : "9-part"
-      },
       "scale" : "3x"
     }
   ],
