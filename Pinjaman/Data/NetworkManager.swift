@@ -117,8 +117,7 @@ class NetworkManager {
             }
             
             // Decode the data
-            let decoded = try JSONDecoder().decode(PJResponse<T>.self, from: data)
-            
+            let decoded = try JSONDecoder().decode(PJResponse<T>.self, from: data)            
             // Handle specific PJResponse status
 //            print("request success: \(decoded.diarmuid)")
             switch decoded.goss {

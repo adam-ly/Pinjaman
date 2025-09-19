@@ -22,6 +22,7 @@ class NetworkPermissionManager {
     }
     
     func checkConnectionStatus(callBack: @escaping (Bool, ConnectionType) -> Void) {
+        monitor.cancel()
         // 立即获取当前路径状态
         monitor.pathUpdateHandler = { [weak self] path in
 //            let isConnected = (path.status == .satisfied)

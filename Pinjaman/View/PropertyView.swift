@@ -14,6 +14,7 @@ struct PropertyView: View {
     @State var prodId: String = ""
     @State private var phoneNumber = ""
     @State var bankInfoModel: BankInfoModel?
+    @State private var showingKeyboard: Bool = false
 
     let coordinateSpaceName = "scrollView"
 
@@ -25,8 +26,10 @@ struct PropertyView: View {
             }
             .coordinateSpace(name: coordinateSpaceName)
             .onPreferenceChange(ScrollViewOffsetPreferenceKey.self) { offset in
-                hideKeyboard()
-                NotificationCenter.default.post(name: .userInfoScrolling, object: nil)
+                if self.showingKeyboard {
+                    hideKeyboard()
+                    NotificationCenter.default.post(name: .userInfoScrolling, object: nil)
+                }
             }
             
             Spacer()
@@ -35,8 +38,16 @@ struct PropertyView: View {
                 onsubmitBankInfo()
             }
             .padding(.horizontal, 24)
+            .ignoresSafeArea(.keyboard, edges: .bottom) // 讓視圖忽略鍵盤安全區
         }
-        .ignoresSafeArea(.keyboard, edges: .bottom) // 讓視圖忽略鍵盤安全區
+        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { notification in
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: {
+                self.showingKeyboard = true
+            })
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { _ in
+            self.showingKeyboard = false
+        }
         .navigationTitle(Text(LocalizeContent.authentication.text()))
         .loading(isLoading: $showLoading)
         .onAppear {

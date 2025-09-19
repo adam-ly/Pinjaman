@@ -13,6 +13,7 @@ struct UserInfomationView: View {
     @State private var phoneNumber = ""
     @MainActor @State private var showLoading: Bool = false
     // 控制全屏下拉菜单的显示
+    @State private var showingKeyboard: Bool = false
     @State var userInfoModel: UserIndivisualModel?
     @State var showCityPicker: Bool = false
     @State var cityItem: SpotItem?
@@ -26,18 +27,28 @@ struct UserInfomationView: View {
             }
             .coordinateSpace(name: coordinateSpaceName)
             .onPreferenceChange(ScrollViewOffsetPreferenceKey.self) { offset in
-                hideKeyboard()
-                NotificationCenter.default.post(name: .userInfoScrolling, object: nil)
+                if self.showingKeyboard {
+                    hideKeyboard()
+                    NotificationCenter.default.post(name: .userInfoScrolling, object: nil)
+                }
             }
-                        
+            
             Spacer()
             
             PrimaryButton(title: LocalizeContent.next.text()) {
                 onsubmitUserInfo()
             }
             .padding(.horizontal, 24)
+            .ignoresSafeArea(.keyboard, edges: .bottom)
         }
-        .ignoresSafeArea(.keyboard, edges: .bottom) // 讓視圖忽略鍵盤安全區
+        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { notification in
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: {
+                self.showingKeyboard = true
+            })
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { _ in
+            self.showingKeyboard = false
+        }
         .navigationTitle(Text(LocalizeContent.authentication.text()))
         .loading(isLoading: $showLoading)
         .onAppear {

@@ -27,6 +27,8 @@ struct LoginView: View {
     @State private var timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     
     @State var url: URL?
+    @State private var keyboardHeight: CGFloat = 0
+    @State private var textFieldBottom: CGFloat = 0
     
     var body: some View {
         ZStack(alignment: .center) {
@@ -41,6 +43,19 @@ struct LoginView: View {
                 .offset(y: isPresented ? 0 : UIScreen.main.bounds.size.height)
         }
         .loading(isLoading: $showLoading)
+        // 监听键盘出现通知
+        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { notification in
+            guard let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else { return }
+            withAnimation(.easeInOut(duration: 0.3)) {
+                self.keyboardHeight = max(keyboardFrame.height - textFieldBottom, 0)
+            }
+        }
+        // 监听键盘隐藏通知
+        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { _ in
+            withAnimation(.easeInOut(duration: 0.3)) {
+                self.keyboardHeight = 0
+            }
+        }
         .onAppear {
             isPhoneNumberFocused = true
         }
@@ -71,6 +86,7 @@ struct LoginView: View {
                 .padding(.trailing, 10)
                 .padding(.top, -10)
             }
+            .padding(.bottom, keyboardHeight)
             .onTapGesture {
                 isPhoneNumberFocused = false
                 isCodeNumberFocused = false
@@ -89,7 +105,7 @@ struct LoginView: View {
                 .padding(.horizontal, 60)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .padding(.bottom, 40)
+            .padding(.bottom, 40 + keyboardHeight)
             .ignoresSafeArea(.keyboard, edges: .bottom) // 讓視圖忽略鍵盤安全區
         }
         .ignoresSafeArea()
@@ -124,13 +140,23 @@ struct LoginView: View {
                     HStack {
                         Text(LocalizeContent.originCode.text())
                         Divider().frame(height: 50)
-                        TextField(LocalizeContent.originCode.text(), text: $phoneNumber)
+                        GeometryReader { proxy in
+                            TextField(LocalizeContent.originCode.text(), text: $phoneNumber) { editing in
+                                if editing {
+                                    print("proxy.frame(in: .local) = \(proxy.frame(in: .global))")
+                                    print("proxy.frame(in: .local) = \(proxy.frame(in: .global).maxY)")
+                                    if editing {
+                                        textFieldBottom = UIScreen.main.bounds.size.height - proxy.frame(in: .global).maxY
+                                    }
+                                }
+                            }
                             .padding(.horizontal, 15)
                             .padding(.vertical, 12)
                             .foregroundColor(.black)
                             .accentColor(.black)
                             .keyboardType(.numberPad)
                             .focused($isPhoneNumberFocused)
+                        }
                     }
                     .frame(height: 50)
                     .padding(.horizontal, 10)
@@ -144,15 +170,24 @@ struct LoginView: View {
                         .font(.system(size: 18, weight: .medium))
                         .foregroundColor(.black)
                     HStack {
-                        TextField(LocalizeContent.verifyCode.text(), text: $password)
+                        GeometryReader { proxy in
+                            TextField(LocalizeContent.verifyCode.text(), text: $password) { editing in
+                                print("proxy.frame(in: .local) = \(proxy.frame(in: .global))")
+                                print("proxy.frame(in: .local) = \(proxy.frame(in: .global))")
+                                print("proxy.frame(in: .local) = \(proxy.frame(in: .global).maxY)")
+                                if editing {
+                                    textFieldBottom = UIScreen.main.bounds.size.height - proxy.frame(in: .global).maxY
+                                }
+                            }
                             .padding(.horizontal, 15)
                             .padding(.vertical, 12)
                             .cornerRadius(10)
                             .foregroundColor(.black)
                             .accentColor(.black)
                             .keyboardType(.numberPad)
+                            .ignoresSafeArea(.keyboard, edges: .bottom)
                             .focused($isCodeNumberFocused)
-                                               
+                        }
                         countDownButton
                     }
                     .frame(height: 50)

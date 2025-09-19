@@ -8,7 +8,7 @@
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
             uuid = "07260F14-B90B-45BE-85EA-070DEBBA1890"
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Pinjaman/Data/NetworkManager.swift"
@@ -23,16 +23,16 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "59E2F571-AC65-47B4-9AE5-80560A04E798"
-            shouldBeEnabled = "Yes"
+            uuid = "79D58699-AEAE-4429-ACF0-85AD29345C59"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "Pinjaman/Data/NetworkManager.swift"
+            filePath = "Pinjaman/View/LaunchView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "131"
-            endingLineNumber = "131"
-            landmarkName = "request(_:)"
+            startingLineNumber = "75"
+            endingLineNumber = "75"
+            landmarkName = "onProcessChecking()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
