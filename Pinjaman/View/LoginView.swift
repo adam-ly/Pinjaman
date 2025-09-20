@@ -154,6 +154,7 @@ struct LoginView: View {
                             .padding(.vertical, 12)
                             .foregroundColor(.black)
                             .accentColor(.black)
+                            .tint(linkTextColor)
                             .keyboardType(.numberPad)
                             .focused($isPhoneNumberFocused)
                         }
@@ -179,6 +180,7 @@ struct LoginView: View {
                                     textFieldBottom = UIScreen.main.bounds.size.height - proxy.frame(in: .global).maxY
                                 }
                             }
+                            .tint(linkTextColor)
                             .padding(.horizontal, 15)
                             .padding(.vertical, 12)
                             .cornerRadius(10)

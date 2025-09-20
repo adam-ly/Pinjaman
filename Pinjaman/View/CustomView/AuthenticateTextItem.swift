@@ -27,6 +27,7 @@ struct AuthenticateTextItem: View {
                     .onChange(of: phoneNumber) { value in
                         item.dynastes = phoneNumber
                     }
+                    .tint(linkTextColor)
                     .padding(.horizontal, 15)
                     .padding(.vertical, 12)
                     .keyboardType(item.obtected == 1 ? .numberPad : .default)

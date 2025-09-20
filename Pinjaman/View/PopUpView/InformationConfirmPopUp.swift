@@ -91,11 +91,12 @@ struct ConfirmationTextItem: View {
                 .foregroundColor(commonTextColor)
         
             HStack {
-                TextField("Please fill out", text: $item.estaminets)
+                TextField("", text: $item.estaminets)
                     .padding(.horizontal, 15)
                     .padding(.vertical, 12)
                     .foregroundColor(.black)
                     .accentColor(.black)
+                    .tint(linkTextColor)
                     .focused($isFocused)
             }
             .foregroundColor(secondaryTextColor)
