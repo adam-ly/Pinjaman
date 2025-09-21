@@ -22,7 +22,7 @@ struct PKWebView: View {
 
 // 一个用于桥接 WKWebView 和 SwiftUI 的视图
 struct PKHTMLView: UIViewControllerRepresentable {
-    @EnvironmentObject var navigationState: NavigationState
+    @EnvironmentObject private var router: NavigationRouter
     @Environment(\.presentationMode) var presentationMode
     @Binding var title: String
     // 输入参数，用于加载和控制视图行为
@@ -116,7 +116,8 @@ struct PKHTMLView: UIViewControllerRepresentable {
         
         private func handleSwitchTab(index: Int) {
             print("回到主页并关闭当前页，切换到 Tab: \(index)")
-            parent.navigationState.shouldGoToRoot = false
+//            parent.navigationState.shouldGoToRoot = false
+            parent.router.popToRoot()
             NotificationCenter.default.post(name: .onSwitchTab, object: nil, userInfo: ["tab": 0])
         }
                

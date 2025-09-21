@@ -2,26 +2,12 @@ import SwiftUI
 import Kingfisher
 
 struct CertifyView: View {
-    @EnvironmentObject var navigationState: NavigationState
+    @EnvironmentObject private var router: NavigationRouter
     @Environment(\.presentationMode) var presentationMode
     @MainActor @State private var showLoading: Bool = false
     @State var detailModel: ProductDetailModel?
     @State var prodId: String
     @State private var agree = false
-
-    // 认证项目状态枚举
-    enum CertificationStatus {
-        case pending // 待处理
-        case completed // 已完成
-        case current // 当前进行中
-    }
-    
-    // 认证项目数据结构
-    struct CertificationItem {
-        let title: String
-        let status: CertificationStatus
-        let iconName: String
-    }
 
     var body: some View {
         VStack {
@@ -166,33 +152,25 @@ struct CertifyView: View {
                 .foregroundColor(secondaryTextColor)
                 .onTapGesture {
                     print("privacy click")
-                    if let link = detailModel?.neurocentrum?.heterogenean, link.count > 0 {
-//                        destination = (link, "")
-//                        shouldPush = true
-                        navigationState.destination = link
-                        navigationState.param = ""
-                        navigationState.shouldGoToRoot = true
+                    if let path = detailModel?.neurocentrum?.heterogenean?.getDestinationPath(parameter: "") {
+                        router.push(to: path)
                     }
                 }
         }
     }
    
     func onGoToNext(item: AuthItem) {
-        if let next = detailModel?.noneuphoniousness?.oversceptical { // 跳到下一项
-//            destination = (next, prodId)
-            navigationState.destination = next
-            navigationState.param = prodId
-        } else if let hasFinish = item.thortveitite, hasFinish == 0 {
-//            destination = (item.oversceptical ?? "", prodId)
-            navigationState.destination = item.oversceptical ?? ""
-            navigationState.param = prodId
+        var path: NavigationPathElement
+        if let next = detailModel?.noneuphoniousness?.oversceptical?.getDestinationPath(parameter: prodId) { // 跳到下一项
+            path = next
+        } else if let hasFinish = item.thortveitite, hasFinish == 0,
+                  let _path = item.oversceptical?.getDestinationPath(parameter: prodId)  {
+
+            path = _path
         } else {
-//            destination = ("","")
-            navigationState.destination = ""
-            navigationState.param = ""
+            path = NavigationPathElement(destination: .other(""), parameter: "")
         }
-//        shouldPush = destination.0.count > 0
-        navigationState.shouldGoToRoot = true
+        router.push(to: path)
     }
 }
 
@@ -208,12 +186,9 @@ extension CertifyView {
     
     func onClickSubmitButton() {
         // find out the item that has not finish
-        if let item = detailModel?.ridding?.first(where: { $0.thortveitite == 0 }) {
-//            destination = (item.oversceptical ?? "", prodId)
-//            shouldPush = true
-            navigationState.destination = item.oversceptical ?? ""
-            navigationState.param = prodId
-            navigationState.shouldGoToRoot = true
+        if let item = detailModel?.ridding?.first(where: { $0.thortveitite == 0 }),
+           let path = item.oversceptical?.getDestinationPath(parameter: prodId) {
+            router.push(to: path)
             return
         }
         
@@ -236,10 +211,8 @@ extension CertifyView {
                 TrackHelper.share.onCatchUserTrack(type: .startLoanReview)
                 TrackHelper.share.onUploadRiskEvent(type: .startLoanReview, orderId: orderId)
                 
-                if let link = response.unskepticalness.nectarium?.getDestination().0 as? String {
-                    navigationState.destination = link
-                    navigationState.param = prodId
-                    navigationState.shouldGoToRoot = true
+                if let link = response.unskepticalness.nectarium?.getDestinationPath(parameter: prodId) {
+                    router.push(to: link)
                 }
             } catch {
                 showLoading = false

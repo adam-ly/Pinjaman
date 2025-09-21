@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct LoginView: View {
-    @EnvironmentObject var navigationState: NavigationState
+    @EnvironmentObject private var router: NavigationRouter
     @EnvironmentObject var appSeting: AppSettings
     @MainActor @State private var showLoading: Bool = false
     @State private var phoneNumber = ""
@@ -322,9 +322,8 @@ struct LoginView: View {
               let url = URL(string: link) else {
             return
         }
-        navigationState.destination = link
-        navigationState.param = ""
-        navigationState.shouldGoToRoot = true
+        let next = NavigationPathElement.init(destination: .other(link), parameter: "")
+        router.push(to: next)
     }
 }
 

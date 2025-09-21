@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct UserInfomationView: View {
-    @EnvironmentObject var navigationState: NavigationState
+    @EnvironmentObject private var router: NavigationRouter
     @State var prodId: String = ""
     @State private var phoneNumber = ""
     @MainActor @State private var showLoading: Bool = false
@@ -151,12 +151,10 @@ extension UserInfomationView {
     }
     
     func onGoToNext(detailModel: ProductDetailModel) {
-        if let next = detailModel.noneuphoniousness?.oversceptical { // 跳到下一项
-            navigationState.destination = next
-            navigationState.param = prodId
-            navigationState.shouldGoToRoot = true
+        if let next = detailModel.noneuphoniousness?.oversceptical?.getDestinationPath(parameter: prodId) { // 跳到下一项
+            router.push(to: next)
         } else {
-            navigationState.shouldGoToRoot = false
+            router.pop(to: .certify)
         }
     }
 }

@@ -44,7 +44,7 @@ struct OrderView: View {
     @EnvironmentObject var appSeting: AppSettings
     @State private var selectedTab = OrderType.all
     @State private var orderListModel: OrderListModel?
-    @EnvironmentObject var navigationState: NavigationState
+    @EnvironmentObject private var router: NavigationRouter
     @MainActor @State private var showLoading: Bool = false
         
     let tabs = [OrderType.all,
@@ -139,11 +139,8 @@ struct OrderView: View {
             VStack {
                 ForEach(orderListModel?.mercantilism ?? []) { item in
                     OrderItemView(order: item) { link in
-                        if let dest = link.getDestination() as? (String?, String?), let link = dest.0 {
-                            navigationState.destination = link
-                            navigationState.param = dest.1 ?? ""
-                            navigationState.shouldGoToRoot = true
-                        }
+                        let dest = link.getDestinationPath(parameter: "")
+                        router.push(to: dest)
                     }
                 }
             }

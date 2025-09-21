@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct CancellationView: View {
-    @EnvironmentObject var navigationState: NavigationState
+    @EnvironmentObject private var router: NavigationRouter
     @EnvironmentObject var appSeting: AppSettings
     @MainActor @State private var showLoading: Bool = false
     @State private var onShowConfirmationView: Bool = false
@@ -65,8 +65,7 @@ struct CancellationView: View {
         guard agree else {
             ToastManager.shared.show(LocalizeContent.agreement.text())
             return
-        }
-        
+        }        
         onShowConfirmationView = true
     }
     
@@ -78,7 +77,7 @@ struct CancellationView: View {
                 let response: PJResponse<EmptyModel> = try await NetworkManager.shared.request(payload)
                 showLoading = false
                 appSeting.logout()
-                navigationState.shouldGoToRoot = false
+                router.popToRoot()
                 NotificationCenter.default.post(name: .didLogout, object: nil)
             } catch {
                 showLoading = false

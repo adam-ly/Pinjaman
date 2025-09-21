@@ -67,6 +67,27 @@ extension String {
             return (self, nil)
         }
     }
+    
+    func getDestinationPath(parameter: String) -> NavigationPathElement {
+        var destination: Destination
+        let arr = ["pa://ks.mo.ent/Berkly",
+                   "pa://ks.mo.ent/Italophile",
+                   "pa://ks.mo.ent/Frametown",
+                   "pa://ks.mo.ent/contrude",
+                   "pa://ks.mo.ent/aloetic"]
+        var param = parameter
+        if self.contains("http") {
+            destination = .other(self.addMadatoryParameters())
+        } else if let find = arr.first(where: { self.contains($0) }) {
+            destination = Destination(rawValue: find)
+            param = self.components(separatedBy: "=").last ?? ""
+        } else {
+            destination = Destination(rawValue: self)
+        }
+                                
+        // 2. Create and return the NavigationPathElement.
+        return NavigationPathElement(destination: destination, parameter: param)
+    }
 }
 
 extension String  {

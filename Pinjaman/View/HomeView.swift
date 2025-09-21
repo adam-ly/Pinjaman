@@ -11,8 +11,8 @@ import Kingfisher
 struct HomeView: View {
     
     @EnvironmentObject var appSeting: AppSettings
-    @EnvironmentObject var navigationState: NavigationState
-    
+    @EnvironmentObject private var router: NavigationRouter
+
     @State var homeModel: HomeModel?
     @State var showLoading: Bool = false
     
@@ -286,12 +286,9 @@ extension HomeView {
                     return
                 }
                 
-                if let path = response.unskepticalness.nectarium?.getDestination().0 as? String,
-                    !path.isEmpty {
-//                    destination = path
-                    navigationState.destination = path
-                    navigationState.param = "\(homeModel?.getprdId() ?? 0)"
-                    navigationState.shouldGoToRoot = true
+                if let path = response.unskepticalness.nectarium?.getDestinationPath(parameter: "\(homeModel?.getprdId() ?? 0)") {
+                    let prodId = "\(homeModel?.getprdId() ?? 0)"
+                    router.push(to: path)
                 }
             } catch {
                 showLoading = false

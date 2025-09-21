@@ -10,7 +10,7 @@ import Network
 
 @main
 struct PinjamanApp: App {
-    @StateObject  var navigationState = NavigationState()
+    @StateObject private var router = NavigationRouter()
     @State var canEnterHomePage: Bool = false
     @State var showToast: Bool = false
     @State var currentToast = ToastContent(title: "")
@@ -21,17 +21,10 @@ struct PinjamanApp: App {
     
     var body: some Scene {
         WindowGroup {
-            NavigationView {
-                ZStack {
-                    content
-                    NavigationLink(destination: NavigationManager.navigateTo(for: navigationState.destination, prodId: navigationState.param), isActive: $navigationState.shouldGoToRoot) {
-                        EmptyView() // 隐藏的 NavigationLink 标签
-                    }
-                }
-            }
+            content
             .tint(.white)
             .environmentObject(AppSettings.shared)
-            .environmentObject(navigationState)
+            .environmentObject(router)
             .alertSnack()
             .onReceive(NotificationCenter.default.publisher(for: .showToast)) { notification in
                 if let content = notification.userInfo?["content"] as? ToastContent {
@@ -41,7 +34,6 @@ struct PinjamanApp: App {
             }
             .toast(
                 isPresented: $showToast,
-                // 如果 currentToast 为 nil，提供一个空的 ToastContent
                 content: ToastView(message: self.currentToast)
             )
         }

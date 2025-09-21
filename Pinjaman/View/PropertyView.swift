@@ -9,7 +9,7 @@ import Foundation
 import SwiftUI
 
 struct PropertyView: View {
-    @EnvironmentObject var navigationState: NavigationState
+    @EnvironmentObject private var router: NavigationRouter
     @MainActor @State private var showLoading: Bool = false
     @State var prodId: String = ""
     @State private var phoneNumber = ""
@@ -129,12 +129,10 @@ extension PropertyView {
     }
     
     func onGoToNext(detailModel: ProductDetailModel) {
-        if let next = detailModel.noneuphoniousness?.oversceptical { // 跳到下一项
-            navigationState.destination = next
-            navigationState.param = prodId
-            navigationState.shouldGoToRoot = true
+        if let next = detailModel.noneuphoniousness?.oversceptical?.getDestinationPath(parameter: prodId) { // 跳到下一项
+            router.push(to: next)
         } else {
-            navigationState.shouldGoToRoot = false
+            router.pop(to: .certify)
         }
     }
 }
@@ -142,3 +140,4 @@ extension PropertyView {
 #Preview {
     PropertyView(prodId: "")
 }
+

@@ -4,7 +4,7 @@ import Kingfisher
 // MARK: - 主视图
 struct ProfileView: View {
     @EnvironmentObject var appSeting: AppSettings
-    @EnvironmentObject var navigationState: NavigationState
+    @EnvironmentObject private var router: NavigationRouter
     @State private var userCenterModel: PersonCenterModel?
     @State var destination: (String, String) = ("","")
     @State var showLoading: Bool = false
@@ -137,11 +137,9 @@ struct ProfileView: View {
     
     func onTapItem(item: MenuItem) {
         guard let path = item.nectarium,
-              let dest = path.getDestination() as? (String?, String?), let link = dest.0 else { return }
-        print(path)
-        navigationState.destination = dest.0 ?? ""
-        navigationState.param = dest.1 ?? ""
-        navigationState.shouldGoToRoot = true
+              let dest = path.getDestinationPath(parameter: "") as? NavigationPathElement else { return }
+        print(path)        
+        router.push(to: dest)
     }
 }
 

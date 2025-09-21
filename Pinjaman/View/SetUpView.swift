@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct SetUpView: View {
-    @EnvironmentObject var navigationState: NavigationState
+    @EnvironmentObject private var router: NavigationRouter
     @EnvironmentObject var appSeting: AppSettings
     @MainActor @State private var showLoading: Bool = false
     var body: some View {
@@ -68,10 +68,8 @@ struct SetUpView: View {
         // 选项列表
         VStack(spacing: 1) {
             // 账户取消
-            Button {
-                // 账户取消操作
-                navigationState.destination = Destination.cancellation.rawValue
-                navigationState.shouldGoToRoot = true
+            Button {                
+                router.push(to: NavigationPathElement.init(destination: .cancellation, parameter: ""))
             } label: {
                 HStack {
                     Image(systemName: "envelope")
@@ -136,7 +134,8 @@ extension SetUpView {
                 let loginResponse: PJResponse<EmptyModel> = try await NetworkManager.shared.request(payLoad)
                 showLoading = false
                 appSeting.logout()
-                navigationState.shouldGoToRoot = false
+//                navigationState.shouldGoToRoot = false
+                router.popToRoot()
                 NotificationCenter.default.post(name: .didLogout, object: nil)
             } catch {
                 showLoading = false

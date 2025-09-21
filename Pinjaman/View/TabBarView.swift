@@ -6,12 +6,17 @@ class NavigationState: ObservableObject {
 }
 
 struct TabBarView: View {
-//    @EnvironmentObject var navigationState: NavigationState
+    @EnvironmentObject private var router: NavigationRouter
     @EnvironmentObject var appSeting: AppSettings
     @State private var selectedTag = 0
-    @State var showLoginView: Bool = false 
+    @State var showLoginView: Bool = false
 
-    var body: some View {                        
+    var body: some View {
+        NavigationHost(rootView: AnyView(content))
+            .ignoresSafeArea()
+    }
+    
+    var content: some View {
         VStack{
             ZStack {
                 HomeView()
@@ -19,7 +24,7 @@ struct TabBarView: View {
                 OrderView()
                     .opacity(selectedTag == 1 ? 1 : 0)
                 ProfileView()
-                    .opacity(selectedTag == 2 ? 1 : 0)                                
+                    .opacity(selectedTag == 2 ? 1 : 0)
             }
             tabArea
         }
@@ -41,31 +46,12 @@ struct TabBarView: View {
         .overlay(content: {
             if showLoginView {
                 LoginView(isPresented: $showLoginView)
-//                    .environmentObject(navigationState)
                     .ignoresSafeArea()
             } else {
                 Color.clear
             }
         }
         )
-        .onAppear {
-            let appearance = UITabBarAppearance()
-            appearance.configureWithOpaqueBackground()
-            appearance.backgroundColor = UIColor.black // 背景色
-            
-            // 普通状态
-            appearance.stackedLayoutAppearance.normal.iconColor = .gray
-            appearance.stackedLayoutAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor.gray]
-            
-            // 选中状态
-            appearance.stackedLayoutAppearance.selected.iconColor = .systemPink
-            appearance.stackedLayoutAppearance.selected.titleTextAttributes = [.foregroundColor: UIColor.systemPink]
-            
-            UITabBar.appearance().standardAppearance = appearance
-            if #available(iOS 15.0, *) {
-                UITabBar.appearance().scrollEdgeAppearance = appearance
-            }
-        }
     }
     
     var tabArea: some View {
