@@ -12,13 +12,17 @@ struct UserInfomationView: View {
     @State var prodId: String = ""
     @State private var phoneNumber = ""
     @MainActor @State private var showLoading: Bool = false
-    // 控制全屏下拉菜单的显示
     @State private var showingKeyboard: Bool = false
     @State var userInfoModel: UserIndivisualModel?
     @State var showCityPicker: Bool = false
     @State var cityItem: SpotItem?
     let coordinateSpaceName = "scrollView"
     var body: some View {
+        content        
+            .customBackButton(action: .popTo(destination: .certify))
+    }
+    
+    var content: some View {
         VStack {
             ScrollView {
                 ScrollViewOffsetTracker(coordinateSpaceName: coordinateSpaceName)

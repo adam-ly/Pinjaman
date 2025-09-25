@@ -14,9 +14,14 @@ struct ContactsView: View {
     @EnvironmentObject var appSeting: AppSettings
     @State private var showLoading = false
     var body: some View {
+        content
+            .customBackButton(action: .popTo(destination: .certify))
+    }
+    
+    var content: some View {
         VStack {
             ScrollView {
-                content
+                contactList
                     .padding(.top, 16)
             }
             
@@ -34,12 +39,11 @@ struct ContactsView: View {
         }
     }
     
-    var content: some View {
+    var contactList: some View {
         VStack(spacing: 30) {
             ForEach(self.contactModel?.unthrobbing ?? []) { item in
                 ContactItem(item: item)
             }
-            
         }
     }
 }

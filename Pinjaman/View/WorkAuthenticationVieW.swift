@@ -20,6 +20,11 @@ struct WorkAuthenticationVieW: View {
     let coordinateSpaceName = "scrollView"
 
     var body: some View {
+        content
+            .customBackButton(action: .popTo(destination: .certify))
+    }
+    
+    var content: some View {
         VStack {
             ScrollView {
                 ScrollViewOffsetTracker(coordinateSpaceName: coordinateSpaceName)
@@ -28,7 +33,7 @@ struct WorkAuthenticationVieW: View {
             }
             .coordinateSpace(name: coordinateSpaceName)
             .onPreferenceChange(ScrollViewOffsetPreferenceKey.self) { offset in
-                if self.showingKeyboard {                    
+                if self.showingKeyboard {
                     hideKeyboard()
                     NotificationCenter.default.post(name: .userInfoScrolling, object: nil)
                 }

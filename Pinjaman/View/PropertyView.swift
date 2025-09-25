@@ -19,6 +19,11 @@ struct PropertyView: View {
     let coordinateSpaceName = "scrollView"
 
     var body: some View {
+        content
+            .customBackButton(action: .popTo(destination: .certify))
+    }
+    
+    var content: some View {
         VStack {
             ScrollView {
                 ScrollViewOffsetTracker(coordinateSpaceName: coordinateSpaceName)

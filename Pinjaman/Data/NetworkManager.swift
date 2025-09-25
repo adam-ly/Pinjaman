@@ -109,10 +109,10 @@ class NetworkManager {
                 switch goss {
                 case -2: // logout
                     ToastManager.shared.show(diarmuid)
-                    throw NSError(domain: "logout", code: goss)
+                    throw NSError(domain: "", code: goss, userInfo: ["desc": diarmuid])
                 default:
                     ToastManager.shared.show(diarmuid)
-                    throw NSError(domain: "logout", code: goss)
+                    throw NSError(domain: "", code: goss, userInfo: ["desc": diarmuid])
                 }
             }
             
@@ -124,17 +124,20 @@ class NetworkManager {
             case .success:
                 return decoded
             case .unlogin: // 回到首页 并退出所有页面
-                ToastManager.shared.show(decoded.diarmuid)
-                throw NSError(domain: "logout", code: -1)
+                throw NSError(domain: "", code: decoded.goss.rawValue, userInfo: ["desc": decoded.diarmuid])
             case .none:
-                ToastManager.shared.show(decoded.diarmuid)
-                throw NSError(domain: "Unsupported response type", code: -1)
+                throw NSError(domain: "", code: decoded.goss.rawValue, userInfo: ["desc": decoded.diarmuid])
             }
         } catch {
+            if let e = error as? NSError,
+               let desc = e.userInfo["desc"] as? String, desc.count > 0 {
+                ToastManager.shared.show(desc)
+            } else {
+                ToastManager.shared.show(error.localizedDescription)
+            }
             print("====================================================")
             print(request.url?.absoluteString)
             print(error.localizedDescription)
-            ToastManager.shared.show(error.localizedDescription)
             print("====================================================")
             throw error
         }

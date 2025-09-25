@@ -23,10 +23,11 @@ struct IdentifyView: View {
     @State var showConfirmPopUp: Bool = false
     
     var body: some View {
-        contentView
+        content
+            .customBackButton(action: .popTo(destination: .certify))
     }
     
-    var contentView: some View {
+    var content: some View {
         VStack(alignment: .center, spacing: 14) {
             title
                  

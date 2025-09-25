@@ -7,16 +7,16 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "07260F14-B90B-45BE-85EA-070DEBBA1890"
+            uuid = "71FDCE97-4199-4BFE-B697-B6729E21AF22"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "Pinjaman/Data/NetworkManager.swift"
+            filePath = "Pinjaman/View/HomeView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "102"
-            endingLineNumber = "102"
-            landmarkName = "request(_:)"
+            startingLineNumber = "291"
+            endingLineNumber = "291"
+            landmarkName = "getRequestPermit(with:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

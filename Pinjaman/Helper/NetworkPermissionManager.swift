@@ -11,7 +11,7 @@ import Network
 // 一个单例网络管理器，用于监控网络连接状态
 class NetworkPermissionManager {
     static let shared = NetworkPermissionManager()
-    private let monitor = NWPathMonitor()
+    let monitor = NWPathMonitor()
     private let queue = DispatchQueue(label: "NetworkPermissionManager")
 
     // 网络连接类型的枚举

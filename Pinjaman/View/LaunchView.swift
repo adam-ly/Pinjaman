@@ -13,7 +13,7 @@ struct LaunchView: View {
     @EnvironmentObject var appSeting: AppSettings
     @MainActor @State private var showLoading: Bool = false
     @State var showTryAgainButton: Bool = false
-    @State var isNetworkDisable: Bool = false
+    @State var isNetworkDisable: Bool = true
     @Binding var canEnterHomePage: Bool
     
     var body: some View {
@@ -37,6 +37,10 @@ struct LaunchView: View {
     }
     
     func precheck() {
+        if !isNetworkDisable {
+            onProcessChecking()
+            return
+        }
         NetworkPermissionManager.shared.checkConnectionStatus {[self] isConnected, type in
             if isConnected {
                 isNetworkDisable = false

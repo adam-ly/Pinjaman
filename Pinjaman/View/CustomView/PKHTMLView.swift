@@ -15,8 +15,11 @@ struct PKWebView: View {
     @State var title: String = ""
     
     var body: some View {
-        PKHTMLView(title: $title, htmlLink: htmlLink, shouldGoBackToHome: shouldGoBackToHome)
+        PKHTMLView(title: $title,
+                   htmlLink: htmlLink,
+                   shouldGoBackToHome: shouldGoBackToHome)
             .navigationTitle(title)
+            .customBackButton(action: .popToRoot)
     }
 }
 
@@ -140,10 +143,6 @@ struct PKHTMLView: UIViewControllerRepresentable {
     }
 }
 
-
-// -----------------------------------------------------------------------------------------------------------------------------------
-// 这个类是原始 UIKit 代码的简化和封装，用于在 SwiftUI 中使用
-// -----------------------------------------------------------------------------------------------------------------------------------
 class PKHTMLViewController: UIViewController {
     
     weak var webView: WKWebView!
