@@ -15,11 +15,6 @@ struct AuthenticateOptionItem: View {
     
     init(item: SpotItem) {
         self.item = item
-        if let selectedItem = item.vermeer?.first(where: { $0.oxystome == item.oxystome }) {
-            self.selectedOption = selectedItem
-        } else {
-            self.selectedOption = nil
-        }
     }
     
     var body: some View {
@@ -29,6 +24,11 @@ struct AuthenticateOptionItem: View {
                 .foregroundColor(commonTextColor)
             menu
         }
+        .onAppear(perform: {
+            if let selectedItem = item.vermeer?.first(where: { $0.oxystome == item.oxystome }) {
+                self.selectedOption = selectedItem
+            }
+        })
         .padding(.horizontal, 16)
         .onTapGesture {
             self.isShowingDropdown = false

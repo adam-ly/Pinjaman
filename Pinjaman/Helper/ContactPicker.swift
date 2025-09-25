@@ -66,7 +66,8 @@ struct ContactPicker: UIViewControllerRepresentable {
             var userInfo: [String: String] = [:]
             let phoneNumbers = contact.phoneNumbers.map { $0.value.stringValue }.joined(separator: ",")
             userInfo["sensationally"] = phoneNumbers
-            userInfo["contendent"] = contact.givenName
+            let fullName = "\(contact.givenName) \(contact.familyName)"
+            userInfo["contendent"] = fullName
             return userInfo
         }
 

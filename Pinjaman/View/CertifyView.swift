@@ -163,9 +163,7 @@ struct CertifyView: View {
         var path: NavigationPathElement
         if let next = detailModel?.noneuphoniousness?.oversceptical?.getDestinationPath(parameter: prodId) { // 跳到下一项
             path = next
-        } else if let hasFinish = item.thortveitite, hasFinish == 0,
-                  let _path = item.oversceptical?.getDestinationPath(parameter: prodId)  {
-
+        } else if let _path = item.oversceptical?.getDestinationPath(parameter: prodId) { // 不管填没填都跳到对应页面
             path = _path
         } else {
             path = NavigationPathElement(destination: .other(""), parameter: "")

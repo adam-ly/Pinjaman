@@ -9,7 +9,10 @@ import SwiftUI
 
 struct IdentifyCardPopup: View {
     var identityType: String = "11"
+    
     var onConfirm: () -> Void
+    var onClose: () -> Void
+    
     var body: some View {
         ZStack(alignment: .center) {
             Color.black.opacity(0.4)
@@ -72,6 +75,16 @@ struct IdentifyCardPopup: View {
                         Spacer()
                     }
                     .padding(.leading, 15)
+                    
+                    HStack {
+                        Spacer()
+                        Image("pd_popupClose")
+                            .onTapGesture {
+                                onClose()
+                            }
+                    }
+                    .padding(.top, 20)
+                    .padding(.trailing, 10)
                 })
             )
             .frame(height: 450)
@@ -86,6 +99,9 @@ struct IdentifyCardPopup: View {
 
 #Preview {
     IdentifyCardPopup(identityType: "11") { 
+                
+    } onClose: {
         
     }
+
 }

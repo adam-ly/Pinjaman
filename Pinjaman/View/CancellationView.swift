@@ -11,7 +11,6 @@ struct CancellationView: View {
     @EnvironmentObject private var router: NavigationRouter
     @EnvironmentObject var appSeting: AppSettings
     @MainActor @State private var showLoading: Bool = false
-    @State private var onShowConfirmationView: Bool = false
     @State private var agree = false
 
     var body: some View {
@@ -35,16 +34,6 @@ struct CancellationView: View {
                 .padding(.horizontal, 60)
             }
             .padding(.top, 36)
-        }.overlay {
-            if onShowConfirmationView {
-                SignUpConfirmPopUp(onTap: {
-                    onShowConfirmationView = false
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2, execute: {
-                        cancellation()
-                    })
-                })
-                .ignoresSafeArea()
-            }
         }
     }
     
@@ -66,7 +55,7 @@ struct CancellationView: View {
             ToastManager.shared.show(LocalizeContent.agreement.text())
             return
         }        
-        onShowConfirmationView = true
+        cancellation()
     }
     
     func cancellation() {

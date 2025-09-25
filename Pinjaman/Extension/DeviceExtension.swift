@@ -82,7 +82,7 @@ extension UIDevice {
         json["untoured"] = [
             "pimas": TimeZone.current.identifier,              // 时区ID
             "metroptosis": IDFAManager.shared.fetchIDFV() ?? "",     // IDFV
-            "bilirubinic": AppSettings.shared.configModal?.filesniff,      // 语言
+            "bilirubinic": AppSettings.shared.configModal?.filesniff == 1 ? "en" : "id",      // 语言
             "dipsey": getCurrentNetworkType(),               // 网络类型
             "alemannish": IDFAManager.shared.fetchIDFA()                           // IDFA
         ]

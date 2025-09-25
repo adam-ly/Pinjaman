@@ -11,6 +11,8 @@ struct SetUpView: View {
     @EnvironmentObject private var router: NavigationRouter
     @EnvironmentObject var appSeting: AppSettings
     @MainActor @State private var showLoading: Bool = false
+    @State private var onShowConfirmationView: Bool = false
+
     var body: some View {
         VStack {
             // 主内容
@@ -28,6 +30,18 @@ struct SetUpView: View {
         .background(Color(UIColor.systemGray6))
         .edgesIgnoringSafeArea(.bottom)
         .navigationTitle(LocalizeContent.setup.text())
+        .overlay {
+            if onShowConfirmationView {
+                SignUpConfirmPopUp(onTap: {
+                    onShowConfirmationView = false
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2, execute: {
+                        logout()
+                    })
+                }, onClose: {
+                    onShowConfirmationView = false
+                }).ignoresSafeArea()
+            }
+        }
     }
     
     var appIcon: some View {
@@ -92,7 +106,7 @@ struct SetUpView: View {
 
             // 登出
             Button {
-                logout()
+                onShowConfirmationView = true
             } label: {
                 HStack {
                     Image(systemName: "arrow.left.square")
@@ -125,7 +139,7 @@ struct SetUpView: View {
     }
 }
 
-extension SetUpView {    
+extension SetUpView {
     func logout() {
         Task {
             do {

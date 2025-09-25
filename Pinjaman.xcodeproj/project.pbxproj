@@ -334,14 +334,16 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
+				CODE_SIGN_ENTITLEMENTS = Pinjaman/Pinjaman.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Pinjaman/Preview Content\"";
-				DEVELOPMENT_TEAM = M69H647QU3;
+				DEVELOPMENT_TEAM = 8K9YQ3M42C;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Pinjaman/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Pinjaman Hebat";
 				INFOPLIST_KEY_NSCameraUsageDescription = "Camera access is required to scan documents, capture photos for identity checks, and enable QR code scanning. With this enabled, you can complete tasks securely and without delay";
 				INFOPLIST_KEY_NSContactsUsageDescription = "With contacts permission, you can invite friends, share referral benefits, and easily connect with people you trust, making the app more interactive and social";
 				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "Allow access to your network to fetch wifi infomation.";
@@ -360,7 +362,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.adam.com.Pinjaman;
+				PRODUCT_BUNDLE_IDENTIFIER = "-488755";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -375,14 +377,16 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
+				CODE_SIGN_ENTITLEMENTS = Pinjaman/Pinjaman.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Pinjaman/Preview Content\"";
-				DEVELOPMENT_TEAM = M69H647QU3;
+				DEVELOPMENT_TEAM = 8K9YQ3M42C;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Pinjaman/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Pinjaman Hebat";
 				INFOPLIST_KEY_NSCameraUsageDescription = "Camera access is required to scan documents, capture photos for identity checks, and enable QR code scanning. With this enabled, you can complete tasks securely and without delay";
 				INFOPLIST_KEY_NSContactsUsageDescription = "With contacts permission, you can invite friends, share referral benefits, and easily connect with people you trust, making the app more interactive and social";
 				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "Allow access to your network to fetch wifi infomation.";
@@ -401,7 +405,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.adam.com.Pinjaman;
+				PRODUCT_BUNDLE_IDENTIFIER = "-488755";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;

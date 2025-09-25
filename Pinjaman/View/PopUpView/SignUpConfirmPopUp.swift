@@ -9,6 +9,7 @@ import SwiftUI
 
 struct SignUpConfirmPopUp: View {
     var onTap: ()->Void
+    var onClose: () -> Void
     var body: some View {
         ZStack(alignment: .center) {
             Color.black.opacity(0.4)
@@ -54,6 +55,16 @@ struct SignUpConfirmPopUp: View {
                         Spacer()
                     }
                     .padding(.leading, 15)
+                    
+                    HStack {
+                        Spacer()
+                        Image("pd_popupClose")
+                            .onTapGesture {
+                                onClose()
+                            }
+                    }
+                    .padding(.top, 20)
+                    .padding(.trailing, 10)
                 })
             )
             .frame(height: 265)
@@ -64,6 +75,8 @@ struct SignUpConfirmPopUp: View {
 
 #Preview {
     SignUpConfirmPopUp {
+        
+    } onClose: {
         
     }
 }

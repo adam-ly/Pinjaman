@@ -38,7 +38,7 @@ struct ContactItem: View {
                             Spacer()
                             Image("good_drop")
                         }
-                        .foregroundColor(secondaryTextColor)
+                        .foregroundColor(self.selected != nil ? commonTextColor : secondaryTextColor)
                         .padding(.horizontal, 12)
                         .frame(maxWidth: .infinity)
                         .frame(height: 48)
@@ -62,7 +62,7 @@ struct ContactItem: View {
                             Spacer()
                             Image("good_contactBook")
                         }
-                        .foregroundColor(secondaryTextColor)
+                        .foregroundColor((item.marrowbone?.count ?? 0) > 0 ? commonTextColor : secondaryTextColor)
                         .padding(.horizontal, 12)
                         .frame(maxWidth: .infinity)
                         .frame(height: 48)
@@ -75,6 +75,11 @@ struct ContactItem: View {
             }
             .foregroundColor(commonTextColor)
         }
+        .onAppear(perform: {
+            if let selected = item.vermeer?.first(where: { $0.oxystome == item.singularly }) {
+                self.selected = selected
+            }
+        })
         .padding(.horizontal, 16)
         .sheet(isPresented: $contactsManager.isShowingContactPicker) {
             ContactPicker { contact in

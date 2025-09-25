@@ -70,7 +70,7 @@ class TrackHelper {
     func onUploadRiskEvent(type: TrackType, orderId: String) {
         let param =
         ["fantastry": type.rawValue,
-         "dodded": "ios",
+         "dodded": "2",
          "copperbottom": IDFAManager.shared.fetchIDFV() ?? "",
          "forecomingness": IDFAManager.shared.fetchIDFV() ?? "",
          "hundredth": AddressManager.shared.currentLocation?.coordinate.longitude ?? "",

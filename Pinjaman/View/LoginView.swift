@@ -37,7 +37,9 @@ struct LoginView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .ignoresSafeArea()
                 .onTapGesture {
-                    closePage()
+                    if !isCountingDown { 
+                        closePage()
+                    }
                 }
             contentView
                 .offset(y: isPresented ? 0 : UIScreen.main.bounds.size.height)
@@ -141,10 +143,8 @@ struct LoginView: View {
                         Text(LocalizeContent.originCode.text())
                         Divider().frame(height: 50)
                         GeometryReader { proxy in
-                            TextField(LocalizeContent.originCode.text(), text: $phoneNumber) { editing in
+                            TextField(LocalizeContent.phonenumberPlaceholder.text(), text: $phoneNumber) { editing in
                                 if editing {
-                                    print("proxy.frame(in: .local) = \(proxy.frame(in: .global))")
-                                    print("proxy.frame(in: .local) = \(proxy.frame(in: .global).maxY)")
                                     if editing {
                                         textFieldBottom = UIScreen.main.bounds.size.height - proxy.frame(in: .global).maxY
                                     }
@@ -173,9 +173,6 @@ struct LoginView: View {
                     HStack {
                         GeometryReader { proxy in
                             TextField(LocalizeContent.verifyCode.text(), text: $password) { editing in
-                                print("proxy.frame(in: .local) = \(proxy.frame(in: .global))")
-                                print("proxy.frame(in: .local) = \(proxy.frame(in: .global))")
-                                print("proxy.frame(in: .local) = \(proxy.frame(in: .global).maxY)")
                                 if editing {
                                     textFieldBottom = UIScreen.main.bounds.size.height - proxy.frame(in: .global).maxY
                                 }
@@ -214,8 +211,6 @@ struct LoginView: View {
         Button {
             // 點擊後檢查是否正在倒計時
             if !isCountingDown && phoneNumber.count > 0 {
-                // 如果沒有，開始倒計時
-                startCountdown()
                 onGetCode()
             } else {
                 ToastManager.shared.show(LocalizeContent.phoneNumberEmpty.text())
@@ -287,9 +282,8 @@ struct LoginView: View {
     
     // 開始倒計時
     private func startCountdown() {
-        isCountingDown = true
         countdownTime = 60 // 重設倒計時時間
-        
+        isCountingDown = true
     }
     
     // 停止倒計時
@@ -352,15 +346,18 @@ extension LoginView {
     
     func onGetCode() {
         TrackHelper.share.onCatchUserTrack(type: .register)
+        startCountdown()
         showLoading = true
         Task {
             do {
                 let payLoad = GetSMSCodePayload.init(sensationally: phoneNumber)
                 let getCode: PJResponse<EmptyModel> = try await NetworkManager.shared.request(payLoad)
                 showLoading = false
+                
                 ToastManager.shared.show(getCode.diarmuid)
             } catch {
                 showLoading = false
+                stopCountdown()
             }
         }
     }

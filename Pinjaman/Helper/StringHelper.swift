@@ -13,6 +13,7 @@ enum LocalizeContent {
     case loginSubTitle
     case loginDesc
     case phonenumber
+    case phonenumberPlaceholder
     case originCode
     case verifyCode
     case getCode
@@ -30,6 +31,7 @@ enum LocalizeContent {
     case orderEmpty
     
     // Me
+    case welcome
     case serviceAndTool
     case uncertifyTitle
     case uncertifyDesc
@@ -92,6 +94,8 @@ enum LocalizeContent {
             return isEnglish() ? "Welcome to Pinjaman Hebat" : "Selamat datang di Pinjaman Hebat"
         case .phonenumber:
             return isEnglish() ? "Phone number" : "Nomor telepon"
+        case .phonenumberPlaceholder:        
+            return isEnglish() ? "Enter your phone number" : "Masukkan nomor telepon Anda"
         case .originCode:
             return isEnglish() ? "+91" : "+62"
         case .verifyCode:
@@ -122,6 +126,8 @@ enum LocalizeContent {
             return isEnglish() ? "No more records" : "Tidak ada lagi rekaman."
             
         // Me
+        case .welcome:
+            return isEnglish() ? "Welcome to " : "Selamat Datang di "
         case .serviceAndTool:
             return isEnglish() ? "Services & Tools" : "Layanan & Alat"
         case .uncertifyTitle:

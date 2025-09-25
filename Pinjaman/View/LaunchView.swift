@@ -75,7 +75,7 @@ struct LaunchView: View {
                     return
                 }
                 
-                await MainActor.run {
+                await MainActor.run {                    
                     appSeting.configModal = configResponse.unskepticalness
                 }
                 
@@ -98,7 +98,8 @@ struct LaunchView: View {
     
     func onFetchConfig() async -> PJResponse<ConfigModel>? {
         showLoading = true
-        let payload = LoginInitializationPayload(bilirubinic: "en", chartographical: 0, puboiliac: 0)
+        let language = Locale.current.languageCode == "id" ? "id" : "en"
+        let payload = LoginInitializationPayload(bilirubinic: language, chartographical: 0, puboiliac: 0)
         let response: PJResponse<ConfigModel>? = try? await NetworkManager.shared.request(payload)
         response?.unskepticalness.filesniff = 2
         print("response.unskepticalness.overplace?.detach = \(response?.unskepticalness.overplace?.detach)")

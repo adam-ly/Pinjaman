@@ -47,15 +47,17 @@ struct IdentifyView: View {
             onRelocation()
         }
         .fullScreenCover(isPresented: $imagePickerManager.isShowingPicker) {
-            ImagePickerView(isPresented: $imagePickerManager.isShowingPicker, onSelectedImage: { image in
+            ImagePickerView(isPresented: $imagePickerManager.isShowingPicker, hideButton: identityType != "11", onSelectedImage: { image in
                 self.onUploadImage(image: image)
             }, sourceType: sourceType)
             .ignoresSafeArea()
         }
         .overlay {
             if onShowConfirmationView {
-                InformationConfirmPopUp(isPresented: $onShowConfirmationView, identityCardModel: $identityCardModel, onConfirm: { param in
-                    print("param = \(param)")
+                InformationConfirmPopUp(isPresented: $onShowConfirmationView,
+                                        identityCardModel: $identityCardModel,
+                                        showLoading: $showLoading,
+                                        onConfirm: { param in
                     onSubmitIdentityInfo(param: param)
                 })
                 .ignoresSafeArea()
@@ -67,6 +69,8 @@ struct IdentifyView: View {
                     } else {
                         onOpenCameraForFace()
                     }
+                } onClose: {
+                    showConfirmPopUp = false
                 }
             }
         }
@@ -194,7 +198,10 @@ extension IdentifyView {
                 let payload = UploadIdentityInfoPayload(oxystome: identityType, redowl: sourceType == .camera ? "1" : "2")
                 
                 let response: PJResponse<IdentityCardResponse> = try await NetworkManager.shared.upload(payload, fileData: data ?? Data(), fileName: "Image_ph.png", mimeType: "image/png")
+                showLoading = false
                 self.identityCardModel = response.unskepticalness
+                
+                
                 if identityType == "11" { // card
                     onShowConfirmationView = true
                     TrackHelper.share.onUploadRiskEvent(type: .front, orderId: "")
@@ -218,10 +225,12 @@ extension IdentifyView {
                 let payload = SaveIdentityInfoPayload(param: parameter)
                 let response: PJResponse<EmptyModel> = try await NetworkManager.shared.request(payload)
                 showLoading = false
+                onShowConfirmationView = false
                 // refresh data
                 onFetchUserIdentityInfo()                
             } catch {
                 showLoading = false
+                onShowConfirmationView = false
             }
         }
     }

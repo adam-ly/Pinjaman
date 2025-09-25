@@ -15,6 +15,9 @@ struct OrderItemView: View {
     
     var body: some View {
         content
+            .onTapGesture {
+                onApplyTap(order.intertwist ?? "")
+            }
     }
     
     var content: some View {

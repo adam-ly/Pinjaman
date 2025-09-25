@@ -66,10 +66,10 @@ class NetworkManager {
             guard let finalURL = components?.url else { throw URLError(.badURL) }
             request = URLRequest(url: finalURL)
             request.httpMethod = "GET"
-//            print("URL == \(finalURL.absoluteString)")
+            print("URL == \(finalURL.absoluteString)")
 
         case .POST:
-//            print("URL == \(url)")
+            print("URL == \(url)")
             request = URLRequest(url: url)
             request.httpMethod = "POST"
             request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
@@ -82,7 +82,7 @@ class NetworkManager {
                 return "\(uriKey)=\(lifetimeValue)"
             }.joined(separator: "&")
             request.httpBody = oamString.data(using: .utf8)
-//            print("Param == \(oamString)")
+            print("Param == \(oamString)")
         default:
             ToastManager.shared.show("Unsupported request type")
             throw NSError(domain: "Unsupported request type", code: -1)
@@ -91,7 +91,7 @@ class NetworkManager {
         do {
             // Use URLSession.shared.data(for: request) to handle all request types
             let (data, response) = try await URLSession.shared.data(for: request)
-//            print(try JSONSerialization.jsonObject(with: data, options: []))
+            print(try JSONSerialization.jsonObject(with: data, options: []))
             
             // Validate the HTTP response status code, similar to the provided get/post methods
             guard let httpResponse = response as? HTTPURLResponse,
@@ -119,7 +119,7 @@ class NetworkManager {
             // Decode the data
             let decoded = try JSONDecoder().decode(PJResponse<T>.self, from: data)            
             // Handle specific PJResponse status
-//            print("request success: \(decoded.diarmuid)")
+            print("request success: \(decoded.diarmuid)")
             switch decoded.goss {
             case .success:
                 return decoded
@@ -134,7 +134,7 @@ class NetworkManager {
             print("====================================================")
             print(request.url?.absoluteString)
             print(error.localizedDescription)
-//            ToastManager.shared.show(error.localizedDescription)
+            ToastManager.shared.show(error.localizedDescription)
             print("====================================================")
             throw error
         }

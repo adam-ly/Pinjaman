@@ -34,7 +34,7 @@ struct AuthenticateCityItem: View {
             .frame(maxWidth: .infinity)
             .frame(height: 50)
             .background(textFieldBgColor)
-            .foregroundColor(secondaryTextColor)
+            .foregroundColor(item.dynastes.count > 0 ? commonTextColor : secondaryTextColor)
             .cornerRadius(6)
         }
         .padding(.horizontal, 16)

@@ -21,9 +21,7 @@ class ImagePickerManager: ObservableObject {
         self.sourceType = sourceType
         self.isShowingPicker = true
     }
-    
     // MARK: - 权限检查
-    
     func checkCameraPermission() {
         switch AVCaptureDevice.authorizationStatus(for: .video) {
         case .authorized:
@@ -72,8 +70,8 @@ class ImagePickerManager: ObservableObject {
 
 /// 封装 UIImagePickerController 的视图
 struct ImagePickerView: UIViewControllerRepresentable {
-//    @Binding var selectedImage: UIImage?
     @Binding var isPresented: Bool
+    var hideButton: Bool = false
     var onSelectedImage: ((UIImage) -> Void)?
     let sourceType: UIImagePickerController.SourceType
 
@@ -81,7 +79,21 @@ struct ImagePickerView: UIViewControllerRepresentable {
         let picker = UIImagePickerController()
         picker.sourceType = sourceType
         picker.delegate = context.coordinator
+        picker.cameraDevice = hideButton ? .front : .rear
+        if hideButton {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3, execute: {
+                self.hideFlipButton(in: picker.view)
+            })
+        }
         return picker
+    }
+    
+    func hideFlipButton(in view: UIView) {
+        let className = String(describing: type(of: view))
+        if className == "CAMFlipButton" {
+            view.isHidden = true
+        }
+        view.subviews.forEach { hideFlipButton(in: $0) }
     }
     
     func makeCoordinator() -> Coordinator {
@@ -96,6 +108,7 @@ struct ImagePickerView: UIViewControllerRepresentable {
         init(parent: ImagePickerView) {
             self.parent = parent
         }
+        
         
         func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
             if let uiImage = info[.originalImage] as? UIImage {

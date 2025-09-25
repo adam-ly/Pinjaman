@@ -13,7 +13,6 @@ struct AuthenticateTextItem: View {
     
     init(item: SpotItem) {
         self.item = item
-        self.phoneNumber = item.dynastes
     }
     
     var body: some View {
@@ -23,9 +22,10 @@ struct AuthenticateTextItem: View {
                 .foregroundColor(commonTextColor)
         
             HStack {
-                TextField(item.dynastes.count > 0 ? item.dynastes : (item.unpreferable ?? "Please fill out"), text: $phoneNumber)
+                TextField(phoneNumber.count > 0 ? phoneNumber : (item.unreproachable ?? "Please fill out"), text: $phoneNumber)
                     .onChange(of: phoneNumber) { value in
-                        item.dynastes = phoneNumber
+                        print("phoneNumber = \(phoneNumber) value = \(value)")
+                        item.dynastes = value
                     }
                     .tint(linkTextColor)
                     .padding(.horizontal, 15)
@@ -34,16 +34,15 @@ struct AuthenticateTextItem: View {
                     .tint(.linkText)
                     .foregroundColor(.black)
             }
-            .foregroundColor(secondaryTextColor)
+            .foregroundColor(item.dynastes.count > 0 ? commonTextColor : secondaryTextColor)
             .background(textFieldBgColor)
             .frame(height: 50)
             .cornerRadius(6)
         }
         .foregroundColor(commonTextColor)
         .padding(.horizontal, 16)
+        .onAppear {
+            self.phoneNumber = item.dynastes
+        }
     }
 }
-
-//#Preview {
-//    AuthenticateTextItem(item: SpotItem(from: ["":""]))
-//}

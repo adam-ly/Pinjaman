@@ -55,7 +55,7 @@ struct HomeView: View {
     }
     
     var topImg: some View {
-        Image("home_topImg")
+        Image("home_topImg" + (appSeting.configModal?.filesniff == 2 ? "_id" : ""))
             .resizable()
             .frame(maxWidth: .infinity)
     }
@@ -126,13 +126,13 @@ struct HomeView: View {
     
     var productIntroView: some View {
         VStack {
-            Image("home_product_first")
+            Image("home_product_first" + (appSeting.configModal?.filesniff == 2 ? "_id" : ""))
                 .resizable()
                 .frame(maxWidth: .infinity)
-            Image("home_product_second")
+            Image("home_product_second" + (appSeting.configModal?.filesniff == 2 ? "_id" : ""))
                 .resizable()
                 .frame(maxWidth: .infinity)
-            Image("home_product_third")
+            Image("home_product_third" + (appSeting.configModal?.filesniff == 2 ? "_id" : ""))
                 .resizable()
                 .frame(maxWidth: .infinity)
         }
@@ -142,6 +142,11 @@ struct HomeView: View {
     var productList: some View {
         ForEach(homeModel?.getProdList() ?? []) { item in
             HomeProductListItem(item: item)
+                .onTapGesture {
+                    if let prodId = item.serphoid {
+                        getRequestPermit(with: prodId)
+                    }
+                }
         }
     }
 }
@@ -237,7 +242,7 @@ struct HomeProductListItem: View {
                     .foregroundColor(secondaryTextColor)
             }
         }
-        .frame(width: .infinity)
+        .frame(maxWidth: .infinity)
     }
 }
 
@@ -285,9 +290,8 @@ extension HomeView {
                     ToastManager.shared.show(response.unskepticalness.peculated ?? "")
                     return
                 }
-                
-                if let path = response.unskepticalness.nectarium?.getDestinationPath(parameter: "\(homeModel?.getprdId() ?? 0)") {
-                    let prodId = "\(homeModel?.getprdId() ?? 0)"
+                print("prdId = \(prdId)")
+                if let path = response.unskepticalness.nectarium?.getDestinationPath(parameter: "\(prdId)") {
                     router.push(to: path)
                 }
             } catch {

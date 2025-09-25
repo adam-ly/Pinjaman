@@ -10,9 +10,9 @@ import SwiftUI
 struct InformationConfirmPopUp: View {
     @Binding var isPresented: Bool
     @Binding var identityCardModel: IdentityCardResponse?
+    @Binding var showLoading: Bool
     
     var onConfirm: (([String: String]) -> Void)?
-    
     var body: some View {
         ZStack(alignment: .center) {
             Color.black.opacity(isPresented ? 0.4 : 0)
@@ -40,7 +40,6 @@ struct InformationConfirmPopUp: View {
                 VStack {
                     Spacer()
                     PrimaryButton(title: LocalizeContent.confirm.text()) {
-                        isPresented = false
                         onConfirm?(getParam())
                     }
                     .padding(.horizontal, 24)
@@ -60,11 +59,22 @@ struct InformationConfirmPopUp: View {
                         Spacer()
                     }
                     .padding(.leading, 15)
+                    
+                    HStack {
+                        Spacer()
+                        Image("pd_popupClose")
+                            .onTapGesture {
+                                isPresented = false
+                            }
+                    }
+                    .padding(.top, 20)
+                    .padding(.trailing, 10)
                 })
             )
             .frame(height: 508)
             .padding(.horizontal, 30)
         }
+        .loading(isLoading: $showLoading)
         .onTapGesture {
             hideKeyboard()
         }

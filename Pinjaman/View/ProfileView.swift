@@ -46,9 +46,11 @@ struct ProfileView: View {
                 .frame(width: 60, height: 60)
                 .foregroundColor(.blue)
             
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: 5) {
                 Text((appSeting.loginModel?.counterretaliation ?? "").masked3to7)
-                    .font(.headline)
+                    .font(.system(size: 24, weight: .heavy))
+                Text(LocalizeContent.welcome.text() + UIDevice.appName())
+                    .font(.system(size: 11, weight: .regular))
             }
             Spacer()
         }.padding(.horizontal, 16)
@@ -68,6 +70,9 @@ struct ProfileView: View {
             Spacer()
             Image(userCenterModel?.manlihood == 0 ? "me_uncertified" : "me_certified")            
         }
+        .onTapGesture {
+            NotificationCenter.default.post(name: .onSwitchTab, object: nil, userInfo: ["tab": 0])
+        }
         .padding(16)
         .background(Color.white)
         .cornerRadius(15)
@@ -83,9 +88,6 @@ struct ProfileView: View {
                     .multilineTextAlignment(.leading)
                     .font(.system(size: 18, weight: .black))
                     .padding(.vertical, 16)
-                    .onTapGesture {
-                        NotificationCenter.default.post(name: .onSwitchTab, object: nil, userInfo: ["tab": 0])
-                    }
                 Spacer()
             }
             .padding(.horizontal, 16)
