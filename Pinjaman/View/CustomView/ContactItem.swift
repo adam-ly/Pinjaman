@@ -100,7 +100,7 @@ struct ContactItem: View {
     func getPhoneContent() -> String {
         if let name = item.contendent, let phone = item.marrowbone,
             name.count > 0 || phone.count > 0 {
-            return name + "|" + phone
+            return name + "-" + phone
         }
         return item.umlauts ?? ""
     }

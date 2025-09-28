@@ -17,6 +17,7 @@ class AppSettings: ObservableObject {
     
     @Published var configModal: ConfigModel?
     
+    
     @Published var userCenterModel: PersonCenterModel?
     @Published var loginModel: LoginModel? {
         didSet {
@@ -28,6 +29,56 @@ class AppSettings: ObservableObject {
             } else {
                 UserDefaults.standard.removeObject(forKey: "loginModelKey")
             }
+        }
+    }
+    
+    // 用于在 UserDefaults 中存储时间戳的键
+    private let locationTimestampKey = "locationPermissionTimestampKey"
+    
+    /// 一个计算属性，用于检查距离上次记录时间是否已超过24小时。
+    var checkLocationPermission: Bool {
+        get {
+            // 1. 从 UserDefaults 中取出存储的时间戳 (TimeInterval)
+            // 如果键不存在，`double(forKey:)` 会返回 0.0
+            let savedTimestamp = UserDefaults.standard.double(forKey: locationTimestampKey)
+            
+            // 2. 如果从未存储过时间戳 (值为0)，则认为需要检查，返回 true
+            if savedTimestamp == 0 {
+                return true
+            }
+            
+            // 3. 获取当前时间的时间戳
+            let currentTimestamp = Date().timeIntervalSince1970
+            
+            // 4. 计算24小时对应的秒数
+            
+#if DEBUG
+            let twentyFourHoursInSeconds: TimeInterval = 30
+            #else
+            let twentyFourHoursInSeconds: TimeInterval = 24 * 60 * 60
+#endif
+            
+            // 5. 计算时间差，并判断是否超过24小时
+            let timeDifference = currentTimestamp - savedTimestamp
+            return timeDifference > twentyFourHoursInSeconds
+        }
+        
+        set {
+            // 'newValue' 是 Swift 在 set 方法中提供的隐式参数，代表你赋的新值
+            if newValue {
+                // 1. 如果新值为 true，则记录当前的时间戳
+                let timestamp = Date().timeIntervalSince1970
+                UserDefaults.standard.set(timestamp, forKey: locationTimestampKey)
+                print("记录了新的时间戳: \(timestamp)")
+            } else {
+                // 2. 如果新值为 false，则清除已存的时间戳
+                UserDefaults.standard.removeObject(forKey: locationTimestampKey)
+                print("清除了时间戳")
+            }
+            
+            // 3. 手动通知观察者：由于这是一个计算属性，它不会自动发布变更。
+            // 我们需要手动调用 objectWillChange.send() 来确保任何监听这个对象的 SwiftUI 视图都能正确更新。
+            objectWillChange.send()
         }
     }
     

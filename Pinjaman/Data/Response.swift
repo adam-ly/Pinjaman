@@ -124,6 +124,11 @@ class HomeModel: Codable {
         return getProduct()?.pithecanthropoid ?? ""
     }
     
+    //额度
+    func getProdPrdName() -> String {
+        return getProduct()?.multilayer ?? ""
+    }
+    
     //产品期限文案
     func getProdExpiredContent() -> String {
         return getProduct()?.rhadamanthine ?? ""

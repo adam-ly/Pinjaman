@@ -23,6 +23,8 @@ class AddressManager: NSObject, CLLocationManagerDelegate {
     
     var locationData: [String: String] = [:]
     
+    var onLocationNotAllow: (() -> Void)?
+    
     /// 私有初始化方法，配置 CLLocationManager
     override private init() {
         self.locationManager = CLLocationManager()
@@ -48,6 +50,11 @@ class AddressManager: NSObject, CLLocationManagerDelegate {
         return locationManager.authorizationStatus
     }
     
+    func shouldDisplayLocalpopup() -> Bool {
+        let status = authorizationStatus()
+        return status != .authorizedWhenInUse && status != .authorizedAlways && status != .notDetermined
+    }
+    
     /// 开始获取位置更新
     func startUpdatingLocation() {
         stopUpdatingLocation()        
@@ -58,7 +65,6 @@ class AddressManager: NSObject, CLLocationManagerDelegate {
             print("开始获取位置更新...")
         } else {
             onLocationUpdate?(nil)
-            NotificationCenter.postAlert(alertType: .location)
             print("未获得定位权限，无法开始更新。当前状态: \(status.rawValue)")
         }
     }
@@ -78,14 +84,10 @@ class AddressManager: NSObject, CLLocationManagerDelegate {
             print("定位权限已授权。")
             // 权限获得后可以立即开始更新
             startUpdatingLocation()
-        case .denied:
-            print("定位权限被拒绝。")
-        case .notDetermined:
-            print("定位权限未确定。")
-        case .restricted:
-            print("定位权限受限。")
-        @unknown default:
-            print("未知的定位权限状态。")
+        case .notDetermined: // mark show
+            AppSettings.shared.checkLocationPermission = true
+        default:
+            onLocationNotAllow?()
         }
     }
     

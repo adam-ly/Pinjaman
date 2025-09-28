@@ -81,7 +81,7 @@ class TrackHelper {
         Task {
             do {
                 let payload = ReportRiskControlEventPayload(param: param)
-                let result: PJResponse<EmptyModel> = try await NetworkManager.shared.request(payload)
+                let _: PJResponse<EmptyModel> = try await NetworkManager.shared.request(payload)
             }
         }
     }
@@ -90,7 +90,7 @@ class TrackHelper {
         Task {
             do {
                 let payload = UploadContactsPayload(unskepticalness: jsonString)
-                let result: PJResponse<EmptyModel> = try await NetworkManager.shared.request(payload)
+                let _: PJResponse<EmptyModel> = try await NetworkManager.shared.request(payload)
             }
         }
     }
@@ -100,7 +100,7 @@ class TrackHelper {
             do {
                 let param = await UIDevice.getDeviceInfo()
                 let payload = ReportDeviceInfoPayload(unskepticalness: param)
-                let result: PJResponse<EmptyModel> = try await NetworkManager.shared.request(payload)
+                let _: PJResponse<EmptyModel> = try await NetworkManager.shared.request(payload)
             }
         }
     }

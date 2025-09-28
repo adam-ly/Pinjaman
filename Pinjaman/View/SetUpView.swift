@@ -148,7 +148,6 @@ extension SetUpView {
                 let loginResponse: PJResponse<EmptyModel> = try await NetworkManager.shared.request(payLoad)
                 showLoading = false
                 appSeting.logout()
-//                navigationState.shouldGoToRoot = false
                 router.popToRoot()
                 NotificationCenter.default.post(name: .didLogout, object: nil)
             } catch {

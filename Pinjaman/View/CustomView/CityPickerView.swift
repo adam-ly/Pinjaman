@@ -44,7 +44,7 @@ struct CityPickerView: View {
                     
                     addressArea.padding(.top, -10)
                     
-                    PrimaryButton(title: "Confirm") {
+                    PrimaryButton(title: LocalizeContent.confirm.text()) {
                         onCallBack(fullAddress)
                         present = false
                     }
@@ -68,7 +68,7 @@ struct CityPickerView: View {
         HStack {
             // MARK: - 省份选择器
             if !allProvinces.isEmpty {
-                Picker("省份", selection: $selectedProvince) {
+                Picker("Province", selection: $selectedProvince) {
                     //                            Text("请选择省份").tag(nil as AddressItem?)
                     ForEach(allProvinces, id: \.id) { province in
                         Text(province.contendent ?? "").tag(province as AddressItem?)
@@ -86,8 +86,7 @@ struct CityPickerView: View {
             
             // MARK: - 城市选择器
             if let cities = selectedProvince?.forheed, !cities.isEmpty {
-                Picker("城市", selection: $selectedCity) {
-                    //                            Text("请选择城市").tag(nil as AddressItem?)
+                Picker("City", selection: $selectedCity) {
                     ForEach(cities, id: \.id) { city in
                         Text(city.contendent ?? "").tag(city as AddressItem?)
                     }
@@ -102,8 +101,7 @@ struct CityPickerView: View {
             
             // MARK: - 地区选择器
             if let districts = selectedCity?.forheed, !districts.isEmpty {
-                Picker("地区", selection: $selectedDistrict) {
-                    //                            Text("请选择地区").tag(nil as AddressItem?)
+                Picker("Region", selection: $selectedDistrict) {
                     ForEach(districts, id: \.id) { district in
                         Text(district.contendent ?? "").tag(district as AddressItem?)
                     }

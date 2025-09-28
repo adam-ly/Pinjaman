@@ -414,63 +414,7 @@ struct ReportRiskControlEventPayload: Payloadprotocol {
     var payloadType: PayloadType { .POST }
     var requestPath: String { "/Chukchis/opaquest" }
     
-//    // 请求参数
-//    /// 埋点类型：
-//    /// 1=注册
-//    /// 2=正面
-//    /// 3=自拍
-//    /// 4=个人信息
-//    /// 5=工作信息
-//    /// 6=联系人
-//    /// 7=绑卡
-//    /// 8=开始审贷
-//    /// 9=结束审贷
-//    let fantastry: String
-//    
-//    /// 安卓传1，iOS传2
-//    let dodded: String
-//    
-//    /// 安卓传and_id，iOS传idfv
-//    let copperbottom: String
-//    
-//    /// 安卓传gaid，iOS传idfa
-//    let forecomingness: String
-//    
-//    /// 经度(保留6位小数，向下取整)
-//    let hundredth: String
-//    
-//    /// 维度(保留6位小数，向下取整)
-//    let spotsman: String
-//    
-//    /// 开始时间（秒级时间戳）
-//    let ectocinerea: String
-//    
-//    /// 结束时间（秒级时间戳）
-//    let upstirred: String
-//    
-//    /// 订单号（第8步必传）
-//    let dyotheletical: String?
-    
     var param: [String: Any]
-//    {
-//        var params: [String: String] = [
-//            "fantastry": fantastry,
-//            "dodded": dodded,
-//            "copperbottom": copperbottom,
-//            "forecomingness": forecomingness,
-//            "hundredth": hundredth,
-//            "spotsman": spotsman,
-//            "ectocinerea": ectocinerea,
-//            "upstirred": upstirred
-//        ]
-//        
-//        // Only include the order number if it exists
-//        if let dyotheletical = dyotheletical {
-//            params["dyotheletical"] = dyotheletical
-//        }
-//        
-//        return params
-//    }
 }
 
 /// 设备信息上报详细信息

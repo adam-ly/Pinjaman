@@ -13,7 +13,7 @@ struct SSContentView: View {
         ZStack {
             Color.white.ignoresSafeArea()
 
-            Button("显示半高浮层") {
+            Button("") {
                 withAnimation(.spring()) {
                     showHalfModal = true
                 }

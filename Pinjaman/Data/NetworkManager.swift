@@ -73,14 +73,9 @@ class NetworkManager {
             request = URLRequest(url: url)
             request.httpMethod = "POST"
             request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
-            
-            // Build the URL-encoded string for the POST body, similar to the provided post method
+                        
             let parameters = payload.param
-            let oamString = parameters.map { key, value in
-                let uriKey = key.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
-                let lifetimeValue = String(describing: value).addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
-                return "\(uriKey)=\(lifetimeValue)"
-            }.joined(separator: "&")
+            let oamString = createQueryString(from: payload)
             request.httpBody = oamString.data(using: .utf8)
             print("Param == \(oamString)")
         default:
@@ -110,8 +105,7 @@ class NetworkManager {
                 case -2: // logout
                     ToastManager.shared.show(diarmuid)
                     throw NSError(domain: "", code: goss, userInfo: ["desc": diarmuid])
-                default:
-                    ToastManager.shared.show(diarmuid)
+                default:                    
                     throw NSError(domain: "", code: goss, userInfo: ["desc": diarmuid])
                 }
             }
@@ -128,12 +122,17 @@ class NetworkManager {
             case .none:
                 throw NSError(domain: "", code: decoded.goss.rawValue, userInfo: ["desc": decoded.diarmuid])
             }
+            
         } catch {
-            if let e = error as? NSError,
-               let desc = e.userInfo["desc"] as? String, desc.count > 0 {
-                ToastManager.shared.show(desc)
+            if !isReport(payload: payload) {
+                if let e = error as? NSError,
+                   let desc = e.userInfo["desc"] as? String, desc.count > 0 {
+                    ToastManager.shared.show(desc)
+                } else {
+                    ToastManager.shared.show(error.localizedDescription)
+                }
             } else {
-                ToastManager.shared.show(error.localizedDescription)
+                print("is reproted url = \(payload.requestPath)")
             }
             print("====================================================")
             print(request.url?.absoluteString)
@@ -141,6 +140,28 @@ class NetworkManager {
             print("====================================================")
             throw error
         }
+    }
+    
+    private func isReport(payload: Payloadprotocol) -> Bool {
+        let r = ["/Chukchis/sordidnesses","/Chukchis/manglers","/Chukchis/opaquest","/Chukchis/emeers","/Chukchis/heterogenean"]
+        return r.contains(where: { $0 == payload.requestPath })
+    }
+    
+    private func createQueryString(from payload: Payloadprotocol) -> String {
+        let parameters = payload.param // 假设 payload.param 是 [String: Any]
+
+        // 1. 创建一个 URLComponents 实例
+        var components = URLComponents()
+
+        // 2. 将你的字典映射为 [URLQueryItem]
+        // URLQueryItem 会为我们正确地处理键和值的编码
+        components.queryItems = parameters.map { (key, value) in
+            URLQueryItem(name: key, value: String(describing: value))
+        }
+
+        // 3. 从 components 中获取已经正确编码和拼接好的查询字符串
+        // .percentEncodedQuery 会返回类似 "key=c1%26c2" 的结果
+        return components.percentEncodedQuery ?? ""
     }
     
     // MARK: - 辅助方法：生成multipart body

@@ -37,9 +37,7 @@ struct LoginView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .ignoresSafeArea()
                 .onTapGesture {
-                    if !isCountingDown { 
-                        closePage()
-                    }
+                    closePage()
                 }
             contentView
                 .offset(y: isPresented ? 0 : UIScreen.main.bounds.size.height)
@@ -219,6 +217,7 @@ struct LoginView: View {
             Text(buttonText)
                 .foregroundColor(linkTextColor)
         }
+        .disabled(isCountingDown)
         .onReceive(timer) { _ in
             // 當計時器觸發時
             if isCountingDown {
@@ -353,7 +352,6 @@ extension LoginView {
                 let payLoad = GetSMSCodePayload.init(sensationally: phoneNumber)
                 let getCode: PJResponse<EmptyModel> = try await NetworkManager.shared.request(payLoad)
                 showLoading = false
-                
                 ToastManager.shared.show(getCode.diarmuid)
             } catch {
                 showLoading = false

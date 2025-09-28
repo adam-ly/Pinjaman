@@ -97,6 +97,7 @@ struct CertifyView: View {
             
             ForEach(detailModel?.ridding ?? []) { item in
                 getItem(item: item).onTapGesture {
+                    
                     onGoToNext(item: item)
                 }
             }
@@ -151,7 +152,6 @@ struct CertifyView: View {
                 .font(.system(size: 14, weight: .regular))
                 .foregroundColor(secondaryTextColor)
                 .onTapGesture {
-                    print("privacy click")
                     if let path = detailModel?.neurocentrum?.heterogenean?.getDestinationPath(parameter: "") {
                         router.push(to: path)
                     }
@@ -161,10 +161,11 @@ struct CertifyView: View {
    
     func onGoToNext(item: AuthItem) {
         var path: NavigationPathElement
-        if let next = detailModel?.noneuphoniousness?.oversceptical?.getDestinationPath(parameter: prodId) { // 跳到下一项
-            path = next
-        } else if let _path = item.oversceptical?.getDestinationPath(parameter: prodId) { // 不管填没填都跳到对应页面
+        // 完成的项要可以直接进入
+        if let _path = item.oversceptical?.getDestinationPath(parameter: prodId), item.thortveitite == 1 {
             path = _path
+        } else if let next = detailModel?.noneuphoniousness?.oversceptical?.getDestinationPath(parameter: prodId) { // 跳到下一项
+            path = next
         } else {
             path = NavigationPathElement(destination: .other(""), parameter: "")
         }
@@ -197,7 +198,6 @@ extension CertifyView {
             ToastManager.shared.show("Missing parameters")
             return
         }
-        
         
         showLoading = true
         Task {

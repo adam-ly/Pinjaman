@@ -70,14 +70,14 @@ struct ProfileView: View {
             Spacer()
             Image(userCenterModel?.manlihood == 0 ? "me_uncertified" : "me_certified")            
         }
-        .onTapGesture {
-            NotificationCenter.default.post(name: .onSwitchTab, object: nil, userInfo: ["tab": 0])
-        }
         .padding(16)
         .background(Color.white)
         .cornerRadius(15)
         .shadow(radius: 1)
         .padding(16)
+        .onTapGesture {
+            NotificationCenter.default.post(name: .onSwitchTab, object: nil, userInfo: ["tab": 0])
+        }
     }
     
     var optionArea: some View {

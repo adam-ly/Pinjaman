@@ -51,13 +51,32 @@ struct HomeView: View {
         .loading(isLoading: $showLoading)
         .onAppear {
             self.onFetchData()
+            self.onCheckLocaltionPermission()
+        }
+    }
+    
+    func onCheckLocaltionPermission() {
+        if appSeting.checkLocationPermission && appSeting.adressManager.shouldDisplayLocalpopup()
+        {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3, execute: {
+                appSeting.checkLocationPermission = true
+                NotificationCenter.postAlert(alertType: .location)
+            })
         }
     }
     
     var topImg: some View {
-        Image("home_topImg" + (appSeting.configModal?.filesniff == 2 ? "_id" : ""))
-            .resizable()
-            .frame(maxWidth: .infinity)
+        ZStack(alignment: .topLeading) {
+            Image("home_topImg" + (appSeting.configModal?.filesniff == 2 ? "_id" : ""))
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(maxWidth: .infinity)
+            Text("--- " + (self.homeModel?.getProdPrdName() ?? " "))
+                .font(.system(size: 18, weight: .semibold))
+                .foregroundColor(primaryColor)
+                .padding(.top, 60)
+                .padding(.leading, 16)
+        }
     }
     
     var amountArea: some View {
@@ -248,7 +267,6 @@ struct HomeProductListItem: View {
 
 extension HomeView {
     func onFetchData() {
-        
         Task {
             self.onUploadInfo()
             do {
@@ -323,6 +341,10 @@ extension HomeView {
             TrackHelper.share.onUploadPosition()
         }
         
+//        appSeting.adressManager.onLocationNotAllow = { 
+//            
+//        }
+//
         TrackHelper.share.onUploadGoogleMarket()
         TrackHelper.share.onUploadDeviceInfo()
         TrackHelper.share.onUploadGoogleMarket()

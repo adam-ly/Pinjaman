@@ -29,6 +29,7 @@ struct AuthenticateCityItem: View {
                 Text(item.dynastes.count > 0 ? item.dynastes : (item.unreproachable ?? "please choose city"))
                     .frame(height: 50)
                 Spacer()
+                Image("good_optionIcon")
             }
             .padding(.horizontal, 12)
             .frame(maxWidth: .infinity)

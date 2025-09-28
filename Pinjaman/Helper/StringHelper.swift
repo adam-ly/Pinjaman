@@ -73,7 +73,6 @@ enum LocalizeContent {
     case agreement // 勾选协议
     
     // Alert
-    
     case networkDenyTitle
     case locationDenyTitle
     case cameraDenyTitle
@@ -177,7 +176,7 @@ enum LocalizeContent {
             
         // button
         case .confirm:
-            return isEnglish() ? "Confirm" : "Pembatalan akun"
+            return isEnglish() ? "Confirm" : "Mengonfirmasi"
         case .next:
             return isEnglish() ? "Next" : "Berikutnya"
             
@@ -192,35 +191,39 @@ enum LocalizeContent {
             return isEnglish() ? "Setting" : "Pengaturan"
             
             
-        // toast
+            // toast
         case .phoneNumberEmpty: //未输入手机号
             return isEnglish() ? "Please enter your phone number" : "Silakan masukkan nomor telepon Anda"
         case .phoneCodeEmpty: // 未输入验证码
             return isEnglish() ? "Please enter the verification code" : "Silakan masukkan kode verifikasi"
-        case .agreement:
-            return isEnglish() ? "Please read and agree to the above content" : "Harap baca dan setujui konten di atas"
-            
-        // alert
+            // alert
         case .networkDenyTitle:
-             return "Network permissions are off"
+            return isEnglish() ? "Network permissions are off" : "Izin jaringan dimatikan"
         case .locationDenyTitle:
-            return "Location permissions are off"
+            return isEnglish() ? "Location permissions are off" : "Izin lokasi dimatikan"
         case .cameraDenyTitle:
-            return "Camera permissions are off"
+            return isEnglish() ? "Camera permissions are off" : "Izin kamera dimatikan"
         case .contactDenyTitle:
-            return "Contacts permissions are off"
+            return isEnglish() ? "Contacts permissions are off" : "Izin kontak dimatikan"
         case .networkDeny:
-            return "we requires internet access to load content and keep your data synced.please go to Settings > Privacy > Location Services, select our app, and turn on location access"
+            return isEnglish() ?
+            "we requires internet access to load content and keep your data synced.please go to Settings > Privacy > Location Services, select our app, and turn on location access" :
+            "Aplikasi memerlukan akses internet untuk memuat konten dan menyinkronkan data Anda. Silakan buka Pengaturan > Privasi > Layanan Lokasi, pilih aplikasi kami, dan aktifkan akses lokasi"
         case .locationDeny:
-            return  "Location permission is disabled. To regain full functionality, please go to Settings > Privacy > Location Services, select our app, and turn on location access."
+            return isEnglish() ? 
+            "Location permission is disabled. To regain full functionality, please go to Settings > Privacy > Location Services, select our app, and turn on location access." :
+            "Izin lokasi dinonaktifkan. Untuk mengembalikan fungsionalitas penuh, silakan buka Pengaturan > Privasi > Layanan Lokasi, pilih aplikasi kami, dan aktifkan akses lokasi."
         case .cameraDeny:
-            return "Camera permission is currently denied. To continue using these features, please open Settings > Privacy > Camera, locate our app, and enable camera access."
+            return isEnglish() ? 
+            "Camera permission is currently denied. To continue using these features, please open Settings > Privacy > Camera, locate our app, and enable camera access." :
+            "Izin kamera saat ini ditolak. Untuk terus menggunakan fitur ini, silakan buka Pengaturan > Privasi > Kamera, temukan aplikasi kami, dan aktifkan akses kamera."
         case .contactDeny:
-            return "Contacts permission is denied. To unlock inviting and sharing features, please navigate to Settings > Privacy > Contacts, select our app, and allow access."
+            return isEnglish() ? 
+            "Contacts permission is denied. To unlock inviting and sharing features, please navigate to Settings > Privacy > Contacts, select our app, and allow access." :
+            "Izin kontak ditolak. Untuk membuka kunci fitur undangan dan berbagi, silakan buka Pengaturan > Privasi > Kontak, pilih aplikasi kami, dan izinkan akses."
         default:
             return ""
-        }
-        return ""
+        }        
     }
     
     

@@ -77,12 +77,12 @@ extension UIDevice {
             "blunter": isSimulatorRunning() ? 1 : 0,   // 是否模拟器
             "endangium": isDeviceJailbroken() ? 1 : 0  // 是否越狱
         ]
-        
+                
         // 5. 环境信息
         json["untoured"] = [
             "pimas": TimeZone.current.identifier,              // 时区ID
             "metroptosis": IDFAManager.shared.fetchIDFV() ?? "",     // IDFV
-            "bilirubinic": AppSettings.shared.configModal?.filesniff == 1 ? "en" : "id",      // 语言
+            "bilirubinic": Locale.preferredLanguages.first ?? "",      // 语言
             "dipsey": getCurrentNetworkType(),               // 网络类型
             "alemannish": IDFAManager.shared.fetchIDFA()                           // IDFA
         ]

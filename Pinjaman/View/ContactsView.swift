@@ -64,7 +64,7 @@ extension ContactsView {
     }
     
     func onsubmitContacts() {
-        showLoading = false
+        showLoading = true
         Task {
             do {
                 let contactDictionaries = contactModel?.unthrobbing?.map { item in

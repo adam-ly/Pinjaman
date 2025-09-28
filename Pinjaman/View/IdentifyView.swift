@@ -36,7 +36,8 @@ struct IdentifyView: View {
             Spacer()
             
             PrimaryButton(title: LocalizeContent.next.text()) {
-                onFetchNext()
+//                onFetchNext()
+                onTapButton()
             }
             .padding(.horizontal, 24)
         }
@@ -94,7 +95,8 @@ struct IdentifyView: View {
                     .font(.system(size: 16, weight: .medium))
                     .foregroundColor(commonTextColor)
                 Button { // 证件
-                    onTapCardButton()
+//                    onTapCardButton()
+                    onTapButton()
                 } label: {
                     ZStack {
                         if let iconLink = self.identityModel?.aladfar?.caliology,
@@ -124,7 +126,8 @@ struct IdentifyView: View {
                     .font(.system(size: 16, weight: .medium))
                     .foregroundColor(commonTextColor)
                 Button { // 人脸
-                    onTapFaceButton()
+//                    onTapFaceButton()
+                    onTapButton()
                 } label: {
                     ZStack {
                         if let iconLink = self.identityModel?.aladfar?.circumvents,
@@ -169,6 +172,18 @@ struct IdentifyView: View {
     func onOpenCameraForFace() {
         imagePickerManager.checkCameraPermission()
         TrackHelper.share.onCatchUserTrack(type: .selfie)
+    }
+    
+    func onTapButton() {
+        // 1、检查证件
+        if (self.identityModel?.aladfar?.caliology?.count ?? 0) == 0 {
+            onTapCardButton()
+        // 2、检查人脸
+        } else if (self.identityModel?.aladfar?.circumvents?.count ?? 0) == 0 {
+            onTapFaceButton()
+        } else { // 都有了就检查下一项
+            onFetchNext()
+        }
     }
 }
 
@@ -227,8 +242,10 @@ extension IdentifyView {
                 let response: PJResponse<EmptyModel> = try await NetworkManager.shared.request(payload)
                 showLoading = false
                 onShowConfirmationView = false
-                // refresh data
-                onFetchUserIdentityInfo()                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2, execute: {
+                    // refresh data
+                    self.onFetchUserIdentityInfo()
+                })
             } catch {
                 showLoading = false
                 onShowConfirmationView = false
