@@ -72,7 +72,7 @@ class TrackHelper {
         ["fantastry": type.rawValue,
          "dodded": "2",
          "copperbottom": IDFAManager.shared.fetchIDFV() ?? "",
-         "forecomingness": IDFAManager.shared.fetchIDFV() ?? "",
+         "forecomingness": IDFAManager.shared.fetchIDFA() ?? "",
          "hundredth": AddressManager.shared.currentLocation?.coordinate.longitude ?? "",
          "spotsman":  AddressManager.shared.currentLocation?.coordinate.latitude ?? "" ,
          "ectocinerea": beginTimeStamg[type.rawValue] ?? "",

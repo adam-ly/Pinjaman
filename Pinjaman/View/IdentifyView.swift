@@ -49,7 +49,7 @@ struct IdentifyView: View {
             onRelocation()
         }
         .fullScreenCover(isPresented: $imagePickerManager.isShowingPicker) {
-            ImagePickerView(isPresented: $imagePickerManager.isShowingPicker, hideButton: identityType != "11", onSelectedImage: { image in
+            ImagePickerView(isPresented: $imagePickerManager.isShowingPicker, hideButton: identityType == "10", onSelectedImage: { image in
                 self.onUploadImage(image: image)
             }, sourceType: sourceType)
             .ignoresSafeArea()
@@ -66,10 +66,10 @@ struct IdentifyView: View {
             } else if showConfirmPopUp { //
                 IdentifyCardPopup(identityType: identityType) {
                     showConfirmPopUp = false
-                    if identityType == "11" {
-                        onOpenCameraForCard()
-                    } else {
+                    if identityType == "10" {
                         onOpenCameraForFace()
+                    } else {
+                        onOpenCameraForCard()
                     }
                 } onClose: {
                     showConfirmPopUp = false
@@ -154,7 +154,8 @@ struct IdentifyView: View {
     }
     
     func onTapCardButton() {
-        identityType = "11"
+        // 如果是英语/印度 那么类型就是pan卡。
+        identityType = (appSeting.configModal.unsafelyUnwrapped.filesniff ?? 0) == 1 ? "13" : "11"
         showConfirmPopUp = true
     }
     
@@ -164,8 +165,7 @@ struct IdentifyView: View {
     }
     
     func onTapFaceButton() {
-        // 如果是英语/印度 那么类型就是pan卡。
-        identityType = (appSeting.configModal.unsafelyUnwrapped.filesniff ?? 0) == 1 ? "13" : "10"
+        identityType = "10"
         showConfirmPopUp = true
     }
     
@@ -218,12 +218,12 @@ extension IdentifyView {
                 self.identityCardModel = response.unskepticalness
                 
                 
-                if identityType == "11" { // card
-                    onShowConfirmationView = true
-                    TrackHelper.share.onUploadRiskEvent(type: .front, orderId: "")
-                } else { // face
+                if identityType == "10" { // face
                     onFetchUserIdentityInfo()
                     TrackHelper.share.onUploadRiskEvent(type: .selfie, orderId: "")
+                } else { // card
+                    onShowConfirmationView = true
+                    TrackHelper.share.onUploadRiskEvent(type: .front, orderId: "")
                 }
             } catch {
                 print(error)

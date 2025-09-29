@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct IdentifyCardPopup: View {
-    var identityType: String = "11"
+    var identityType: String = "10"
     
     var onConfirm: () -> Void
     var onClose: () -> Void
@@ -93,7 +93,7 @@ struct IdentifyCardPopup: View {
     }
     
     func isCard() -> Bool {
-        return identityType == "11"
+        return identityType != "10"
     }
 }
 

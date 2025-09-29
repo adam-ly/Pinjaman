@@ -196,7 +196,7 @@ enum LocalizeContent {
         case .phoneCodeEmpty: // 未输入验证码
             return isEnglish() ? "Please enter the verification code" : "Silakan masukkan kode verifikasi"
         case .agreement:
-            return isEnglish() ? "英语：Please read and agree to the Privacy Policy" : "印尼：Harap membaca dan menyetujui kebijakan privasi"
+            return isEnglish() ? "Please read and agree to the Privacy Policy" : "Harap membaca dan menyetujui kebijakan privasi"
             
             // alert
         case .networkDenyTitle:

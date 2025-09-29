@@ -52,6 +52,7 @@ class AddressManager: NSObject, CLLocationManagerDelegate {
     
     func shouldDisplayLocalpopup() -> Bool {
         let status = authorizationStatus()
+        print("shouldDisplayLocalpopup - status = \(status)")
         return status != .authorizedWhenInUse && status != .authorizedAlways && status != .notDetermined
     }
     
@@ -85,7 +86,8 @@ class AddressManager: NSObject, CLLocationManagerDelegate {
             // 权限获得后可以立即开始更新
             startUpdatingLocation()
         case .notDetermined: // mark show
-            AppSettings.shared.checkLocationPermission = true
+//            AppSettings.shared.checkLocationPermission = false
+            AppSettings.shared.checkLocationPermission = false 
         default:
             onLocationNotAllow?()
         }
@@ -94,8 +96,8 @@ class AddressManager: NSObject, CLLocationManagerDelegate {
     /// 代理方法：当获取到新的位置信息时调用
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         if let location = locations.last {
+            locationManager.stopUpdatingLocation()
             print("获取到新位置: \(location.coordinate.latitude), \(location.coordinate.longitude)")
-                       
             // 使用 CLGeocoder 进行反向地理编码以获取完整的地址信息
             let geocoder = CLGeocoder()
             geocoder.reverseGeocodeLocation(location) { [weak self] (placemarks, error) in

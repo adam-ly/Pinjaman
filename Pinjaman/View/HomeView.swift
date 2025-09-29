@@ -58,8 +58,8 @@ struct HomeView: View {
     func onCheckLocaltionPermission() {
         if appSeting.checkLocationPermission && appSeting.adressManager.shouldDisplayLocalpopup()
         {
+            appSeting.checkLocationPermission = true
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3, execute: {
-                appSeting.checkLocationPermission = true
                 NotificationCenter.postAlert(alertType: .location)
             })
         }
@@ -341,10 +341,10 @@ extension HomeView {
             TrackHelper.share.onUploadPosition()
         }
         
-//        appSeting.adressManager.onLocationNotAllow = { 
-//            
-//        }
-//
+        appSeting.adressManager.onLocationNotAllow = {
+            self.onCheckLocaltionPermission()
+        }
+        appSeting.adressManager.startUpdatingLocation()
         TrackHelper.share.onUploadGoogleMarket()
         TrackHelper.share.onUploadDeviceInfo()
         TrackHelper.share.onUploadGoogleMarket()
