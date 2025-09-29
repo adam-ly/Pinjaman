@@ -190,12 +190,14 @@ enum LocalizeContent {
         case .goSetting:
             return isEnglish() ? "Setting" : "Pengaturan"
             
-            
             // toast
         case .phoneNumberEmpty: //未输入手机号
             return isEnglish() ? "Please enter your phone number" : "Silakan masukkan nomor telepon Anda"
         case .phoneCodeEmpty: // 未输入验证码
             return isEnglish() ? "Please enter the verification code" : "Silakan masukkan kode verifikasi"
+        case .agreement:
+            return isEnglish() ? "英语：Please read and agree to the Privacy Policy" : "印尼：Harap membaca dan menyetujui kebijakan privasi"
+            
             // alert
         case .networkDenyTitle:
             return isEnglish() ? "Network permissions are off" : "Izin jaringan dimatikan"

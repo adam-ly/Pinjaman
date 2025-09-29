@@ -248,7 +248,6 @@ extension IdentifyView {
                 })
             } catch {
                 showLoading = false
-                onShowConfirmationView = false
             }
         }
     }

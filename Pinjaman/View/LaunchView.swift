@@ -105,8 +105,6 @@ struct LaunchView: View {
         let language = Locale.current.languageCode == "id" ? "id" : "en"
         let payload = LoginInitializationPayload(bilirubinic: language, chartographical: 0, puboiliac: 0)
         let response: PJResponse<ConfigModel>? = try? await NetworkManager.shared.request(payload)
-        response?.unskepticalness.filesniff = 2
-        print("response.unskepticalness.overplace?.detach = \(response?.unskepticalness.overplace?.detach)")
         showLoading = false
         return response
     }
