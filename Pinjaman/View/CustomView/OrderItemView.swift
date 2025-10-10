@@ -12,6 +12,7 @@ import Kingfisher
 struct OrderItemView: View {
     @State var order: OrderModel
     let onApplyTap: (String) -> Void
+    let onAgreement: (String) -> Void
     
     var body: some View {
         content
@@ -99,12 +100,14 @@ struct OrderItemView: View {
         HStack {
             if let privacy = order.deactivations {
                 Button {
-                    print(order.romanticalism)
+//                    print(order.romanticalism)
+                    onAgreement(order.romanticalism ?? "")
                 } label: {
                     Text(privacy)
                         .font(.system(size: 14))
                         .foregroundColor(.blue)
                         .underline()
+                        .padding(.top, 5)
                 }
             }
             

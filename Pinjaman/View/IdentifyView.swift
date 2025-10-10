@@ -21,6 +21,7 @@ struct IdentifyView: View {
     @State var onShowConfirmationView: Bool = false
     @State var identityCardModel: IdentityCardResponse?
     @State var showConfirmPopUp: Bool = false
+    @State var screenName: String
     
     var body: some View {
         content
@@ -41,7 +42,7 @@ struct IdentifyView: View {
             }
             .padding(.horizontal, 24)
         }
-        .navigationTitle(LocalizeContent.identityInfomation.text())
+        .navigationTitle(screenName)
         .padding(0)
         .loading(isLoading: $showLoading)
         .onAppear {
@@ -80,6 +81,7 @@ struct IdentifyView: View {
     
     var title: some View {
         Text(LocalizeContent.productTips.text())
+            .multilineTextAlignment(.leading)
             .font(.system(size: 12, weight: .regular))
             .frame(maxWidth: .infinity)
             .padding(.horizontal, 16)
@@ -95,7 +97,6 @@ struct IdentifyView: View {
                     .font(.system(size: 16, weight: .medium))
                     .foregroundColor(commonTextColor)
                 Button { // 证件
-//                    onTapCardButton()
                     onTapButton()
                 } label: {
                     ZStack {
@@ -111,7 +112,7 @@ struct IdentifyView: View {
                                 .frame(width: 300, height: 190)
                                 .aspectRatio(contentMode: .fit)
                         } else {
-                            Image("good_person_card")
+                            Image("good_person_card".toLang())
                                 .resizable()
                                 .frame(width: 300, height: 190)
                                 .aspectRatio(contentMode: .fit)
@@ -287,7 +288,8 @@ extension IdentifyView {
     }
     
     func onGoToNext(detailModel: ProductDetailModel) {
-        if let next = detailModel.noneuphoniousness?.oversceptical?.getDestinationPath(parameter: prodId) { // 跳到下一项            
+        if let next = detailModel.noneuphoniousness?.oversceptical?.getDestinationPath(parameter: prodId,
+                                                                                       screenName: detailModel.noneuphoniousness?.daceloninae ?? "") { // 跳到下一项            
             router.push(to: next)
         } else {
             router.pop(to: .certify)
@@ -297,5 +299,5 @@ extension IdentifyView {
 }
 
 #Preview {
-    IdentifyView(prodId: "")
+    IdentifyView(prodId: "",screenName: "")
 }

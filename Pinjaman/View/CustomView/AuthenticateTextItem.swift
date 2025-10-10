@@ -10,6 +10,8 @@ import SwiftUI
 struct AuthenticateTextItem: View {
     @State var item: SpotItem
     @State var phoneNumber: String = ""
+    @FocusState private var focusedFieldID: Int?
+    let _id = Int.random(in: 0...1000000)
     
     init(item: SpotItem) {
         self.item = item
@@ -33,12 +35,15 @@ struct AuthenticateTextItem: View {
                     .keyboardType(item.obtected == 1 ? .numberPad : .default)
                     .tint(.linkText)
                     .foregroundColor(.black)
+                    .focused($focusedFieldID, equals: _id)
+                    .frame(height: 50)
             }
             .foregroundColor(item.dynastes.count > 0 ? commonTextColor : secondaryTextColor)
             .background(textFieldBgColor)
             .frame(height: 50)
             .cornerRadius(6)
         }
+        .id(_id)
         .foregroundColor(commonTextColor)
         .padding(.horizontal, 16)
         .onAppear {

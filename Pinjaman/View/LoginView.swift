@@ -14,7 +14,6 @@ struct LoginView: View {
     @State private var phoneNumber = ""
     @State private var password = ""
     @State private var agree = true
-    @State private var showToast: Bool = false
     @State private var toastMessage: String = ""
     @Binding var isPresented: Bool
     @FocusState private var isPhoneNumberFocused: Bool
@@ -61,55 +60,118 @@ struct LoginView: View {
         }
     }
     
+//    var contentView: some View {
+//        ZStack(alignment: .bottom) {
+//            ZStack(alignment: .topTrailing) {
+//                ZStack(alignment: .topLeading) {
+//                    Image("login_background")
+//                        .resizable(resizingMode: .stretch)
+//                        .aspectRatio(contentMode: .fit)
+//                        .edgesIgnoringSafeArea(.bottom)
+//                        .background(Color.clear)
+//                        .frame(maxWidth: .infinity)
+//                    Text(LocalizeContent.loginTitle.text())
+//                        .font(.system(size: 24, weight: .bold))
+//                        .foregroundColor(.white)
+//                        .padding(.leading, 50)
+//                        .padding(.top, 10)
+//                }
+//                
+//                Button {
+//                    closePage()
+//                } label: {
+//                    Image("login_close")
+//                }
+//                .padding(.trailing, 10)
+//                .padding(.top, -10)
+//            }
+//            .padding(.bottom, keyboardHeight)
+//            .onTapGesture {
+//                isPhoneNumberFocused = false
+//                isCodeNumberFocused = false
+//            }
+//            
+//            
+//            // 内容区域
+//            VStack(alignment: .center, spacing: 20) {
+//                Spacer()
+//                titleArea
+//                contentArea
+//                    .padding(.horizontal, 20)
+//                    .onTapGesture {
+//                        hideKeyboard()
+//                    }
+//                
+//                PrimaryButton(title: LocalizeContent.loginButton.text()) {
+//                    onPrecheckLogin()
+//                }
+//                .padding(.horizontal, 60)
+//            }
+//            .frame(maxWidth: .infinity, maxHeight: .infinity)
+//            .padding(.bottom, 40 + keyboardHeight)
+//            .ignoresSafeArea(.keyboard, edges: .bottom) // 讓視圖忽略鍵盤安全區
+//        }
+//        .ignoresSafeArea()
+//    }
+    
     var contentView: some View {
         ZStack(alignment: .bottom) {
-            ZStack(alignment: .topTrailing) {
-                ZStack(alignment: .topLeading) {
-                    Image("login_background")
-                        .resizable(resizingMode: .stretch)
-                        .aspectRatio(contentMode: .fit)
-                        .edgesIgnoringSafeArea(.bottom)
-                        .background(Color.clear)
-                        .frame(maxWidth: .infinity)
-                    Text(LocalizeContent.loginTitle.text())
-                        .font(.system(size: 24, weight: .bold))
-                        .foregroundColor(.white)
-                        .padding(.leading, 50)
-                        .padding(.top, 10)
-                }
-                
-                Button {
-                    closePage()
-                } label: {
-                    Image("login_close")
-                }
-                .padding(.trailing, 10)
-                .padding(.top, -10)
-            }
-            .padding(.bottom, keyboardHeight)
-            .onTapGesture {
-                isPhoneNumberFocused = false
-                isCodeNumberFocused = false
-            }
-            
-            // 内容区域
-            VStack(alignment: .center, spacing: 20) {
+            VStack {
                 Spacer()
-                titleArea
-                contentArea
-                    .padding(.horizontal, 20)
-                
-                PrimaryButton(title: LocalizeContent.loginButton.text()) {
-                    onPrecheckLogin()
+                // 内容区域
+                VStack(alignment: .center, spacing: 20) {
+                    titleArea
+                        .padding(.top, 16)
+                    contentArea
+                        .padding(.horizontal, 20)
+                        .onTapGesture {
+                            hideKeyboard()
+                        }
+                    
+                    PrimaryButton(title: LocalizeContent.loginButton.text()) {
+                        onPrecheckLogin()
+                    }
+                    .padding(.horizontal, 60)
                 }
-                .padding(.horizontal, 60)
+                .padding(.bottom, 40 + keyboardHeight)
+                .ignoresSafeArea(.keyboard, edges: .bottom) // 讓視圖忽略鍵盤安全區
+                .background(
+                    LinearGradient(colors: [certifyColor,linkTextColor,], startPoint: .bottomLeading, endPoint: .topTrailing)
+//                        .cornerRadius(20)
+                        .roundedWhiteBorder(cornerRadius: 20)
+                        .onTapGesture {
+                            resigunResponse()
+                        }
+                )
+                .overlay {
+                    VStack {
+                        HStack(alignment: .top) {
+                            Text(LocalizeContent.loginTitle.text())
+                                .font(.system(size: 24, weight: .bold))
+                                .foregroundColor(.white)
+                                .padding(.horizontal,20)
+                                .padding(.vertical, 10)
+                                .background(primaryColor)
+//                                .cornerRadius(8)
+                                .roundedWhiteBorder(cornerRadius: 8)
+                           
+                            Spacer()
+                            Button {
+                                closePage()
+                            } label: {
+                                Image("login_close")
+                            }
+                        }
+                        Spacer()
+                    }
+                    .padding(.horizontal,16)
+                    .padding(.top, -30)
+                }
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .padding(.bottom, 40 + keyboardHeight)
-            .ignoresSafeArea(.keyboard, edges: .bottom) // 讓視圖忽略鍵盤安全區
         }
         .ignoresSafeArea()
     }
+
     
     var titleArea: some View {
         VStack(alignment: .trailing, spacing: 10) {
@@ -244,6 +306,7 @@ struct LoginView: View {
                 Image("voice")
                 Text(LocalizeContent.voiceVerification.text())
                     .foregroundColor(linkTextColor)
+                    .font(.system(size: 14))
                     .underline()
             }
         }
@@ -260,12 +323,16 @@ struct LoginView: View {
             HStack (spacing: 0) {
                 Text(LocalizeContent.loginPrivacy.text())
                     .foregroundColor(secondaryTextColor)
+                +
+                Text(" ")
+                +
                 Text(LocalizeContent.loginPrivacyContent.text())
                     .underline()
-                    .foregroundColor(linkTextColor)
-                    .onTapGesture {
-                        onOpenPrivacyLink()
-                    }
+                    .foregroundColor(commonTextColor)
+            }
+            .font(.system(size: 14))
+            .onTapGesture {
+                onOpenPrivacyLink()
             }
         }
     }
@@ -318,6 +385,11 @@ struct LoginView: View {
         let next = NavigationPathElement.init(destination: .other(link), parameter: "")
         router.push(to: next)
     }
+    
+    private func resigunResponse() {
+        isPhoneNumberFocused = false
+        isCodeNumberFocused = false
+    }
 }
 
 extension LoginView {
@@ -336,7 +408,6 @@ extension LoginView {
         
         if !agree {
             ToastManager.shared.show(LocalizeContent.agreement.text())
-            showToast = true
             return
         }
         

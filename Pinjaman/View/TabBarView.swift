@@ -51,7 +51,7 @@ struct TabBarView: View {
                 Color.clear
             }
         }
-        )
+        )        
     }
     
     var tabArea: some View {

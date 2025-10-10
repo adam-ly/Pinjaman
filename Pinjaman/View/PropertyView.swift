@@ -15,7 +15,7 @@ struct PropertyView: View {
     @State private var phoneNumber = ""
     @State var bankInfoModel: BankInfoModel?
     @State private var showingKeyboard: Bool = false
-
+    @State var screenName: String
     let coordinateSpaceName = "scrollView"
 
     var body: some View {
@@ -30,12 +30,12 @@ struct PropertyView: View {
                 list.padding(.top, 16)
             }
             .coordinateSpace(name: coordinateSpaceName)
-            .onPreferenceChange(ScrollViewOffsetPreferenceKey.self) { offset in
-                if self.showingKeyboard {
-                    hideKeyboard()
-                    NotificationCenter.default.post(name: .userInfoScrolling, object: nil)
-                }
-            }
+//            .onPreferenceChange(ScrollViewOffsetPreferenceKey.self) { offset in
+//                if self.showingKeyboard {
+//                    hideKeyboard()
+//                    NotificationCenter.default.post(name: .userInfoScrolling, object: nil)
+//                }
+//            }
             
             Spacer()
             
@@ -53,7 +53,10 @@ struct PropertyView: View {
         .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { _ in
             self.showingKeyboard = false
         }
-        .navigationTitle(Text(LocalizeContent.authentication.text()))
+        .onTapGesture(perform: {
+            hideKeyboard()
+        })
+        .navigationTitle(Text(screenName))
         .loading(isLoading: $showLoading)
         .onAppear {
             onFetchBankInfo()
@@ -70,7 +73,9 @@ struct PropertyView: View {
                 case "Buber":
                     AuthenticateTextItem(item: item)
                 case "Whitsun":
-                    AuthenticateCityItem(item: item)
+                    AuthenticateCityItem(item: item) {
+                        hideKeyboard()
+                    }
                 default: Text("")
                 }
             }
@@ -134,7 +139,8 @@ extension PropertyView {
     }
     
     func onGoToNext(detailModel: ProductDetailModel) {
-        if let next = detailModel.noneuphoniousness?.oversceptical?.getDestinationPath(parameter: prodId) { // 跳到下一项
+        if let next = detailModel.noneuphoniousness?.oversceptical?.getDestinationPath(parameter: prodId,
+                                                                                       screenName: detailModel.noneuphoniousness?.daceloninae ?? "") { // 跳到下一项
             router.push(to: next)
         } else {
             router.pop(to: .certify)
@@ -143,6 +149,6 @@ extension PropertyView {
 }
 
 #Preview {
-    PropertyView(prodId: "")
+    PropertyView(prodId: "",screenName: "")
 }
 

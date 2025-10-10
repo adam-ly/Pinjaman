@@ -138,9 +138,13 @@ struct OrderView: View {
         ScrollView {
             VStack {
                 ForEach(orderListModel?.mercantilism ?? []) { item in
+                    
                     OrderItemView(order: item) { link in
                         let dest = link.getDestinationPath(parameter: "")
                         router.push(to: dest)
+                    } onAgreement: { link in
+                        let path = link.getDestinationPath(parameter: "")
+                        router.push(to: path)
                     }
                 }
             }

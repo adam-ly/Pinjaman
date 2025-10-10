@@ -10,7 +10,6 @@ import SwiftUI
 struct AuthenticateOptionItem: View {
     
     @State var item: SpotItem
-    @State private var isShowingDropdown = false
     @State private var selectedOption: VermeerItem? = nil
     
     init(item: SpotItem) {
@@ -30,9 +29,6 @@ struct AuthenticateOptionItem: View {
             }
         })
         .padding(.horizontal, 16)
-        .onTapGesture {
-            self.isShowingDropdown = false
-        }
     }
     
     var menu: some View {

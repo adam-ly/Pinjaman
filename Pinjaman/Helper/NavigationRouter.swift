@@ -111,6 +111,7 @@ struct NavigationPathElement: Hashable {
     
     let destination: Destination
     let parameter: String
+    var screenName: String = ""
 }
 
 // 步骤 2: 定义你的 Tab
@@ -265,19 +266,19 @@ func viewForDestination(_ destination: NavigationPathElement) -> some View {
     let prodId = destination.parameter
     switch destination.destination {
     case .photo:
-        IdentifyView(prodId: prodId)
+        IdentifyView(prodId: prodId, screenName: destination.screenName)
         
     case .userInfo:
-        UserInfomationView(prodId: prodId)
+        UserInfomationView(prodId: prodId, screenName: destination.screenName)
         
     case .work:
-        WorkAuthenticationVieW(prodId: prodId)
+        WorkAuthenticationVieW(prodId: prodId, screenName: destination.screenName)
         
     case .contact:
-        ContactsView(prodId: prodId)
+        ContactsView(prodId: prodId, screenName: destination.screenName)
         
     case .bank:
-        PropertyView(prodId: prodId)
+        PropertyView(prodId: prodId, screenName: destination.screenName)
         
     case .certify:
         CertifyView(prodId: prodId)
@@ -293,7 +294,11 @@ func viewForDestination(_ destination: NavigationPathElement) -> some View {
         if destination.destination.rawValue.contains("http") {
             PKWebView(htmlLink: destination.destination.rawValue, shouldGoBackToHome: false)
         } else {
-            Text("未知路由：\(destination)")
+#if DEBUG
+            Text("\(destination)")
+#else
+            Text("")
+#endif
         }
     }
 }

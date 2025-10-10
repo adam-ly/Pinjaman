@@ -16,6 +16,9 @@ struct UserInfomationView: View {
     @State var userInfoModel: UserIndivisualModel?
     @State var showCityPicker: Bool = false
     @State var cityItem: SpotItem?
+    @State var screenName: String
+    @FocusState private var focusedFieldID: Int?
+
     let coordinateSpaceName = "scrollView"
     var body: some View {
         content        
@@ -30,20 +33,20 @@ struct UserInfomationView: View {
                 .padding(.top, 16)
             }
             .coordinateSpace(name: coordinateSpaceName)
-            .onPreferenceChange(ScrollViewOffsetPreferenceKey.self) { offset in
-                if self.showingKeyboard {
-                    hideKeyboard()
-                    NotificationCenter.default.post(name: .userInfoScrolling, object: nil)
-                }
-            }
+//            .onPreferenceChange(ScrollViewOffsetPreferenceKey.self) { offset in
+//                if self.showingKeyboard {
+//                    hideKeyboard()
+//                    NotificationCenter.default.post(name: .userInfoScrolling, object: nil)
+//                }
+//            }
             
             Spacer()
             
             PrimaryButton(title: LocalizeContent.next.text()) {
                 onsubmitUserInfo()
             }
-            .padding(.horizontal, 24)
             .ignoresSafeArea(.keyboard, edges: .bottom)
+            .padding(.horizontal, 24)
         }
         .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { notification in
             DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: {
@@ -53,12 +56,14 @@ struct UserInfomationView: View {
         .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { _ in
             self.showingKeyboard = false
         }
-        .navigationTitle(Text(LocalizeContent.authentication.text()))
+        .navigationTitle(Text(screenName))
         .loading(isLoading: $showLoading)
         .onAppear {
             onFetchUserInfo()
             TrackHelper.share.onCatchUserTrack(type: .personalInfo)
-        }
+        }.onTapGesture(perform: {
+            hideKeyboard()
+        })
         .overlay(content: {
             if showCityPicker {
                 ZStack(alignment: .bottom) {
@@ -84,12 +89,11 @@ struct UserInfomationView: View {
                 case "Buber":
                     AuthenticateTextItem(item: item)
                 case "Whitsun":
-                    AuthenticateCityItem(item: item)
-                        .onTapGesture {
-                            hideKeyboard()
-                            self.cityItem = item
-                            showCityPicker = true
-                        }
+                    AuthenticateCityItem(item: item, ontap: {
+                        hideKeyboard()
+                        self.cityItem = item
+                        showCityPicker = true
+                    })
                 default:
                     Text("")
                 }
@@ -116,7 +120,6 @@ extension UserInfomationView {
     func onsubmitUserInfo() {
         var param:[String: String] = ["christhood": prodId]
         for item in self.userInfoModel?.spot ?? [] {
-//            print("item.goss = \(item.goss) item.oxystome = \(item.oxystome) item.dynastes = \(item.dynastes) ")
             if item.machiavellian == "Adinida" { // option
                 param[item.goss ?? ""] = item.oxystome
             } else {
@@ -131,7 +134,6 @@ extension UserInfomationView {
                 let homeResponse: PJResponse<EmptyModel> = try await NetworkManager.shared.request(payload)
                 print("sucess")
                 TrackHelper.share.onUploadRiskEvent(type: .personalInfo, orderId: "")
-
 //                showLoading = false
 //                onFetchUserInfo()
                 onCheckNext()
@@ -155,7 +157,8 @@ extension UserInfomationView {
     }
     
     func onGoToNext(detailModel: ProductDetailModel) {
-        if let next = detailModel.noneuphoniousness?.oversceptical?.getDestinationPath(parameter: prodId) { // 跳到下一项
+        if let next = detailModel.noneuphoniousness?.oversceptical?.getDestinationPath(parameter: prodId,
+                                                                                       screenName: detailModel.noneuphoniousness?.daceloninae ?? "") { // 跳到下一项
             router.push(to: next)
         } else {
             router.pop(to: .certify)
@@ -164,5 +167,5 @@ extension UserInfomationView {
 }
 
 #Preview {
-    UserInfomationView(prodId: "")
+    UserInfomationView(prodId: "",screenName: "")
 }

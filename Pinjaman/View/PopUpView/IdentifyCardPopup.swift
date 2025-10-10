@@ -25,22 +25,22 @@ struct IdentifyCardPopup: View {
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 10)
 
-                    Image(isCard() ? "pd_cardFront_popup_titleImg" : "pd_faceFront_popup_titleImg")
+                    Image(isCard() ? "pd_cardFront_popup_titleImg".toLang() : "pd_faceFront_popup_titleImg")
 
                     Text(LocalizeContent.cardPopUpDesc.text())
                         .font(.system(size: 14, weight: .medium))
                     
                     HStack {
                         VStack(alignment: .center) {
-                            Image(isCard() ? "pd_cardFront_popup_guide_01" : "pd_faceFront_popup_guide_01")
+                            Image(isCard() ? "pd_cardFront_popup_guide_01".toLang() : "pd_faceFront_popup_guide_01")
                             Image("pd_identity_popup_wrong")
                         }
                         VStack(alignment: .center) {
-                            Image(isCard() ? "pd_cardFront_popup_guide_02" : "pd_faceFront_popup_guide_02")
+                            Image(isCard() ? "pd_cardFront_popup_guide_02".toLang() : "pd_faceFront_popup_guide_02")
                             Image("pd_identity_popup_wrong")
                         }
                         VStack(alignment: .center) {
-                            Image(isCard() ? "pd_cardFront_popup_guide_03" : "pd_faceFront_popup_guide_03")
+                            Image(isCard() ? "pd_cardFront_popup_guide_03".toLang() : "pd_faceFront_popup_guide_03")
                             Image("pd_identity_popup_wrong")
                         }
                     }

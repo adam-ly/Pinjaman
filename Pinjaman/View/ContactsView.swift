@@ -13,6 +13,8 @@ struct ContactsView: View {
     @EnvironmentObject private var router: NavigationRouter
     @EnvironmentObject var appSeting: AppSettings
     @State private var showLoading = false
+    @State var screenName: String
+    
     var body: some View {
         content
             .customBackButton(action: .popTo(destination: .certify))
@@ -31,7 +33,7 @@ struct ContactsView: View {
             }
             .padding(.horizontal, 24)
         }
-        .navigationTitle(Text(LocalizeContent.emergencyContact.text()))
+        .navigationTitle(Text(screenName))
         .loading(isLoading: $showLoading)
         .onAppear {
             onFetchContactInfo()
@@ -83,6 +85,7 @@ extension ContactsView {
                 print("jsonString = \(jsonString)")
                 let payload = SaveContactInfoPayload(christhood: prodId, unskepticalness: jsonString)
                 let response: PJResponse<EmptyModel> = try await NetworkManager.shared.request(payload)
+                TrackHelper.share.onUploadRiskEvent(type: .contact, orderId: "")
                 print("success")
                 onCheckNext()
             } catch {
@@ -105,7 +108,7 @@ extension ContactsView {
     }
     
     func onGoToNext(detailModel: ProductDetailModel) {
-        if let next = detailModel.noneuphoniousness?.oversceptical?.getDestinationPath(parameter: prodId) { // 跳到下一项
+        if let next = detailModel.noneuphoniousness?.oversceptical?.getDestinationPath(parameter: prodId, screenName: detailModel.noneuphoniousness?.daceloninae ?? "") { // 跳到下一项
             router.push(to: next)
         } else {
             router.pop(to: .certify)
@@ -114,5 +117,5 @@ extension ContactsView {
 }
 
 #Preview {
-    ContactsView()
+    ContactsView(screenName: "")
 }

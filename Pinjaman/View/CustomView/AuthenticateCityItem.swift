@@ -12,10 +12,12 @@ struct AuthenticateCityItem: View {
     @State var item: SpotItem
     @State var openCitySelector: Bool = false
     @State var currectCity: String
+    var onTap: (() -> Void)? = nil
     
-    init(item: SpotItem) {
+    init(item: SpotItem, ontap: @escaping (() -> Void)) {
         self.item = item
         self.currectCity = item.dynastes.count > 0 ? item.dynastes : (item.unreproachable ?? "please choose city")
+        self.onTap = ontap
         print(self.currectCity)
     }
     
@@ -37,6 +39,9 @@ struct AuthenticateCityItem: View {
             .background(textFieldBgColor)
             .foregroundColor(item.dynastes.count > 0 ? commonTextColor : secondaryTextColor)
             .cornerRadius(6)
+            .onTapGesture {
+                onTap?()
+            }
         }
         .padding(.horizontal, 16)
         .popover(isPresented: $openCitySelector) {

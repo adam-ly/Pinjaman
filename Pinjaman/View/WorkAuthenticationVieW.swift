@@ -17,6 +17,8 @@ struct WorkAuthenticationVieW: View {
     @State var showCityPicker: Bool = false
     @State var cityItem: SpotItem?
     @State private var showingKeyboard: Bool = false
+    @State var screenName: String
+    
     let coordinateSpaceName = "scrollView"
 
     var body: some View {
@@ -32,12 +34,12 @@ struct WorkAuthenticationVieW: View {
                 .padding(.top, 16)
             }
             .coordinateSpace(name: coordinateSpaceName)
-            .onPreferenceChange(ScrollViewOffsetPreferenceKey.self) { offset in
-                if self.showingKeyboard {
-                    hideKeyboard()
-                    NotificationCenter.default.post(name: .userInfoScrolling, object: nil)
-                }
-            }
+//            .onPreferenceChange(ScrollViewOffsetPreferenceKey.self) { offset in
+//                if self.showingKeyboard {
+//                    hideKeyboard()
+//                    NotificationCenter.default.post(name: .userInfoScrolling, object: nil)
+//                }
+//            }
             Spacer()
             
             PrimaryButton(title: LocalizeContent.next.text()) {
@@ -54,7 +56,10 @@ struct WorkAuthenticationVieW: View {
         .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { _ in
             self.showingKeyboard = false
         }
-        .navigationTitle(Text(LocalizeContent.authentication.text()))
+        .onTapGesture(perform: {
+            hideKeyboard()
+        })
+        .navigationTitle(Text(screenName))
         .loading(isLoading: $showLoading)
         .onAppear {
             onFetchUserInfo()
@@ -85,12 +90,12 @@ struct WorkAuthenticationVieW: View {
                 case "Buber":
                     AuthenticateTextItem(item: item)
                 case "Whitsun":
-                    AuthenticateCityItem(item: item)
-                        .onTapGesture {
-                            hideKeyboard()
-                            self.cityItem = item
-                            showCityPicker = true
-                        }
+                    AuthenticateCityItem(item: item, ontap: {
+                        hideKeyboard()
+                        self.cityItem = item
+                        showCityPicker = true
+                    })
+                        
                 default: Text("")
                 }
             }
@@ -153,7 +158,8 @@ extension WorkAuthenticationVieW {
     }
     
     func onGoToNext(detailModel: ProductDetailModel) {
-        if let next = detailModel.noneuphoniousness?.oversceptical?.getDestinationPath(parameter: prodId) { // 跳到下一项
+        if let next = detailModel.noneuphoniousness?.oversceptical?.getDestinationPath(parameter: prodId,
+                                                                                       screenName: detailModel.noneuphoniousness?.daceloninae ?? "") { // 跳到下一项
             router.push(to: next)
         } else {
             router.pop(to: .certify)

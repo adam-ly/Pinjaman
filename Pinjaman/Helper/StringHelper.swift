@@ -71,6 +71,8 @@ enum LocalizeContent {
     case phoneNumberEmpty // 未输入手机号
     case phoneCodeEmpty // 未输入验证码
     case agreement // 勾选协议
+    case productAgreement // 产品
+    case cancellationAgreement // 注销
     
     // Alert
     case networkDenyTitle
@@ -163,7 +165,6 @@ enum LocalizeContent {
         case .confirmInfomationDesc:
             return isEnglish() ? "*Check identity information and make sure it is true after sending it cannot be changed!" : "Periksa informasi identitas dan pastikan sudah benar setelah dikirim tidak dapat diubah!"
             
-                        
         // log out
         case .setup:
             return isEnglish() ? "Set up" : "Mendirikan"
@@ -197,6 +198,10 @@ enum LocalizeContent {
             return isEnglish() ? "Please enter the verification code" : "Silakan masukkan kode verifikasi"
         case .agreement:
             return isEnglish() ? "Please read and agree to the Privacy Policy" : "Harap membaca dan menyetujui kebijakan privasi"
+        case .productAgreement: // 产品
+            return isEnglish() ? "Please read and agree to the loan agreement carefully" : "Harap baca dan setujui perjanjian pinjaman dengan saksama."
+        case .cancellationAgreement: // 注销
+            return isEnglish() ? "Please read and agree to the above content" : "Silakan baca dan setuju dengan hal di atas."
             
             // alert
         case .networkDenyTitle:

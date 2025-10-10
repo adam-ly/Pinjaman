@@ -7,7 +7,7 @@ struct CertifyView: View {
     @MainActor @State private var showLoading: Bool = false
     @State var detailModel: ProductDetailModel?
     @State var prodId: String
-    @State private var agree = false
+    @State private var agree = true
 
     var body: some View {
         VStack {
@@ -162,9 +162,10 @@ struct CertifyView: View {
     func onGoToNext(item: AuthItem) {
         var path: NavigationPathElement
         // 完成的项要可以直接进入
-        if let _path = item.oversceptical?.getDestinationPath(parameter: prodId), item.thortveitite == 1 {
+        if let _path = item.oversceptical?.getDestinationPath(parameter: prodId, screenName: item.daceloninae ?? ""), item.thortveitite == 1 {
             path = _path
-        } else if let next = detailModel?.noneuphoniousness?.oversceptical?.getDestinationPath(parameter: prodId) { // 跳到下一项
+        } else if let next = detailModel?.noneuphoniousness?.oversceptical?.getDestinationPath(parameter: prodId,
+                                                                                               screenName: detailModel?.noneuphoniousness?.daceloninae ?? "") { // 跳到下一项
             path = next
         } else {
             path = NavigationPathElement(destination: .other(""), parameter: "")
@@ -186,7 +187,7 @@ extension CertifyView {
     func onClickSubmitButton() {
         // find out the item that has not finish
         if let item = detailModel?.ridding?.first(where: { $0.thortveitite == 0 }),
-           let path = item.oversceptical?.getDestinationPath(parameter: prodId) {
+           let path = item.oversceptical?.getDestinationPath(parameter: prodId, screenName: item.daceloninae ?? "") {
             router.push(to: path)
             return
         }
@@ -196,6 +197,11 @@ extension CertifyView {
            let term   = detailModel?.demotika?.duramens,
            let type   = detailModel?.demotika?.spliffs else {
             ToastManager.shared.show("Missing parameters")
+            return
+        }
+        
+        if !agree {
+            ToastManager.shared.show(LocalizeContent.productAgreement.text())
             return
         }
         

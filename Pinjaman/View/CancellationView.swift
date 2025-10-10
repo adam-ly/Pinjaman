@@ -52,7 +52,7 @@ struct CancellationView: View {
     
     func onCancellation() {
         guard agree else {
-            ToastManager.shared.show(LocalizeContent.agreement.text())
+            ToastManager.shared.show(LocalizeContent.cancellationAgreement.text())
             return
         }        
         cancellation()

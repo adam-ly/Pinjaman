@@ -68,7 +68,7 @@ extension String {
         }
     }
     
-    func getDestinationPath(parameter: String) -> NavigationPathElement {
+    func getDestinationPath(parameter: String, screenName: String = "") -> NavigationPathElement {
         var destination: Destination
         let arr = ["pa://ks.mo.ent/Berkly",
                    "pa://ks.mo.ent/Italophile",
@@ -86,7 +86,7 @@ extension String {
         }
                                 
         // 2. Create and return the NavigationPathElement.
-        return NavigationPathElement(destination: destination, parameter: param)
+        return NavigationPathElement(destination: destination, parameter: param, screenName: screenName)
     }
 }
 
@@ -97,5 +97,11 @@ extension String  {
         let end   = index(self.startIndex, offsetBy: min(7, count))
         let mask  = String(repeating: "*", count: distance(from: start, to: end))
         return replacingCharacters(in: start..<end, with: mask)
+    }
+}
+
+extension String {
+    func toLang() -> String {
+        return AppSettings.shared.configModal?.filesniff == 1 ? self : (self + "_yn")
     }
 }
