@@ -211,19 +211,15 @@ struct HomeProductListItem: View {
             
             Spacer()
             
-            Button {
-              
-            } label: {
-                Text(item.bullrushes ?? "")
-                    .padding(.horizontal,8)
-                    .padding(.vertical,5)
-                    .background(primaryColor)
-                    .foregroundColor(.white)
-                    .font(.system(size: 16, weight: .semibold))
-                    .frame(height: 28)
-                    .frame(minWidth: 96)
-                    .cornerRadius(8)
-            }
+            Text(item.bullrushes ?? "")
+                .padding(.horizontal,8)
+                .padding(.vertical,5)
+                .background(primaryColor)
+                .foregroundColor(.white)
+                .font(.system(size: 16, weight: .semibold))
+                .frame(height: 28)
+                .frame(minWidth: 96)
+                .cornerRadius(8)
 
         }
     }

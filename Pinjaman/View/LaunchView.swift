@@ -71,40 +71,34 @@ struct LaunchView: View {
                 
                 
                 // 4. 网络可用，调用配置接口
-                let response = await onFetchConfig()
-                guard let configResponse = response else {
+                let response = try await onFetchConfig()
+                guard let configResponse = response as? PJResponse<ConfigModel> else {
                     await MainActor.run {
                         showTryAgainButton = true
                     }
                     return
                 }
                 
-                await MainActor.run {                    
-                    appSeting.configModal = configResponse.unskepticalness
-                }
-                
-                
-                // 3. 配置Facebook SDK
-                await configureFacebookSDK(with: configResponse.unskepticalness.overplace)
-                
-                // 4. 保存配置并允许进入主页
                 await MainActor.run {
+                    appSeting.configModal = configResponse.unskepticalness
+                    // 3. 配置Facebook SDK
+                    configureFacebookSDK(with: configResponse.unskepticalness.overplace)
                     canEnterHomePage = true
-                }
-                
+                }                
             } catch {
                 await MainActor.run {
                     showTryAgainButton = true
+                    ToastManager.shared.show(error.localizedDescription)
                 }
             }
         }
     }
     
-    func onFetchConfig() async -> PJResponse<ConfigModel>? {
+    func onFetchConfig() async throws -> PJResponse<ConfigModel> {
         showLoading = true
         let language = Locale.current.languageCode == "id" ? "id" : "en"
         let payload = LoginInitializationPayload(bilirubinic: language, chartographical: 0, puboiliac: 0)
-        let response: PJResponse<ConfigModel>? = try? await NetworkManager.shared.request(payload)
+        let response: PJResponse<ConfigModel> = try await NetworkManager.shared.request(payload)
         showLoading = false
         return response
     }
