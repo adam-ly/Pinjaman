@@ -162,6 +162,13 @@ class PKHTMLViewController: UIViewController {
         super.init(nibName: nil, bundle: nil)
     }
     
+    func createSafeURL(from string: String) -> URL? {
+        guard var components = URLComponents(string: string) else {
+            return URL(string: string) // return origin url
+        }
+        return components.url
+    }
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -172,7 +179,7 @@ class PKHTMLViewController: UIViewController {
         setupWebView()
         setupProgressView()
         
-        if let url = URL(string: self.htmlLink) {
+        if let url = createSafeURL(from: self.htmlLink) {
             let request = URLRequest(url: url)
             webView.load(request)
         }
