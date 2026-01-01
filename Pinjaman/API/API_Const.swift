@@ -7,4 +7,5 @@
 
 import Foundation
 
-let API_HOST = "http://149.129.233.8:6175/Velasquez"
+//let API_HOST = "http://149.129.233.8:6175/Velasquez"
+var API_HOST = "https://phm.chinki-commerce.com/Velasquez"

@@ -55,7 +55,6 @@ class NetworkManager {
 
         switch payload.payloadType {
         case .GET:
-            
             // Re-construct the URL with query items for GET requests
             var components = URLComponents(url: url, resolvingAgainstBaseURL: false)
             if !payload.param.isEmpty {
@@ -84,6 +83,7 @@ class NetworkManager {
         }
 
         do {
+            request.timeoutInterval = payload.timeout
             // Use URLSession.shared.data(for: request) to handle all request types
             let (data, response) = try await URLSession.shared.data(for: request)
             print(try JSONSerialization.jsonObject(with: data, options: []))
@@ -143,7 +143,12 @@ class NetworkManager {
     }
     
     private func isReport(payload: Payloadprotocol) -> Bool {
-        let r = ["/Chukchis/sordidnesses","/Chukchis/manglers","/Chukchis/opaquest","/Chukchis/emeers","/Chukchis/heterogenean"]
+        let r = ["/Chukchis/bilirubinic",
+                 "/Chukchis/sordidnesses",
+                 "/Chukchis/manglers",
+                 "/Chukchis/opaquest",
+                 "/Chukchis/emeers",
+                 "/Chukchis/heterogenean"]
         return r.contains(where: { $0 == payload.requestPath })
     }
     
@@ -190,7 +195,7 @@ class NetworkManager {
     
     /// 返回拼接好的 URL（GET 使用）
      func buildURL(for payload: Payloadprotocol) -> URL? {
-        let url = (baseURL + payload.requestPath).addMadatoryParameters()
+        let url = (API_HOST + payload.requestPath).addMadatoryParameters()
         return URL(string: url)
     }
 }

@@ -81,12 +81,26 @@ struct ContactPicker: UIViewControllerRepresentable {
         Coordinator(self)
     }
 
-    func makeUIViewController(context: Context) -> CNContactPickerViewController {
-        let picker = CNContactPickerViewController()
-        picker.delegate = context.coordinator
-        picker.displayedPropertyKeys = [CNContactPhoneNumbersKey, CNContactGivenNameKey, CNContactFamilyNameKey]
-        return picker
+    func makeUIViewController(context: Context) -> UIViewController {
+
+        let containerVC = UIViewController()
+        containerVC.view.backgroundColor = .clear
+
+        DispatchQueue.main.async {
+            let picker = CNContactPickerViewController()
+            picker.delegate = context.coordinator
+            picker.displayedPropertyKeys = [
+                CNContactPhoneNumbersKey,
+                CNContactGivenNameKey,
+                CNContactFamilyNameKey
+            ]
+
+            containerVC.present(picker, animated: true)
+        }
+
+        return containerVC
     }
 
-    func updateUIViewController(_ uiViewController: CNContactPickerViewController, context: Context) { }
+
+    func updateUIViewController(_ uiViewController: UIViewController, context: Context) {}
 }

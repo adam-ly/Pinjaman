@@ -40,7 +40,10 @@ struct AuthenticateCityItem: View {
             .foregroundColor(item.dynastes.count > 0 ? commonTextColor : secondaryTextColor)
             .cornerRadius(6)
             .onTapGesture {
-                onTap?()
+                hideKeyboard()
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3, execute: {
+                    self.onTap?()
+                })
             }
         }
         .padding(.horizontal, 16)

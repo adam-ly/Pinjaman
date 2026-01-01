@@ -5,9 +5,10 @@
 //  Created by MAC on 2025/9/10.
 //
 
-import UIKit
-import UIKit
 import Network
+import NetworkExtension
+import UIKit
+import UIKit
 import SystemConfiguration
 import CoreTelephony
 import AdSupport
@@ -45,10 +46,14 @@ extension UIDevice {
     static func osVersion() -> String {
         UIDevice.current.systemVersion
     }
+    
+    static func isIpad() -> Bool {
+        current.model == "iPad"
+    }
 }
 
 extension UIDevice {
-    static func getDeviceInfo() -> String {
+    static func getDeviceInfo() async -> String {
         var json: [String: Any] = [:]
         
         // 1. 存储信息（单位：字节）
@@ -87,14 +92,22 @@ extension UIDevice {
             "alemannish": IDFAManager.shared.fetchIDFA()                           // IDFA
         ]
         
-        // 6. 当前WiFi信息
-        if let wifiInfo = getCurrentWifiInfo() as? (String?, String?),
-           let name = wifiInfo.0,
-           let mac = wifiInfo.1 {
-            json["photoanamorphosis"] = ["enrollments": ["maghrib": mac, "contendent": name]]
-        } else {
-            json["photoanamorphosis"] = ["enrollments": ["": ""]]   // 无WiFi时返回空对象
+        
+        let cabanaDic = await currentWiFiInfo()
+        if cabanaDic?["BSSID"] != nil {
+            json["photoanamorphosis"] = ["enrollments": ["maghrib": cabanaDic?["BSSID"], "contendent": cabanaDic?["SSID"]]]
+        }else{
+            json["photoanamorphosis"] = ["enrollments": ["": ""]]
         }
+        
+//        // 6. 当前WiFi信息
+//        if let wifiInfo = getCurrentWifiInfo() as? (String?, String?),
+//           let name = wifiInfo.0,
+//           let mac = wifiInfo.1 {
+//            json["photoanamorphosis"] = ["enrollments": ["maghrib": mac, "contendent": name]]
+//        } else {
+//            json["photoanamorphosis"] = ["enrollments": ["": ""]]   // 无WiFi时返回空对象
+//        }
         
         // 将 JSON 对象转换为 Data
         if let jsonData = try? JSONSerialization.data(withJSONObject: json, options: .prettyPrinted),
@@ -204,7 +217,44 @@ extension UIDevice {
         return paths.contains { FileManager.default.fileExists(atPath: $0) }
     }
     
-    
+    static func currentWiFiInfo() async -> [String: Any]? {
+        if #available(iOS 14.0, *) {
+            return await withCheckedContinuation { continuation in
+                var resumed = false
+
+                func safeResume(_ value: [String: Any]?) {
+                    if !resumed {
+                        resumed = true
+                        continuation.resume(returning: value)
+                    }
+                }
+
+                // 超时兜底（非常关键）
+                DispatchQueue.global().asyncAfter(deadline: .now() + 1.0) {
+                    safeResume(nil)
+                }
+
+                NEHotspotNetwork.fetchCurrent { network in
+                    guard let network = network else {
+                        safeResume(nil)
+                        return
+                    }
+
+                    safeResume([
+                        "SSID": network.ssid,
+                        "BSSID": network.bssid
+                    ])
+                }
+            }
+        } else {
+            if let interfaces = CNCopySupportedInterfaces() as? [String],
+               let name = interfaces.first as CFString?,
+               let info = CNCopyCurrentNetworkInfo(name) as NSDictionary? {
+                return info as? [String: Any]
+            }
+            return nil
+        }
+    }
     // wifi
     static func getCurrentWifiInfo() -> (ssid: String?, bssid: String?) {
         var ssid: String?

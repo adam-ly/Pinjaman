@@ -73,6 +73,7 @@ enum LocalizeContent {
     case agreement // 勾选协议
     case productAgreement // 产品
     case cancellationAgreement // 注销
+    case networkError //
     
     // Alert
     case networkDenyTitle
@@ -202,6 +203,8 @@ enum LocalizeContent {
             return isEnglish() ? "Please read and agree to the loan agreement carefully" : "Harap baca dan setujui perjanjian pinjaman dengan saksama."
         case .cancellationAgreement: // 注销
             return isEnglish() ? "Please read and agree to the above content" : "Silakan baca dan setuju dengan hal di atas."
+        case .networkError: 
+            return isEnglish() ? "Network Error" : "Kesalahan Jaringan"
             
             // alert
         case .networkDenyTitle:
@@ -235,6 +238,6 @@ enum LocalizeContent {
     
     
     private func isEnglish() -> Bool {
-        return AppSettings.shared.configModal?.filesniff == 1
+        return (AppSettings.shared.configModal?.filesniff ?? 1) == 1
     }
 }

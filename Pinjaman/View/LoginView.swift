@@ -16,8 +16,8 @@ struct LoginView: View {
     @State private var agree = true
     @State private var toastMessage: String = ""
     @Binding var isPresented: Bool
-    @FocusState private var isPhoneNumberFocused: Bool
-    @FocusState private var isCodeNumberFocused: Bool
+    @State private var isPhoneNumberFocused: Bool = false
+    @State private var isCodeNumberFocused: Bool = false
     // 追蹤倒計時是否正在進行
     @State private var isCountingDown = false
     // 倒計時的總時間（秒）
@@ -55,64 +55,11 @@ struct LoginView: View {
                 self.keyboardHeight = 0
             }
         }
-        .onAppear {
+        .onAppear {        
             isPhoneNumberFocused = true
+            appSeting.adressManager.startUpdatingLocation()
         }
     }
-    
-//    var contentView: some View {
-//        ZStack(alignment: .bottom) {
-//            ZStack(alignment: .topTrailing) {
-//                ZStack(alignment: .topLeading) {
-//                    Image("login_background")
-//                        .resizable(resizingMode: .stretch)
-//                        .aspectRatio(contentMode: .fit)
-//                        .edgesIgnoringSafeArea(.bottom)
-//                        .background(Color.clear)
-//                        .frame(maxWidth: .infinity)
-//                    Text(LocalizeContent.loginTitle.text())
-//                        .font(.system(size: 24, weight: .bold))
-//                        .foregroundColor(.white)
-//                        .padding(.leading, 50)
-//                        .padding(.top, 10)
-//                }
-//                
-//                Button {
-//                    closePage()
-//                } label: {
-//                    Image("login_close")
-//                }
-//                .padding(.trailing, 10)
-//                .padding(.top, -10)
-//            }
-//            .padding(.bottom, keyboardHeight)
-//            .onTapGesture {
-//                isPhoneNumberFocused = false
-//                isCodeNumberFocused = false
-//            }
-//            
-//            
-//            // 内容区域
-//            VStack(alignment: .center, spacing: 20) {
-//                Spacer()
-//                titleArea
-//                contentArea
-//                    .padding(.horizontal, 20)
-//                    .onTapGesture {
-//                        hideKeyboard()
-//                    }
-//                
-//                PrimaryButton(title: LocalizeContent.loginButton.text()) {
-//                    onPrecheckLogin()
-//                }
-//                .padding(.horizontal, 60)
-//            }
-//            .frame(maxWidth: .infinity, maxHeight: .infinity)
-//            .padding(.bottom, 40 + keyboardHeight)
-//            .ignoresSafeArea(.keyboard, edges: .bottom) // 讓視圖忽略鍵盤安全區
-//        }
-//        .ignoresSafeArea()
-//    }
     
     var contentView: some View {
         ZStack(alignment: .bottom) {
@@ -125,6 +72,8 @@ struct LoginView: View {
                     contentArea
                         .padding(.horizontal, 20)
                         .onTapGesture {
+                            isPhoneNumberFocused = false
+                            isCodeNumberFocused = false
                             hideKeyboard()
                         }
                     
@@ -137,7 +86,6 @@ struct LoginView: View {
                 .ignoresSafeArea(.keyboard, edges: .bottom) // 讓視圖忽略鍵盤安全區
                 .background(
                     LinearGradient(colors: [certifyColor,linkTextColor,], startPoint: .bottomLeading, endPoint: .topTrailing)
-//                        .cornerRadius(20)
                         .roundedWhiteBorder(cornerRadius: 20)
                         .onTapGesture {
                             resigunResponse()
@@ -152,7 +100,6 @@ struct LoginView: View {
                                 .padding(.horizontal,20)
                                 .padding(.vertical, 10)
                                 .background(primaryColor)
-//                                .cornerRadius(8)
                                 .roundedWhiteBorder(cornerRadius: 8)
                            
                             Spacer()
@@ -203,20 +150,22 @@ struct LoginView: View {
                         Text(LocalizeContent.originCode.text())
                         Divider().frame(height: 50)
                         GeometryReader { proxy in
-                            TextField(LocalizeContent.phonenumberPlaceholder.text(), text: $phoneNumber) { editing in
-                                if editing {
-                                    if editing {
+                            CustomTextField(
+                                placeholder: LocalizeContent.phonenumberPlaceholder.text(),
+                                text: $phoneNumber,
+                                isFocused: $isPhoneNumberFocused,
+                                keyboardType: .numberPad,
+                                onEditingChanged: { isEditing in
+                                    if isEditing {
                                         textFieldBottom = UIScreen.main.bounds.size.height - proxy.frame(in: .global).maxY
                                     }
                                 }
-                            }
+                            )
                             .padding(.horizontal, 15)
                             .padding(.vertical, 12)
                             .foregroundColor(.black)
                             .accentColor(.black)
                             .tint(linkTextColor)
-                            .keyboardType(.numberPad)
-                            .focused($isPhoneNumberFocused)
                         }
                     }
                     .frame(height: 50)
@@ -232,20 +181,23 @@ struct LoginView: View {
                         .foregroundColor(.black)
                     HStack {
                         GeometryReader { proxy in
-                            TextField(LocalizeContent.verifyCode.text(), text: $password) { editing in
-                                if editing {
-                                    textFieldBottom = UIScreen.main.bounds.size.height - proxy.frame(in: .global).maxY
+                            CustomTextField(
+                                placeholder: LocalizeContent.verifyCode.text(),
+                                text: $password,
+                                isFocused: $isCodeNumberFocused,
+                                keyboardType: .numberPad,
+                                onEditingChanged: { isEditing in
+                                    if isEditing {
+                                        textFieldBottom = UIScreen.main.bounds.size.height - proxy.frame(in: .global).maxY
+                                    }
                                 }
-                            }
+                            )
                             .tint(linkTextColor)
                             .padding(.horizontal, 15)
                             .padding(.vertical, 12)
                             .cornerRadius(10)
                             .foregroundColor(.black)
                             .accentColor(.black)
-                            .keyboardType(.numberPad)
-                            .ignoresSafeArea(.keyboard, edges: .bottom)
-                            .focused($isCodeNumberFocused)
                         }
                         countDownButton
                     }
@@ -361,13 +313,6 @@ struct LoginView: View {
         timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     }
     
-    // 登录功能
-    private func performLogin() {
-        // 这里添加登录逻辑
-        print("Phone: \("phoneNumber"), Password: \("password")")
-        // 实际项目中这里会调用API进行登录验证
-    }
-    
     private func closePage(callBack: (()->Void)? = nil) {
         isCodeNumberFocused = false
         isPhoneNumberFocused = false
@@ -378,7 +323,7 @@ struct LoginView: View {
     }
     
     private func onOpenPrivacyLink() {
-        guard let link = appSeting.configModal?.undefense,
+        guard let link = appSeting.configModal?.undefense ?? "https://chinki-commerce.com/PHPrivacy.html" as? String,
               let url = URL(string: link) else {
             return
         }
@@ -424,6 +369,7 @@ extension LoginView {
                 let getCode: PJResponse<EmptyModel> = try await NetworkManager.shared.request(payLoad)
                 showLoading = false
                 ToastManager.shared.show(getCode.diarmuid)
+                isCodeNumberFocused = true
             } catch {
                 showLoading = false
                 stopCountdown()
@@ -440,6 +386,7 @@ extension LoginView {
                 let getCode: PJResponse<EmptyModel> = try await NetworkManager.shared.request(payLoad)
                 showLoading = false
                 ToastManager.shared.show(getCode.diarmuid)
+                isCodeNumberFocused = true
             } catch {
                 showLoading = false
             }
@@ -466,29 +413,29 @@ extension LoginView {
 }
 
 
-struct LoginView_Previews: PreviewProvider {
-    static var previews: some View {
-        // 示例：展示如何在主视图中使用登录视图（Present模式）
-        MainPreviewView()
-    }
-}
+//struct LoginView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        // 示例：展示如何在主视图中使用登录视图（Present模式）
+//        MainPreviewView()
+//    }
+//}
 
-// 预览用的主视图
-struct MainPreviewView: View {
-    @State private var showLoginView = false
-    
-    var body: some View {
-        ZStack {
-            Color.green.edgesIgnoringSafeArea(.all)
-            Button {
-                withAnimation(.spring(duration: 0.3)) {
-                    showLoginView = true
-                }
-            } label: {
-                Text("Login Button")
-            }
-        }.overlay {
-            LoginView(isPresented: $showLoginView)
-        }
-    }
-}
+//// 预览用的主视图
+//struct MainPreviewView: View {
+//    @State private var showLoginView = false
+//    
+//    var body: some View {
+//        ZStack {
+//            Color.green.edgesIgnoringSafeArea(.all)
+//            Button {
+//                withAnimation(.spring(duration: 0.3)) {
+//                    showLoginView = true
+//                }
+//            } label: {
+//                Text("Login Button")
+//            }
+//        }.overlay {
+//            LoginView(isPresented: $showLoginView)
+//        }
+//    }
+//}

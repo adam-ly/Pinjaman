@@ -102,6 +102,6 @@ extension String  {
 
 extension String {
     func toLang() -> String {
-        return AppSettings.shared.configModal?.filesniff == 1 ? self : (self + "_yn")
+        return (AppSettings.shared.configModal?.filesniff ?? 1) == 1 ? self : (self + "_yn")
     }
 }

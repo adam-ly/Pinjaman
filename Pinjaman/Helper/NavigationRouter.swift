@@ -168,8 +168,9 @@ final class NavigationRouter: ObservableObject {
             destination: element.destination,
             rootView: destinationView.environmentObject(self)
         )
-        hostingController.title = " " // 你可以在这里设置标题，或在 SwiftUI 视图内部用 .navigationTitle
-        
+        hostingController.title = "" // 你可以在这里设置标题，或在 SwiftUI 视图内部用 .navigationTitle
+//        navigationController.setNavigationBarHidden(navigationController.viewControllers.count <= 1, animated: true)
+        print("nav hidden = \(navigationController.viewControllers.count <= 1)")
         // 3. 使用 UINavigationController 可靠的 push 方法
         navigationController.pushViewController(hostingController, animated: true)
     }
@@ -180,6 +181,9 @@ final class NavigationRouter: ObservableObject {
     
     func popToRoot() {
         navigationController?.popToRootViewController(animated: true)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: {
+            self.navigationController?.setNavigationBarHidden(true, animated: true)
+        })
     }
     
     // --- ！！！新增的方法！！！ ---
@@ -256,6 +260,7 @@ struct NavigationHost: UIViewControllerRepresentable {
                                   willShow viewController: UIViewController,
                                   animated: Bool) {
             let isRootView = (viewController == navigationController.viewControllers.first)
+            print("isRootView = \(isRootView)")
             navigationController.setNavigationBarHidden(isRootView, animated: animated)
         }
     }

@@ -17,6 +17,11 @@ protocol Payloadprotocol {
     var payloadType: PayloadType { get }
     var param: [String: Any] { get }
     var requestPath: String { get }
+    var timeout: TimeInterval { get }
+}
+
+extension Payloadprotocol {
+    var timeout: TimeInterval { 30 }
 }
 
 /// 登录初始化
@@ -28,6 +33,8 @@ struct LoginInitializationPayload: Payloadprotocol {
     let bilirubinic: String
     let chartographical: Int
     let puboiliac: Int
+    
+    var timeout: TimeInterval { 10 }
     
     var param: [String: Any] {
         return [

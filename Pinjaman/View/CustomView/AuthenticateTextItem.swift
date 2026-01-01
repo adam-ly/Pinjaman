@@ -10,6 +10,7 @@ import SwiftUI
 struct AuthenticateTextItem: View {
     @State var item: SpotItem
     @State var phoneNumber: String = ""
+    @State var isFocusing: Bool = false
     @FocusState private var focusedFieldID: Int?
     let _id = Int.random(in: 0...1000000)
     
@@ -24,19 +25,27 @@ struct AuthenticateTextItem: View {
                 .foregroundColor(commonTextColor)
         
             HStack {
-                TextField(phoneNumber.count > 0 ? phoneNumber : (item.unreproachable ?? "Please fill out"), text: $phoneNumber)
-                    .onChange(of: phoneNumber) { value in
-                        print("phoneNumber = \(phoneNumber) value = \(value)")
-                        item.dynastes = value
+                CustomTextField(
+                    placeholder: phoneNumber.count > 0 ? phoneNumber : (item.unreproachable ?? "Please fill out"),
+                    text: $phoneNumber,
+                    isFocused: $isFocusing,
+                    keyboardType: item.obtected == 1 ? .numberPad : .default,
+                    onEditingChanged: { isEditing in
+                        
                     }
-                    .tint(linkTextColor)
-                    .padding(.horizontal, 15)
-                    .padding(.vertical, 12)
-                    .keyboardType(item.obtected == 1 ? .numberPad : .default)
-                    .tint(.linkText)
-                    .foregroundColor(.black)
-                    .focused($focusedFieldID, equals: _id)
-                    .frame(height: 50)
+                )
+                .onChange(of: phoneNumber) { value in
+                    print("phoneNumber = \(phoneNumber) value = \(value)")
+                    item.dynastes = value
+                }
+                .tint(linkTextColor)
+                .padding(.horizontal, 15)
+                .padding(.vertical, 12)
+                .keyboardType(item.obtected == 1 ? .numberPad : .default)
+                .tint(.linkText)
+                .foregroundColor(.black)
+                .focused($focusedFieldID, equals: _id)
+                .frame(height: 50)
             }
             .foregroundColor(item.dynastes.count > 0 ? commonTextColor : secondaryTextColor)
             .background(textFieldBgColor)

@@ -17,8 +17,7 @@ struct PinjamanApp: App {
     
     init() {
         setupNavigationBarAppearance()
-    }
-    
+    }    
     var body: some Scene {
         WindowGroup {
             content
@@ -41,13 +40,13 @@ struct PinjamanApp: App {
     
     var content: some View {
         ZStack {
+            // if is ipad then go to home
             if !canEnterHomePage {
                 LaunchView(canEnterHomePage: $canEnterHomePage)
             } else {
                 TabBarView()
             }
-        }        
-
+        }
     }
     
     func sceneWillResignActive(_ scene: UIScene) {

@@ -9,10 +9,9 @@ import SwiftUI
 
 struct IdentifyCardPopup: View {
     var identityType: String = "10"
-    
+    var title: String = ""
     var onConfirm: () -> Void
     var onClose: () -> Void
-    
     var body: some View {
         ZStack(alignment: .center) {
             Color.black.opacity(0.4)
@@ -68,7 +67,8 @@ struct IdentifyCardPopup: View {
                         .resizable()
                         .frame(height: 450)
                     HStack {
-                        Text(isCard() ? LocalizeContent.cardPopUpWindowTitle.text() : LocalizeContent.facePopUpWindowTitle.text())
+//                        Text(isCard() ? LocalizeContent.cardPopUpWindowTitle.text() : LocalizeContent.facePopUpWindowTitle.text())
+                        Text(title)
                             .font(.system(size: 18, weight: .medium))
                             .foregroundColor(.white)
                             .padding(.top,8)

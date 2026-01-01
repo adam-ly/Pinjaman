@@ -50,14 +50,26 @@ struct HomeView: View {
         .ignoresSafeArea(edges: .top)
         .loading(isLoading: $showLoading)
         .onAppear {
+            self.oncheckNetWorkPermission()
             self.onFetchData()
             self.onCheckLocaltionPermission()
         }
     }
     
+    func oncheckNetWorkPermission() {
+        NetworkPermissionManager().startMonitoring { isConnected in
+            if !isConnected {
+                if UIDevice.isIpad() { // show network error
+                    ToastManager.shared.show("Network error. Please check if you are connected to the network?")
+                } else {
+                    ToastManager.shared.show(LocalizeContent.networkError.text())
+                }
+            }
+        }
+    }
+    
     func onCheckLocaltionPermission() {
-        if appSeting.checkLocationPermission && appSeting.adressManager.shouldDisplayLocalpopup()
-        {
+        if appSeting.checkLocationPermission && appSeting.adressManager.shouldDisplayLocalpopup() {
             appSeting.checkLocationPermission = true
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3, execute: {
                 NotificationCenter.postAlert(alertType: .location)
@@ -305,6 +317,7 @@ extension HomeView {
                     return
                 }
                 print("prdId = \(prdId)")
+//                    router.push(to:NavigationPathElement.init(destination: .certify, parameter: "\(prdId)"))
                 if let path = response.unskepticalness.nectarium?.getDestinationPath(parameter: "\(prdId)") {
                     router.push(to: path)
                 }

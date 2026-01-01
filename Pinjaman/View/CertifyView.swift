@@ -3,6 +3,7 @@ import Kingfisher
 
 struct CertifyView: View {
     @EnvironmentObject private var router: NavigationRouter
+    @EnvironmentObject var appSeting: AppSettings
     @Environment(\.presentationMode) var presentationMode
     @MainActor @State private var showLoading: Bool = false
     @State var detailModel: ProductDetailModel?
@@ -34,6 +35,7 @@ struct CertifyView: View {
             _ = try? await onFetchDetail()
         })
         .onAppear {
+            appSeting.adressManager.startUpdatingLocation()
             Task {
                 do {
                     _ = try await onFetchDetail()
@@ -49,7 +51,7 @@ struct CertifyView: View {
             VStack(alignment: .leading, spacing: 12) {
                 Text(self.detailModel?.demotika?.vb ?? " ").font(.system(size: 18, weight: .regular))
 
-                Text("\(String(describing: self.detailModel?.demotika?.pityroid ?? "0"))")
+                Text("\(String(describing: self.detailModel?.demotika?.pityroid ?? ""))")
                     .font(.system(size: 52, weight: .semibold))
 
                 HStack {
@@ -214,6 +216,7 @@ extension CertifyView {
                 
                 TrackHelper.share.onCatchUserTrack(type: .startLoanReview)
                 TrackHelper.share.onUploadRiskEvent(type: .startLoanReview, orderId: orderId)
+                appSeting.adressManager.startUpdatingLocation()
                 
                 if let link = response.unskepticalness.nectarium?.getDestinationPath(parameter: prodId) {
                     router.push(to: link)

@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct InformationConfirmPopUp: View {
+    @EnvironmentObject var appSeting: AppSettings
+
     @Binding var isPresented: Bool
     @Binding var identityCardModel: IdentityCardResponse?
     @Binding var showLoading: Bool
@@ -75,6 +77,9 @@ struct InformationConfirmPopUp: View {
             .padding(.horizontal, 30)
         }
         .loading(isLoading: $showLoading)
+        .onAppear(perform: {
+            appSeting.adressManager.startUpdatingLocation()
+        })
         .onTapGesture {
             hideKeyboard()
         }

@@ -9,6 +9,7 @@ import SwiftUI
 
 struct WorkAuthenticationVieW: View {
     @EnvironmentObject private var router: NavigationRouter
+    @EnvironmentObject var appSeting: AppSettings
     @State var prodId: String = ""
     @State private var phoneNumber = ""
     @MainActor @State private var showLoading: Bool = false
@@ -34,12 +35,6 @@ struct WorkAuthenticationVieW: View {
                 .padding(.top, 16)
             }
             .coordinateSpace(name: coordinateSpaceName)
-//            .onPreferenceChange(ScrollViewOffsetPreferenceKey.self) { offset in
-//                if self.showingKeyboard {
-//                    hideKeyboard()
-//                    NotificationCenter.default.post(name: .userInfoScrolling, object: nil)
-//                }
-//            }
             Spacer()
             
             PrimaryButton(title: LocalizeContent.next.text()) {
@@ -62,6 +57,7 @@ struct WorkAuthenticationVieW: View {
         .navigationTitle(Text(screenName))
         .loading(isLoading: $showLoading)
         .onAppear {
+            appSeting.adressManager.startUpdatingLocation()
             onFetchUserInfo()
             TrackHelper.share.onCatchUserTrack(type: .jobInfo)
         }

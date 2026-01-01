@@ -9,6 +9,7 @@ import SwiftUI
 
 struct UserInfomationView: View {
     @EnvironmentObject private var router: NavigationRouter
+    @EnvironmentObject var appSeting: AppSettings
     @State var prodId: String = ""
     @State private var phoneNumber = ""
     @MainActor @State private var showLoading: Bool = false
@@ -33,12 +34,6 @@ struct UserInfomationView: View {
                 .padding(.top, 16)
             }
             .coordinateSpace(name: coordinateSpaceName)
-//            .onPreferenceChange(ScrollViewOffsetPreferenceKey.self) { offset in
-//                if self.showingKeyboard {
-//                    hideKeyboard()
-//                    NotificationCenter.default.post(name: .userInfoScrolling, object: nil)
-//                }
-//            }
             
             Spacer()
             
@@ -59,6 +54,7 @@ struct UserInfomationView: View {
         .navigationTitle(Text(screenName))
         .loading(isLoading: $showLoading)
         .onAppear {
+            appSeting.adressManager.startUpdatingLocation()
             onFetchUserInfo()
             TrackHelper.share.onCatchUserTrack(type: .personalInfo)
         }.onTapGesture(perform: {
@@ -134,8 +130,6 @@ extension UserInfomationView {
                 let homeResponse: PJResponse<EmptyModel> = try await NetworkManager.shared.request(payload)
                 print("sucess")
                 TrackHelper.share.onUploadRiskEvent(type: .personalInfo, orderId: "")
-//                showLoading = false
-//                onFetchUserInfo()
                 onCheckNext()
             } catch {
                 showLoading = false

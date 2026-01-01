@@ -37,6 +37,7 @@ struct ContactsView: View {
         .loading(isLoading: $showLoading)
         .onAppear {
             onFetchContactInfo()
+            appSeting.adressManager.startUpdatingLocation()
             TrackHelper.share.onCatchUserTrack(type: .contact)
         }
     }

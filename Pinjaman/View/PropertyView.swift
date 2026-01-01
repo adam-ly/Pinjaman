@@ -10,6 +10,7 @@ import SwiftUI
 
 struct PropertyView: View {
     @EnvironmentObject private var router: NavigationRouter
+    @EnvironmentObject var appSeting: AppSettings
     @MainActor @State private var showLoading: Bool = false
     @State var prodId: String = ""
     @State private var phoneNumber = ""
@@ -60,6 +61,7 @@ struct PropertyView: View {
         .loading(isLoading: $showLoading)
         .onAppear {
             onFetchBankInfo()
+            appSeting.adressManager.startUpdatingLocation()
             TrackHelper.share.onCatchUserTrack(type: .bindCard)
         }
     }

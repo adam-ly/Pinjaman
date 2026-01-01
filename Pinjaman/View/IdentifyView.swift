@@ -46,6 +46,7 @@ struct IdentifyView: View {
         .padding(0)
         .loading(isLoading: $showLoading)
         .onAppear {
+            appSeting.adressManager.startUpdatingLocation()
             onFetchUserIdentityInfo()
             onRelocation()
         }
@@ -65,7 +66,9 @@ struct IdentifyView: View {
                 })
                 .ignoresSafeArea()
             } else if showConfirmPopUp { //
-                IdentifyCardPopup(identityType: identityType) {
+                let title = identityType == "11" ? (self.identityModel?.aladfar?.sofars ?? "") :
+                (self.identityModel?.aladfar?.polymyarii ?? "")
+                IdentifyCardPopup(identityType: identityType, title: title) {
                     showConfirmPopUp = false
                     if identityType == "10" {
                         onOpenCameraForFace()

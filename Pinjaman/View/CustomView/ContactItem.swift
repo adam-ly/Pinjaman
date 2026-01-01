@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ContactItem: View {
-    @StateObject private var contactsManager = ContactsManager()
+    @StateObject var contactsManager = ContactsManager()
     @State private var selectedContact: (name: String, number: String)?
 
     @State var item: UserContactItem

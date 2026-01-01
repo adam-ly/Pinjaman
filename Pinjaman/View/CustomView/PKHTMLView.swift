@@ -10,6 +10,7 @@ import WebKit
 import StoreKit
 
 struct PKWebView: View {
+    @EnvironmentObject var appSeting: AppSettings
     let htmlLink: String
     let shouldGoBackToHome: Bool
     @State var title: String = ""
@@ -20,6 +21,9 @@ struct PKWebView: View {
                    shouldGoBackToHome: shouldGoBackToHome)
             .navigationTitle(title)
             .customBackButton(action: .popToRoot)
+            .onAppear {
+                appSeting.adressManager.startUpdatingLocation()
+            }
     }
 }
 

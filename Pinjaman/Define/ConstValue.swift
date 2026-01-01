@@ -7,6 +7,4 @@
 
 import Foundation
 
-let Domain = "http://149.129.233.8:6175/Velasquez"
-
 

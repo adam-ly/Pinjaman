@@ -52,7 +52,6 @@ class AddressManager: NSObject, CLLocationManagerDelegate {
     
     func shouldDisplayLocalpopup() -> Bool {
         let status = authorizationStatus()
-        print("shouldDisplayLocalpopup - status = \(status)")
         return status != .authorizedWhenInUse && status != .authorizedAlways && status != .notDetermined
     }
     
